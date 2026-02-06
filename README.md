@@ -94,10 +94,12 @@ PASS if: |agent_value - ground_truth| ≤ tolerance
 
 ### Tolerance by Task Type
 
-| Task Type | Method | Tolerance | Rationale |
-|-----------|--------|-----------|-----------|
-| **Analytical** | pwr, pwrss, pmsampsize | ±5% | Closed-form formulas (deterministic) |
-| **Simulation** | simr Monte Carlo | ±8-10% | Inherent variance from random sampling |
+| Task Type | Method | Ideal Tolerance | Rationale |
+|-----------|--------|-----------------|-----------|
+| **Analytical** | pwr, pwrss, pmsampsize | **±0-2** (exact match) | Closed-form formulas = identical results |
+| **Simulation** | simr Monte Carlo | **±3-5%** | Monte Carlo SE ≈ 2% with nsim=500 |
+
+For deterministic tasks, correct R code produces the **exact same answer**. For simulation tasks, tolerance accounts for random sampling variance.
 
 Each task specifies its tolerance in `tasks.json`. See [Evaluation Methodology](docs/evaluation-methodology.md) for details.
 

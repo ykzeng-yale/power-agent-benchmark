@@ -144,20 +144,24 @@ The LLM judge provides diagnostic scores (for debugging, not pass/fail):
 
 ## Tolerance Reference
 
-### Analytical Tasks (Deterministic)
+### Ideal Tolerances
 
-| Tier | Typical Tasks | Tolerance |
-|------|--------------|-----------|
-| Tier 1 | pwr.t.test, pwr.anova.test | ±5-10 subjects |
-| Tier 2 | pwrss.z.logreg, Schoenfeld | ±5% |
-| Tier 4 | pmsampsize, pmvalsampsize | ±5% |
+| Task Type | Method | Ideal Tolerance | Rationale |
+|-----------|--------|-----------------|-----------|
+| **Deterministic** | pwr, pwrss, pmsampsize | **±0-2** | Same formula = same answer |
+| **Simulation** | simr Monte Carlo | **±3-5%** | Monte Carlo SE ≈ 2% |
 
-### Simulation Tasks (Stochastic)
+### Current Task Tolerances
 
-| Tier | Typical Tasks | Tolerance |
-|------|--------------|-----------|
-| Tier 3 | simr powerSim | ±15-20 subjects or ±8% power |
-| Tier 2 | lmer simulation | ±8% power |
+The `tasks.json` files contain tolerances set during development. Some are more generous:
+
+| Tier | Current | Ideal |
+|------|---------|-------|
+| Tier 1 (pwr) | 5-35% | ±1-2 subjects |
+| Tier 3 (simr) | 8-35% | ±5% power |
+| Tier 4 (pmsampsize) | 5% | ±1-2 subjects |
+
+For strict evaluation, see [Evaluation Methodology](../docs/evaluation-methodology.md).
 
 ### Task-Level Override
 
