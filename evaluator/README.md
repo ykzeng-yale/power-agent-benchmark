@@ -1,129 +1,242 @@
 # Evaluator
 
-LLM-as-Judge evaluation system for the Power Agent Benchmark.
+Evaluation tools for the Power Agent Benchmark.
 
-## Overview
+## Evaluation Philosophy
 
-The evaluator uses Claude Sonnet as an automated judge to score agent responses against ground truth values. This approach provides nuanced assessment across multiple criteria while maintaining strict tolerance checking for numerical accuracy.
+**Value-based evaluation is primary.** The benchmark evaluates agents by direct numerical comparison:
 
-## Components
+```
+PASS if: |agent_value - ground_truth| ≤ tolerance
+```
 
-| File | Description |
-|------|-------------|
-| `llm-judge.js` | Core LLM evaluation logic |
-| `scoring.js` | Aggregate statistics and reporting |
-| `config.js` | Configuration settings |
+LLM-based evaluation is optional, primarily useful for extracting values from unstructured output.
 
-## Evaluation Criteria
+## Two Evaluators
 
-The evaluator scores responses on 5 criteria (100 points total):
+| Evaluator | Use Case | Dependencies |
+|-----------|----------|--------------|
+| `simple-evaluator.js` | **Primary** - Direct value comparison | None (pure JS) |
+| `llm-judge.js` | Optional - Value extraction + diagnostics | Anthropic API |
 
-| Criterion | Weight | Description |
-|-----------|--------|-------------|
-| Template Selection | 20 | Correct analysis type identified |
-| Parameter Extraction | 20 | Parameters correctly parsed from question |
-| Calculation Accuracy | 30 | Final answer within tolerance |
-| Code Quality | 15 | R code would execute correctly |
-| Interpretation | 15 | Results properly explained |
+## 1. Simple Evaluator (Recommended)
 
-## Tolerance Checking
+The simple evaluator performs direct numerical comparison with tolerance checking.
 
-Strict tolerance enforcement is applied after LLM scoring:
+### Input Format
 
-1. **Within Tolerance**: If the agent's value is within the specified tolerance, `calculationAccuracy` is boosted to full score (30/30)
-2. **Outside Tolerance**: If outside tolerance, `calculationAccuracy` is forced to 0 and the task fails regardless of total score
+Provide a JSON file with agent answers:
 
-### Tolerance Philosophy
+```json
+{
+  "t1-ttest-001": 64,
+  "t1-ttest-002": 86,
+  "t1-paired-001": 34,
+  "t2-linreg-001": 122
+}
+```
 
-- Tolerances are set per-task in `tasks.json`
-- Typical tolerances: ±5% for analytical methods, ±8-10% for simulation
-- The evaluator extracts the agent's final recommended value (not intermediate calculations)
+Or with structured output:
 
-## Usage
+```json
+{
+  "t1-ttest-001": { "value": 64, "unit": "per_group" },
+  "t1-ttest-002": { "value": 86, "unit": "per_group" }
+}
+```
 
-### Evaluate a Single Task
+### Usage
+
+```bash
+node evaluator/simple-evaluator.js my-results.json
+```
+
+### Output
+
+```
+======================================================================
+POWER AGENT BENCHMARK - VALUE-BASED EVALUATION
+======================================================================
+
+FAILED TASKS:
+----------------------------------------------------------------------
+  t2-linreg-001: agent=114, expected=122 (diff=8, tol=6)
+
+SUMMARY:
+----------------------------------------------------------------------
+  Total tasks:  106
+  Passed:       105 (99.1%)
+  Failed:       1
+  Missing:      0
+
+BY TIER:
+----------------------------------------------------------------------
+  tier1: 30/30 (100.0%)
+  tier2: 34/35 (97.1%)
+  tier3: 20/20 (100.0%)
+  tier4: 21/21 (100.0%)
+
+======================================================================
+OVERALL PASS RATE: 99.1%
+======================================================================
+```
+
+### Generating Agent Results
+
+Your agent should output values that can be collected into the results JSON:
+
+```javascript
+// Example: Running your agent on all tasks
+const results = {};
+for (const task of tasks) {
+  const answer = await myAgent.analyze(task.question);
+  results[task.id] = answer.sample_size;  // Extract the numerical answer
+}
+await writeFile('my-results.json', JSON.stringify(results, null, 2));
+```
+
+## 2. LLM-as-Judge (Optional)
+
+Use this when your agent produces unstructured natural language output.
+
+### When to Use
+
+- Agent output is free-text without structured values
+- You need diagnostic scoring to debug failures
+- You want justifications for why tasks failed
+
+### When NOT to Use
+
+- Agent outputs structured JSON (use simple evaluator)
+- You want fast, reproducible evaluation
+- You want to avoid API costs
+
+### Usage
 
 ```javascript
 import { evaluateTask } from './llm-judge.js';
 
 const result = await evaluateTask(task, agentResponse);
-console.log(result.passed);      // true/false
-console.log(result.totalScore);  // 0-100
-console.log(result.agentValue);  // Extracted value
+console.log(result.passed);       // true/false
+console.log(result.agentValue);   // Extracted value
+console.log(result.totalScore);   // 0-100 diagnostic score
 ```
 
-### Batch Evaluation
+### Environment
 
-```javascript
-import { batchEvaluate } from './llm-judge.js';
-
-const results = await batchEvaluate(tasks, responses, {
-  concurrency: 3,
-  useQuickFilter: true
-});
+```bash
+export ANTHROPIC_API_KEY="your-key"
 ```
 
-### Generate Statistics
+### Diagnostic Scoring
 
-```javascript
-import { computeAggregateStats, generateSummary } from './scoring.js';
+The LLM judge provides diagnostic scores (for debugging, not pass/fail):
 
-const stats = computeAggregateStats(evaluations);
-const report = generateSummary(stats);
-console.log(report);
-```
+| Criterion | Points | Purpose |
+|-----------|--------|---------|
+| Template Selection | 20 | Did agent identify correct method? |
+| Parameter Extraction | 20 | Were parameters parsed correctly? |
+| Calculation Accuracy | 30 | Is value within tolerance? |
+| Code Quality | 15 | Would R code execute? |
+| Interpretation | 15 | Are recommendations clear? |
 
-## Configuration
+**Important**: Pass/fail is determined by tolerance check, not total score.
 
-Key settings in `config.js`:
+## Tolerance Reference
 
-```javascript
-{
-  llmJudge: {
-    model: 'claude-sonnet-4-20250514',
-    maxTokens: 4000,
-    temperature: 0,  // Deterministic scoring
-  },
-  scoring: {
-    passingThreshold: 70,  // Minimum score to pass
-  }
-}
-```
+### Analytical Tasks (Deterministic)
 
-## Environment Variables
+| Tier | Typical Tasks | Tolerance |
+|------|--------------|-----------|
+| Tier 1 | pwr.t.test, pwr.anova.test | ±5-10 subjects |
+| Tier 2 | pwrss.z.logreg, Schoenfeld | ±5% |
+| Tier 4 | pmsampsize, pmvalsampsize | ±5% |
 
-- `ANTHROPIC_API_KEY`: Required for LLM judge calls
+### Simulation Tasks (Stochastic)
 
-## Output Format
+| Tier | Typical Tasks | Tolerance |
+|------|--------------|-----------|
+| Tier 3 | simr powerSim | ±15-20 subjects or ±8% power |
+| Tier 2 | lmer simulation | ±8% power |
 
-Each evaluation returns:
+### Task-Level Override
+
+Each task in `tasks.json` specifies its own tolerance:
 
 ```json
 {
-  "taskId": "t1-ttest-001",
-  "passed": true,
-  "totalScore": 95,
-  "scores": {
-    "templateSelection": 20,
-    "parameterExtraction": 20,
-    "calculationAccuracy": 30,
-    "codeQuality": 15,
-    "interpretationQuality": 10
-  },
-  "agentValue": 64,
-  "withinTolerance": true,
-  "justification": "..."
+  "id": "t3-simr-002",
+  "ground_truth": { "subjects_per_group": 58 },
+  "tolerance": { "sample_size": 20 }
 }
 ```
 
-## Customization
+The task-level tolerance takes precedence.
 
-To use a different LLM as judge:
+## Integrating with Your Agent
 
-1. Modify `config.js` with new model settings
-2. Update the API call in `llm-judge.js`
-3. Ensure the prompt format is compatible
+### Option A: Structured Output (Best)
 
-## Dependencies
+Configure your agent to output structured results:
 
-- `@anthropic-ai/sdk`: Anthropic API client
+```python
+# In your agent
+result = {
+    "sample_size_per_group": 64,
+    "total_sample_size": 128,
+    "method": "pwr.t.test",
+    "r_code": "pwr.t.test(d=0.5, power=0.8, sig.level=0.05)"
+}
+print(json.dumps(result))
+```
+
+Then evaluate with simple-evaluator:
+
+```bash
+node evaluator/simple-evaluator.js my-results.json
+```
+
+### Option B: Regex Extraction
+
+Extract from free-text using patterns:
+
+```javascript
+function extractValue(text) {
+  const patterns = [
+    /sample\s*size[:\s]+(\d+)/i,
+    /(\d+)\s*(?:per\s*group|subjects)/i,
+    /n\s*[=:]\s*(\d+)/i
+  ];
+  for (const p of patterns) {
+    const m = text.match(p);
+    if (m) return parseFloat(m[1]);
+  }
+  return null;
+}
+```
+
+### Option C: LLM Extraction (Fallback)
+
+Use llm-judge.js when pattern matching fails:
+
+```javascript
+import { evaluateTask } from './llm-judge.js';
+const result = await evaluateTask(task, agentOutput);
+const value = result.agentValue;
+```
+
+## Files
+
+| File | Description |
+|------|-------------|
+| `simple-evaluator.js` | **Primary** - Value-based evaluation |
+| `llm-judge.js` | Optional - LLM extraction + diagnostics |
+| `scoring.js` | Aggregate statistics |
+| `config.js` | Configuration settings |
+
+## Best Practices
+
+1. **Use structured output** - Avoid LLM extraction overhead
+2. **Run simple-evaluator first** - It's fast and deterministic
+3. **Use LLM-judge for debugging** - When you need to understand failures
+4. **Report pass rate** - The primary metric is % tasks within tolerance

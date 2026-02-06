@@ -1,233 +1,334 @@
 # Evaluation Methodology
 
-This document describes how the Power Agent Benchmark evaluates agent responses using an LLM-as-judge approach with strict tolerance enforcement.
+This document describes how agent responses are evaluated against the Power Agent Benchmark ground truths.
 
-## Overview
+## Core Principle: Value-Based Evaluation
 
-The evaluation system uses a two-stage approach:
-1. **LLM Scoring**: Claude Sonnet evaluates responses across 5 criteria
-2. **Tolerance Enforcement**: Strict numerical validation against ground truth
+**The primary evaluation method is direct numerical comparison** of the agent's output against the ground truth value with appropriate tolerance.
 
-## Scoring Criteria
+This benchmark follows the same evaluation paradigm as MATH, GSM8K, and other quantitative benchmarks:
+- Extract the agent's numerical answer
+- Compare it to the ground truth
+- Apply method-appropriate tolerance
+- Report pass/fail based on tolerance match
 
-Tasks are evaluated on **5 criteria** totaling **100 points**:
+## Primary Evaluation Method
 
-### 1. Template Selection (20 points)
+### Direct Value Comparison
 
-Evaluates whether the agent identified the correct statistical method.
+```python
+def evaluate_task(agent_value, ground_truth, tolerance):
+    """Primary evaluation: direct numerical comparison."""
+    if agent_value is None:
+        return {"passed": False, "error": "No value extracted"}
 
-| Score | Criteria |
-|-------|----------|
-| 20 | Exact template match (e.g., correctly identifies "two-sample t-test") |
-| 10 | Acceptable alternative method that would produce valid results |
-| 0 | Incorrect method that would lead to wrong conclusions |
+    diff = abs(agent_value - ground_truth)
+    within_tolerance = diff <= tolerance
 
-**Examples:**
-- Full credit: Using `pwr.t.test` for a two-sample t-test question
-- Partial: Using simulation when analytical formula exists
-- Zero: Using ANOVA for a two-group comparison without justification
+    return {
+        "passed": within_tolerance,
+        "agent_value": agent_value,
+        "ground_truth": ground_truth,
+        "tolerance": tolerance,
+        "difference": diff,
+        "percent_error": 100 * diff / ground_truth
+    }
+```
 
-### 2. Parameter Extraction (20 points)
+### Expected Agent Output
 
-Evaluates whether the agent correctly extracted parameters from the natural language prompt.
+We **strongly encourage** agent developers to produce structured output that includes the final numerical answer explicitly:
 
-| Score | Criteria |
-|-------|----------|
-| 20 | All parameters correctly identified and interpreted |
-| 15 | Most parameters correct, minor errors in interpretation |
-| 10 | Key parameters identified but some errors |
-| 5 | Significant parameter errors affecting calculation |
-| 0 | Critical parameters missing or wrong |
+```json
+{
+  "sample_size_per_group": 64,
+  "total_sample_size": 128,
+  "power": 0.80,
+  "method": "pwr.t.test"
+}
+```
 
-**Key parameters by task type:**
-- t-tests: effect size (d), power, alpha, one/two-sided
-- Regression: R², number of predictors, alpha
-- Mixed models: ICC, number of measurements, design effect
-- Survival: hazard ratio, event rate, follow-up time
+Or at minimum, a clearly extractable final answer:
 
-### 3. Calculation Accuracy (30 points)
+```
+FINAL ANSWER: 64 subjects per group
+```
 
-The **primary metric** - evaluates whether the numerical answer is within tolerance.
+This enables direct automated evaluation without requiring LLM interpretation.
 
-| Score | Criteria |
-|-------|----------|
-| 30 | Within specified tolerance of ground truth |
-| 20-25 | Close but slightly outside tolerance |
-| 10-15 | Reasonably close, correct order of magnitude |
-| 0-10 | Far from correct answer |
+## Tolerance Specifications
 
-**Critical rule**: If the answer is outside tolerance, this criterion is forced to 0 during post-evaluation validation, regardless of LLM scoring.
+### Two Categories of Tasks
 
-### 4. Code Quality (15 points)
+| Category | Method | Tolerance | Rationale |
+|----------|--------|-----------|-----------|
+| **Analytical (Deterministic)** | Closed-form formulas (pwr, pwrss, pmsampsize) | ±5% or small absolute | Results are mathematically exact |
+| **Simulation-Based (Stochastic)** | Monte Carlo (simr) | ±8-10% | Inherent variance from random sampling |
 
-Evaluates the R code produced by the agent.
+### Why These Tolerances?
 
-| Score | Criteria |
-|-------|----------|
-| 15 | Correct, executable code using appropriate package |
-| 10 | Code would execute with minor fixes |
-| 5 | Conceptually correct but has errors |
-| 0 | Code would not produce correct results |
+**Analytical tasks** (Tier 1, most of Tier 2, Tier 4):
+- R packages use exact formulas
+- Minor differences from rounding, ceiling/floor choices
+- Example: `pwr.t.test` returns 63.77, agent reports 64 (ceiling) → **PASS**
 
-**Note**: Any valid R package is acceptable (pwr, pwrss, simr, etc.). The agent is NOT penalized for choosing a different package than the reference code.
+**Simulation tasks** (Tier 3 simr, some Tier 2):
+- Monte Carlo results vary by random seed
+- With 500 simulations: SE ≈ 0.02 for power around 0.80
+- 95% CI width ≈ ±4%, so ±8% tolerance is appropriate
+- Example: Ground truth power = 0.80, agent reports 0.77 → **PASS** (within ±0.08)
 
-### 5. Interpretation Quality (15 points)
+### Tolerance by Tier
 
-Evaluates the agent's explanation and recommendations.
+| Tier | Task Types | Typical Tolerance |
+|------|-----------|-------------------|
+| Tier 1 | pwr package (t-test, ANOVA, etc.) | ±5 subjects or 5% |
+| Tier 2 | pwrss, mixed models, survival | ±5-10% (per-task) |
+| Tier 3 | simr simulation | ±8% power, ±15% sample size |
+| Tier 4 | pmsampsize, pmvalsampsize | ±5% (deterministic) |
 
-| Score | Criteria |
-|-------|----------|
-| 15 | Clear recommendations with assumptions stated |
-| 10 | Good interpretation, some assumptions missing |
-| 5 | Basic interpretation without context |
-| 0 | Missing or misleading interpretation |
+### Task-Level Tolerance Override
 
-**Good interpretation includes:**
-- Clear statement of the sample size/power result
-- Key assumptions (e.g., normality, equal variances)
-- Practical recommendations (e.g., "recruit N per group")
-- Acknowledgment of limitations when relevant
+Each task specifies its own tolerance in `tasks.json`:
 
-## Pass/Fail Determination
+```json
+{
+  "id": "t3-simr-002",
+  "ground_truth": {
+    "subjects_per_group": 58
+  },
+  "tolerance": {
+    "sample_size": 20,  // ±20 for simulation task
+    "power": 0.08       // ±8% for power estimates
+  }
+}
+```
 
-A task is **PASSED** if:
-1. Total score ≥ 70 points, AND
-2. Calculation accuracy > 0 (i.e., within tolerance)
+**The task-level tolerance takes precedence** over tier defaults.
 
-Both conditions must be met. An agent could score 75 on other criteria but still fail if the numerical answer is outside tolerance.
+## Value Extraction
 
-## Tolerance Philosophy
+### Option 1: Structured Output (Recommended)
 
-### Why Tolerances?
+If your agent produces structured output (JSON, key-value pairs), extract directly:
 
-Different R packages and methods can produce slightly different results:
-- `pwr.t.test` vs custom simulation
-- Analytical formulas vs Monte Carlo estimation
-- Different variance approximations in pwrss
+```javascript
+function extractFromStructured(output) {
+  if (output.sample_size_per_group) return output.sample_size_per_group;
+  if (output.sample_size) return output.sample_size;
+  if (output.power) return output.power;
+  return null;
+}
+```
 
-Tolerances allow for these valid variations while catching actual errors.
+### Option 2: Pattern Matching
 
-### Tolerance Calibration
+For free-text output, use regex patterns:
 
-| Task Type | Tolerance Approach | Rationale |
-|-----------|-------------------|-----------|
-| Analytical (pwr) | ±5 or 5% | Formulas are deterministic |
-| Variance-corrected (pwrss) | ±5% | Minor formula differences |
-| Simulation (simr) | ±8-10% | Monte Carlo variance |
-| Prediction models | ±5% | pmsampsize is deterministic |
+```javascript
+function extractFromText(text) {
+  const patterns = [
+    /sample\s*size[:\s]+(\d+)/i,
+    /(\d+)\s*(?:per\s*group|subjects|participants)/i,
+    /n\s*[=:]\s*(\d+)/i,
+    /power[:\s]+(\d+\.?\d*)/i
+  ];
 
-### Tolerance Application
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) return parseFloat(match[1]);
+  }
+  return null;
+}
+```
 
-The evaluation uses the **larger** of:
-- The absolute tolerance specified in the task
-- 5% of the ground truth value
+### Option 3: LLM-Based Extraction (Fallback)
 
-This prevents overly strict tolerances for large sample sizes.
+For complex unstructured output where pattern matching fails, an LLM can extract the final value:
 
-Example:
-- Ground truth: 1000, Tolerance: 50
-- Actual tolerance used: max(50, 0.05 × 1000) = 50
-- Acceptable range: 950-1050
+```javascript
+const extractionPrompt = `
+Extract the FINAL numerical answer from this power analysis response.
+Return ONLY a JSON object: {"value": <number>, "unit": "<per-group|total|power>"}
 
-## LLM-as-Judge Implementation
+Response:
+${agentOutput}
+`;
+```
 
-### Model Configuration
+**Note**: This is a fallback option. We encourage structured output to avoid LLM interpretation overhead and potential extraction errors.
 
-- **Model**: Claude Sonnet 4
-- **Temperature**: 0 (deterministic)
-- **Max tokens**: 4000
+## Simple Evaluator Implementation
 
-### Prompt Structure
+Here is a minimal evaluator that implements direct value comparison:
 
-The evaluation prompt includes:
-1. Task question
-2. Expected template and ground truth
-3. Tolerance ranges
-4. Agent's complete response
-5. Scoring rubric
+```javascript
+// simple-evaluator.js
+import { readFile } from 'fs/promises';
 
-### Value Extraction
+async function evaluateTier(tier, getAgentAnswer) {
+  const data = JSON.parse(await readFile(`tasks/tier${tier}/tasks.json`));
+  const results = [];
 
-The LLM extracts:
-- `agentValue`: The final numerical answer
-- `agentValueUnit`: Unit type (per-group, total, etc.)
-- `sampleSizeError`: Error magnitude if wrong
-- Score for each criterion
+  for (const task of data.tasks) {
+    // Get agent's answer for this task
+    const agentValue = await getAgentAnswer(task.question);
 
-### Post-Evaluation Validation
+    // Get ground truth and tolerance
+    const gt = task.ground_truth;
+    const tol = task.tolerance;
 
-After LLM scoring:
-1. Extract `agentValue` from LLM response
-2. Compare to ground truth with tolerance
-3. If within tolerance: ensure calculation accuracy ≥ 30
-4. If outside tolerance: force calculation accuracy = 0
-5. Recalculate total score
-6. Apply pass/fail determination
+    // Determine expected value
+    const expected = gt.sample_size_per_group || gt.sample_size ||
+                     gt.subjects_per_group || gt.subjects || gt.power;
+    const tolerance = tol.sample_size || tol.power || expected * 0.05;
+
+    // Direct comparison
+    const diff = Math.abs(agentValue - expected);
+    const passed = diff <= tolerance;
+
+    results.push({
+      id: task.id,
+      passed,
+      agentValue,
+      expected,
+      tolerance,
+      diff,
+      percentError: (100 * diff / expected).toFixed(1)
+    });
+  }
+
+  return results;
+}
+```
+
+## Pass/Fail Criteria
+
+A task is **PASSED** if and only if:
+
+```
+|agent_value - ground_truth| ≤ tolerance
+```
+
+That's it. No subjective judgment, no partial credit for "close" answers.
+
+### Aggregate Metrics
+
+| Metric | Definition |
+|--------|------------|
+| **Pass Rate** | Tasks passed / Total tasks |
+| **Tier Pass Rate** | Per-tier pass counts |
+| **Mean Absolute Error** | Average |agent - GT| across tasks |
+| **Mean Percent Error** | Average % error across tasks |
+
+## Validation Examples
+
+### Example 1: Analytical Task (Tier 1)
+
+```
+Task: t1-ttest-001
+Question: "...Cohen's d = 0.5, power = 0.80, alpha = 0.05..."
+Ground Truth: 64 per group
+Tolerance: ±10
+
+Agent Answer: 64
+Difference: 0
+Result: PASS ✓
+```
+
+### Example 2: Simulation Task (Tier 3)
+
+```
+Task: t3-simr-002
+Question: "...GLMM binary, OR=2.0, nsim=200..."
+Ground Truth: 58 per group
+Tolerance: ±20 (wider for simulation)
+
+Agent Answer: 65
+Difference: 7
+Result: PASS ✓ (7 ≤ 20)
+```
+
+### Example 3: Outside Tolerance
+
+```
+Task: t2-linreg-001
+Question: "...5 predictors, R²=0.10, power=0.80..."
+Ground Truth: 122
+Tolerance: ±6
+
+Agent Answer: 114
+Difference: 8
+Result: FAIL ✗ (8 > 6)
+```
+
+## LLM-as-Judge: Optional Enhancement
+
+The repository includes an LLM-based evaluator (`evaluator/llm-judge.js`) that provides:
+
+1. **Value extraction** from unstructured output
+2. **Diagnostic scoring** across 5 criteria (for debugging)
+3. **Justification** for failures
+
+However, this is **supplementary** to the core value-based evaluation:
+
+| Component | Purpose | Required? |
+|-----------|---------|-----------|
+| Value extraction | Parse agent output | Only if unstructured |
+| Tolerance check | Pass/fail decision | **Yes (core metric)** |
+| 5-criteria scoring | Diagnostic/debugging | No (optional) |
+| LLM justification | Explain failures | No (optional) |
+
+### When to Use LLM-as-Judge
+
+- Your agent produces natural language output without structured answers
+- You want diagnostic breakdown of where the agent went wrong
+- You're debugging agent behavior
+
+### When NOT to Use LLM-as-Judge
+
+- Your agent outputs structured JSON with numerical values
+- You only need pass/fail metrics
+- You want faster evaluation (no API calls)
+- You want fully reproducible evaluation (no LLM variance)
+
+## Recommended Evaluation Pipeline
+
+```
+1. Agent produces response to task question
+                    ↓
+2. Extract numerical value (structured > regex > LLM fallback)
+                    ↓
+3. Compare to ground_truth with tolerance
+                    ↓
+4. Record pass/fail
+                    ↓
+5. (Optional) Run LLM-as-judge for diagnostics on failures
+```
 
 ## Reproducibility
 
-### Deterministic Evaluation
+### Deterministic Components
 
-- Temperature = 0 ensures consistent LLM responses
-- Same input produces same scores
-- Tolerance checks are exact numerical comparisons
+- Ground truths are R-validated and fixed
+- Tolerances are specified in task JSON
+- Value comparison is exact arithmetic
+- Results are reproducible across runs
 
-### Logging
+### Stochastic Components (if used)
 
-All evaluations are logged with:
-- Full agent response
-- LLM evaluation response
-- Extracted values
-- Score breakdown
-- Pass/fail status
-- Timestamp
+- LLM-based extraction may vary slightly
+- Simulation-based agent answers vary by seed
+- These are handled by appropriate tolerances
 
-## Edge Cases
+## Summary
 
-### Multiple Valid Answers
+| Aspect | Approach |
+|--------|----------|
+| **Primary evaluation** | Direct numerical comparison with tolerance |
+| **Agent output** | Structured format strongly encouraged |
+| **Tolerances** | Tight for analytical, wider for simulation |
+| **Pass criterion** | Within tolerance (no partial credit) |
+| **LLM-as-judge** | Optional, for extraction and diagnostics |
 
-Some questions may have multiple valid interpretations:
-- Per-group vs total sample size
-- Different rounding conventions
-- Alternative valid methods
-
-The evaluator handles this through:
-- Unit-aware value extraction
-- Tolerance ranges that accommodate valid variations
-- LLM judgment for method acceptability
-
-### Missing Output
-
-If the agent fails to produce a numerical answer:
-- Calculation accuracy = 0
-- Task automatically fails
-- Other criteria still evaluated for diagnostic purposes
-
-### Extreme Values
-
-Values that are orders of magnitude off:
-- Likely parameter misinterpretation
-- Zero score for calculation accuracy
-- Partial credit possible for correct methodology
-
-## Tier-Specific Considerations
-
-### Tier 1 (Basic)
-- Tight tolerances (deterministic formulas)
-- High expectation for exact answers
-- Any valid R package acceptable
-
-### Tier 2 (Regression/Models)
-- Moderate tolerances
-- Method-dependent ranges
-- Some tasks have multiple valid approaches
-
-### Tier 3 (Advanced/Simulation)
-- Wider tolerances for simr tasks
-- Accept simulation variance
-- Focus on correct setup over exact number
-
-### Tier 4 (Prediction Models)
-- pmsampsize outputs are deterministic
-- Tight tolerances appropriate
-- Watch for criteria confusion (which constraint binds)
+The benchmark is designed to be simple, objective, and reproducible. If your agent can produce the right number within tolerance, it passes.

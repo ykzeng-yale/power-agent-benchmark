@@ -74,30 +74,40 @@ node runner/run-benchmark.js --tier=2 --verbose
 
 ### Evaluate Results
 
-Results are automatically evaluated using the LLM-as-judge approach and saved to `results/`.
+Results are evaluated by **direct numerical comparison** against ground truth values.
 
 ## Evaluation Methodology
 
-Tasks are evaluated on **5 criteria** totaling **100 points**:
+### Primary Method: Value-Based Comparison
 
-| Criterion | Weight | Description |
-|-----------|--------|-------------|
-| Template Selection | 20 | Correct statistical method identified for the question |
-| Parameter Extraction | 20 | Parameters correctly parsed from the natural language prompt |
-| Calculation Accuracy | 30 | Sample size/power within specified tolerance |
-| Code Quality | 15 | Valid, executable R code produced |
-| Interpretation | 15 | Clear, actionable recommendations with assumptions stated |
+The benchmark uses **direct value comparison** — the same paradigm as MATH, GSM8K, and other quantitative benchmarks:
 
-**Passing threshold**: 70 points with non-zero calculation accuracy.
+```
+PASS if: |agent_value - ground_truth| ≤ tolerance
+```
 
-### Tolerance Philosophy
+**We strongly encourage** agents to output structured results for direct evaluation:
 
-- Tolerances are designed to accept valid numerical differences between R packages
-- Simulation-based tasks (Tier 3 simr) have wider tolerances (±8% power) for Monte Carlo variance
-- All tolerances are tight enough to catch real computational errors
-- Task-specific tolerances override tier defaults when needed
+```json
+{"sample_size_per_group": 64, "power": 0.80}
+```
 
-See [Evaluation Methodology](docs/evaluation-methodology.md) for detailed scoring rubrics.
+### Tolerance by Task Type
+
+| Task Type | Method | Tolerance | Rationale |
+|-----------|--------|-----------|-----------|
+| **Analytical** | pwr, pwrss, pmsampsize | ±5% | Closed-form formulas (deterministic) |
+| **Simulation** | simr Monte Carlo | ±8-10% | Inherent variance from random sampling |
+
+Each task specifies its tolerance in `tasks.json`. See [Evaluation Methodology](docs/evaluation-methodology.md) for details.
+
+### LLM-as-Judge (Optional)
+
+An LLM-based evaluator is provided for:
+- Extracting values from unstructured agent output
+- Diagnostic scoring when debugging agent behavior
+
+However, **value-based comparison is the primary evaluation method**. LLM judgment is supplementary.
 
 ## Leaderboard
 
