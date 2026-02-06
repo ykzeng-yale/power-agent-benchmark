@@ -115,7 +115,9 @@ However, **value-based comparison is the primary evaluation method**. LLM judgme
 
 | Rank | Model | Tier 1 | Tier 2 | Tier 3 | Tier 4 | Overall | Date |
 |------|-------|--------|--------|--------|--------|---------|------|
-| 1 | Power Agent (Claude Opus 4.5) | 100% | 100% | 100% | 100% | **100%** | 2025-02-06 |
+| 1 | Power Agent (Claude Opus 4.5) | 100% | 100% | 100% | 95.2% | **99.1%** | 2025-02-06 |
+
+*105/106 tasks pass. Single intermittent failure on t4-binary-003 (rare outcome prediction).*
 
 *Submit your results via [pull request](leaderboard/README.md).*
 
