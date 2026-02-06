@@ -1,0 +1,775 @@
+{
+  "tier": 2,
+  "name": "Regression & Models",
+  "description": "Power analysis for regression models, mixed effects, and survival analysis",
+  "tasks": [
+    {
+      "id": "t2-linreg-001",
+      "template": "linear_regression",
+      "difficulty": "basic",
+      "question": "Multiple regression with 5 predictors. Want to detect R\u00b2 = 0.10 with 80% power at alpha = 0.05. How many subjects needed?",
+      "expected_template": "linear_regression",
+      "ground_truth": {
+        "sample_size": 122,
+        "r2": 0.1,
+        "predictors": 5,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 6,
+        "power": 0.03
+      },
+      "source": "pwr package CRAN vignette (pwr.f2.test)",
+      "reference_code": "library(pwr)\nf2 <- 0.10 / (1 - 0.10)  # f2 = 0.111\npwr.f2.test(u = 5, f2 = f2, sig.level = 0.05, power = 0.80)\n# v = 115.1, n = v + u + 1 = 122"
+    },
+    {
+      "id": "t2-linreg-002",
+      "template": "linear_regression",
+      "difficulty": "basic",
+      "question": "Simple linear regression (1 predictor) to detect R\u00b2 = 0.15 with 90% power, alpha = 0.05. Sample size?",
+      "expected_template": "linear_regression",
+      "ground_truth": {
+        "sample_size": 62,
+        "r2": 0.15,
+        "predictors": 1,
+        "power": 0.9,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 4,
+        "power": 0.03
+      },
+      "source": "pwr package CRAN vignette (pwr.f2.test)",
+      "reference_code": "library(pwr)\nf2 <- 0.15 / (1 - 0.15)  # f2 = 0.176\npwr.f2.test(u = 1, f2 = f2, sig.level = 0.05, power = 0.90)\n# v = 59.5, n = v + u + 1 = 62"
+    },
+    {
+      "id": "t2-linreg-003",
+      "template": "linear_regression",
+      "difficulty": "intermediate",
+      "question": "Testing if adding 3 predictors to a model with 4 existing predictors improves R² from 0.20 to 0.30. Need 80% power, alpha = 0.05. Use pwr.f2.test() with the incremental f² = ΔR²/(1−R²_full) and numerator df u = number of new predictors. Total sample size is n = v + p_total + 1 where p_total = total predictors in full model (existing + new).",
+      "expected_template": "linear_regression",
+      "ground_truth": {
+        "sample_size": 85,
+        "r2_full": 0.3,
+        "r2_reduced": 0.2,
+        "predictors_tested": 3,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 4,
+        "power": 0.03
+      },
+      "source": "pwr package CRAN vignette (pwr.f2.test)",
+      "reference_code": "library(pwr)\n# f2 for incremental R² test\nf2 <- (0.30 - 0.20) / (1 - 0.30)  # f2 = 0.143\nresult <- pwr.f2.test(u = 3, f2 = f2, sig.level = 0.05, power = 0.80)\n# v = 76.3, p_total = 4 + 3 = 7, n = v + p_total + 1 = 76.3 + 7 + 1 = 85"
+    },
+    {
+      "id": "t2-linreg-004",
+      "template": "linear_regression",
+      "difficulty": "intermediate",
+      "question": "Regression model with 10 predictors. Want to detect medium effect (f\u00b2 = 0.15) with 85% power, alpha = 0.01.",
+      "expected_template": "linear_regression",
+      "ground_truth": {
+        "sample_size": 174,
+        "f2": 0.15,
+        "predictors": 10,
+        "power": 0.85,
+        "alpha": 0.01
+      },
+      "tolerance": {
+        "sample_size": 9,
+        "power": 0.03
+      },
+      "source": "pwr package CRAN vignette (pwr.f2.test)",
+      "reference_code": "library(pwr)\npwr.f2.test(u = 10, f2 = 0.15, sig.level = 0.01, power = 0.85)\n# v = 162.5, n = v + u + 1 = 174"
+    },
+    {
+      "id": "t2-linreg-005",
+      "template": "linear_regression",
+      "difficulty": "advanced",
+      "question": "Testing single coefficient in 8-predictor model. The coefficient should explain additional 5% variance (partial f\u00b2 = 0.053). Need 90% power, alpha = 0.05.",
+      "expected_template": "linear_regression",
+      "ground_truth": {
+        "sample_size": 208,
+        "f2": 0.053,
+        "predictors": 8,
+        "power": 0.9,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 10,
+        "power": 0.03
+      },
+      "source": "pwr package CRAN vignette (pwr.f2.test)",
+      "reference_code": "library(pwr)\n# partial f\u00b2 = partial R\u00b2 / (1 - full R\u00b2)\n# If partial R\u00b2 = 0.05, with full R\u00b2 \u2248 0.20, f\u00b2 \u2248 0.053\npwr.f2.test(u = 1, f2 = 0.053, sig.level = 0.05, power = 0.90)\n# v = 198.3, n = v + 8 + 1 = 208"
+    },
+    {
+      "id": "t2-linreg-006",
+      "template": "linear_regression",
+      "difficulty": "advanced",
+      "question": "Large epidemiological study: 15 predictors, expecting small effect R\u00b2 = 0.05. Need 95% power with alpha = 0.01.",
+      "expected_template": "linear_regression",
+      "ground_truth": {
+        "sample_size": 688,
+        "r2": 0.05,
+        "predictors": 15,
+        "power": 0.95,
+        "alpha": 0.01
+      },
+      "tolerance": {
+        "sample_size": 34,
+        "power": 0.03
+      },
+      "source": "pwr package CRAN vignette (pwr.f2.test)",
+      "reference_code": "library(pwr)\nf2 <- 0.05 / (1 - 0.05)  # f2 = 0.0526\npwr.f2.test(u = 15, f2 = f2, sig.level = 0.01, power = 0.95)\n# v = 672, n = v + u + 1 = 688"
+    },
+    {
+      "id": "t2-logreg-001",
+      "template": "logistic_regression",
+      "difficulty": "basic",
+      "question": "Logistic regression: detect OR = 2.0 for a binary predictor with 50% prevalence. Outcome rate is 20% in unexposed. Need 80% power, alpha = 0.05.",
+      "expected_template": "logistic_regression",
+      "ground_truth": {
+        "sample_size": 347,
+        "odds_ratio": 2,
+        "p1": 0.2,
+        "p2": 0.333,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 17,
+        "power": 0.03
+      },
+      "source": "pwrss package CRAN documentation",
+      "reference_code": "library(pwrss)\n# p2 = OR * p1 / (1 + (OR-1)*p1) = 2*0.2/(1+0.2) = 0.333\npwrss.z.logreg(p0 = 0.20, p1 = 0.333, r2.other.x = 0, power = 0.80, alpha = 0.05, dist = 'binomial')\n# n = 347 (Demidenko variance-corrected method)"
+    },
+    {
+      "id": "t2-logreg-002",
+      "template": "logistic_regression",
+      "difficulty": "basic",
+      "question": "Case-control study: detect OR = 1.5 for continuous exposure (1 SD increase). Baseline risk 10%. Need 80% power, alpha = 0.05.",
+      "expected_template": "logistic_regression",
+      "ground_truth": {
+        "sample_size": 522,
+        "odds_ratio": 1.5,
+        "baseline_risk": 0.1,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 26,
+        "power": 0.03
+      },
+      "source": "pwrss (R-validated 2026-02-01)",
+      "reference_code": "library(pwrss)\npwrss.z.logreg(p0 = 0.10, p1 = 0.143, r2.other.x = 0, power = 0.80, alpha = 0.05, dist = 'normal')\n# n \u2248 565",
+      "reference_code_note": "pwrss.z.logreg(p0=0.10, p1=0.143, r2.other.x=0, dist='normal') gives N=522"
+    },
+    {
+      "id": "t2-logreg-003",
+      "template": "logistic_regression",
+      "difficulty": "intermediate",
+      "question": "Multivariable logistic regression with 5 covariates. The main predictor is continuous (normally distributed). Want to detect OR = 1.8 for this predictor while adjusting for confounders (R\u00b2 = 0.10 with other predictors). Baseline outcome 15%, power 80%, alpha 0.05. Use pwrss.z.logreg with dist=\"normal\".",
+      "expected_template": "logistic_regression",
+      "ground_truth": {
+        "sample_size": 204,
+        "odds_ratio": 1.8,
+        "baseline_risk": 0.15,
+        "r2_other": 0.1,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 10,
+        "power": 0.03
+      },
+      "source": "pwrss package CRAN documentation",
+      "reference_code": "library(pwrss)\n# p1 = OR*p0/(1+(OR-1)*p0) = 1.8*0.15/(1+0.8*0.15) = 0.241\npwrss.z.logreg(p0 = 0.15, p1 = 0.241, r2.other.x = 0.10, power = 0.80, alpha = 0.05)\n# n = 204 (Demidenko variance-corrected method)"
+    },
+    {
+      "id": "t2-logreg-004",
+      "template": "logistic_regression",
+      "difficulty": "intermediate",
+      "question": "Protective factor analysis: OR = 0.6 expected (protective). Binary predictor (50% prevalence). Baseline disease rate 25% in unexposed. Need 90% power, alpha = 0.05. Use pwrss.z.logreg with dist='binomial': p0=0.25, p1 = OR*p0/(1+(OR-1)*p0), r2.other.x=0. Report the total sample size N.",
+      "expected_template": "logistic_regression",
+      "ground_truth": {
+        "sample_size": 999,
+        "odds_ratio": 0.6,
+        "baseline_risk": 0.25,
+        "power": 0.9,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 50,
+        "power": 0.03
+      },
+      "source": "pwrss (R-validated 2026-01-28)",
+      "reference_code": "library(pwrss)\n# p1 = 0.6*0.25/(1+(0.6-1)*0.25) = 0.167\npwrss.z.logreg(p0=0.25, p1=0.167, r2.other.x=0, power=0.90, alpha=0.05, dist='binomial')\n# n = 999 (Demidenko variance-corrected, binomial distribution)"
+    },
+    {
+      "id": "t2-logreg-005",
+      "template": "logistic_regression",
+      "difficulty": "advanced",
+      "question": "Rare outcome (5% baseline risk in unexposed). Need to detect OR = 2.5 with 80% power, alpha = 0.05. The binary predictor has 30% prevalence. Use pwrss.z.logreg with p0=0.05, compute p1 from OR, and specify the predictor distribution as dist=list(dist='binomial', size=1, prob=0.3) to account for the 30% predictor prevalence. What is the total sample size N?",
+      "expected_template": "logistic_regression",
+      "ground_truth": {
+        "sample_size": 610,
+        "odds_ratio": 2.5,
+        "baseline_risk": 0.05,
+        "predictor_prevalence": 0.3,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 31,
+        "power": 0.03
+      },
+      "source": "pwrss package with 30% predictor prevalence (R-validated 2026-02-05)",
+      "reference_code": "library(pwrss)\n# p1 = 2.5*0.05/(1+1.5*0.05) = 0.116\n# Must specify 30% predictor prevalence (not default 50%)\npwrss.z.logreg(p0 = 0.05, p1 = 0.116, r2.other.x = 0, power = 0.80, alpha = 0.05,\n               dist = list(dist='binomial', size=1, prob=0.3))\n# n = 610 (with 30% predictor prevalence)"
+    },
+    {
+      "id": "t2-logreg-006",
+      "template": "logistic_regression",
+      "difficulty": "advanced",
+      "question": "Interaction in logistic regression with two binary predictors (each 50% prevalence, independent). Model: logit(p) = b0 + b1*X1 + b2*X2 + b3*X1*X2. Baseline (X1=0,X2=0) risk = 20%, main effect OR for each = 1.5, interaction OR = 2.0. To test the interaction coefficient b3: compute p_no_interaction (probability in X1=1,X2=1 cell under no interaction) and p_with_interaction (actual), then use pwrss.z.logreg(p0=p_no_interaction, p1=p_with_interaction, r2.other.x=0.15, power=0.80, alpha=0.05, dist='binomial'). What is the total sample size N?",
+      "expected_template": "logistic_regression",
+      "ground_truth": {
+        "sample_size": 319,
+        "interaction_or": 2,
+        "main_or": 1.5,
+        "baseline_risk": 0.2,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 16,
+        "power": 0.03
+      },
+      "source": "pwrss (R-validated 2026-02-01)",
+      "reference_code": "library(pwrss)\nb0 <- log(0.20/0.80); b1 <- log(1.5); b2 <- log(1.5); b3 <- log(2.0)\np00 <- 0.20; p10 <- 1/(1+exp(-(b0+b1))); p01 <- 1/(1+exp(-(b0+b2)))\np11 <- 1/(1+exp(-(b0+b1+b2+b3)))\np_no_int <- p10*p01/p00  # = 0.372\npwrss.z.logreg(p0=p_no_int, p1=p11, r2.other.x=0.15, power=0.80, alpha=0.05, dist='binomial')\n# n = 370",
+      "reference_code_note": "pwrss.z.logreg with p0=0.36, p1=0.529, r2.other.x=0.15 gives N=319"
+    },
+    {
+      "id": "t2-mixed-001",
+      "template": "mixed_effects_lmm",
+      "difficulty": "basic",
+      "question": "Longitudinal study with 4 repeated measures per subject. Want to detect effect size d = 0.5 between two groups. ICC = 0.5. Need 80% power, alpha = 0.05. Use the analytical VRF (Variance Reduction Factor) formula: compute base_n from pwr.t.test, then multiply by VRF = (1 + (m-1)*ICC)/m. Report the analytical result as your final answer.",
+      "expected_template": "mixed_effects_continuous",
+      "ground_truth": {
+        "subjects_per_group": 40,
+        "total_subjects": 80,
+        "measurements_per_subject": 4,
+        "effect_size_d": 0.5,
+        "icc": 0.5,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 4,
+        "power": 0.03
+      },
+      "source": "R simulation verification (2026-01-26)",
+      "reference_code": "# n_ind = 64/group (pwr.t.test, d=0.5)\n# DE = 1 + (4-1)*0.5 = 2.5; multiplier = 4/2.5 = 1.6\n# n_repeated = ceil(64/1.6) = 40/group\n# simr simulation (500 sims): n=38-40 gives 80% power\n# Previous GT of 80 was WRONG (gave 98% power)"
+    },
+    {
+      "id": "t2-mixed-002",
+      "template": "mixed_effects_lmm",
+      "difficulty": "basic",
+      "question": "Pre-post study (2 time points) comparing treatment vs control. Effect d = 0.4, ICC = 0.6. Power 80%, alpha 0.05. Subjects per group?",
+      "expected_template": "mixed_effects_continuous",
+      "ground_truth": {
+        "subjects_per_group": 80,
+        "total_subjects": 160,
+        "measurements_per_subject": 2,
+        "effect_size_d": 0.4,
+        "icc": 0.6,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 8,
+        "power": 0.03
+      },
+      "source": "R simulation verification (2026-01-26)",
+      "reference_code": "# R lmer simulation (1000 sims): n=80/grp gives 80.3% power\n# n=100/grp gives 87.4%, n=60/grp gives 68.4%\n# Analytical DE formula: t-test n=100, RM efficiency=0.8, n=80/grp\n# Both analytical and simulation confirm GT=80"
+    },
+    {
+      "id": "t2-mixed-003",
+      "template": "mixed_effects_lmm",
+      "difficulty": "intermediate",
+      "question": "Clinical trial: 6 monthly visits, detect d = 0.35 between arms. ICC = 0.4 for within-patient correlation (compound symmetry). Need 90% power, alpha = 0.05. Use the analytical VRF (Variance Reduction Factor) approach: first compute base n per group from pwr.t.test(d=0.35, power=0.90, sig.level=0.05), then apply the repeated-measures design effect VRF = (1 + (m-1)*ICC)/m where m = number of measurements. Final n per group = ceiling(base_n * VRF). Report the analytical result.",
+      "expected_template": "mixed_effects_continuous",
+      "ground_truth": {
+        "subjects_per_group": 87,
+        "total_subjects": 174,
+        "measurements_per_subject": 6,
+        "effect_size_d": 0.35,
+        "icc": 0.4,
+        "power": 0.9,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 9,
+        "power": 0.03
+      },
+      "source": "pwr package with design effect (R-validated 2026-01-29)",
+      "reference_code": "# Simple t-test: n=173/grp, DE = (1+(6-1)*0.4)/6 = 0.5\n# With RM efficiency: n = 173 * 0.5 = 87 per group"
+    },
+    {
+      "id": "t2-mixed-004",
+      "template": "mixed_effects_lmm",
+      "difficulty": "intermediate",
+      "question": "Nested design: patients within clinics. 10 clinics per arm, need to determine patients per clinic. Effect d = 0.3, ICC = 0.05. Power 80%, alpha 0.05.",
+      "expected_template": "mixed_effects_continuous",
+      "ground_truth": {
+        "clusters_per_arm": 10,
+        "patients_per_cluster": 150,
+        "total_patients": 3000,
+        "effect_size_d": 0.3,
+        "icc": 0.05,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 50,
+        "power": 0.08
+      },
+      "source": "simr package CRAN vignette",
+      "reference_code": "# Cluster design with ICC=0.05\n# Individual n needed: 176/arm for d=0.3, power=80%\n# Design effect at m patients: DE = 1 + (m-1)*0.05\n# At m=80: DE=4.95, effective n=800/4.95=162, power=76.7%\n# At m=150: DE=8.45, effective n=1500/8.45=178, power=80.5%\n# GT CORRECTED: 80 patients gives 76.7%, need ~150 for 80%"
+    },
+    {
+      "id": "t2-mixed-005",
+      "template": "mixed_effects_lmm",
+      "difficulty": "advanced",
+      "question": "Three-level model: measurements within patients within sites. 5 sites per arm, 15 patients per site, 3 measurements each. Variance components: total variance = 1.0, site variance = 0.02 (ICC_site = 0.02), patient variance = 0.50 (ICC_patient = 0.50), residual variance = 0.48. Treatment effect d = 0.4 (difference in means = 0.4 on the total SD = 1.0 scale). Use lme4+simr simulation (nsim = 500) with model y ~ treatment + (1|site/patient). What is the power at alpha = 0.05?",
+      "expected_template": "mixed_effects_continuous",
+      "ground_truth": {
+        "given_sites_per_arm": 5,
+        "given_patients_per_site": 15,
+        "given_measurements_per_patient": 3,
+        "given_total_patients": 150,
+        "effect_size_d": 0.4,
+        "site_icc": 0.02,
+        "patient_icc": 0.5,
+        "power": 0.58,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "power": 0.08
+      },
+      "source": "simr powerSim nsim=500 KR (R-validated 2026-02-05)",
+      "reference_code": "library(simr)\n# Three-level model: y ~ treatment + (1|site/patient)\n# sigma_site=sqrt(0.02), sigma_patient=sqrt(0.50), sigma_residual=sqrt(0.48)\n# fixef: intercept=0, treatment=0.4\n# simr nsim=500: power=58.4% (CI: 53.9%-62.8%)\n# With nsim=500: SE=0.022, results reliably in 0.53-0.63 range",
+      "reference_code_note": "simr with correct variance assignment: site=0.02, patient_within_site=0.50. Power=57-58% across seeds. CAUTION: makeLmer reorders VarCorr - must verify variance assignment matches specification."
+    },
+    {
+      "id": "t2-mixed-006",
+      "template": "mixed_effects_lmm",
+      "difficulty": "advanced",
+      "question": "Growth curve model: detecting different slopes between groups. Model: y ~ time * group + (1 + time | subject). 8 time points (0-7), group difference in slope = 0.1 units/time, residual SD = 1, random intercept SD = 1, random slope SD = 0.3. Use direct Monte Carlo simulation (not simr extend) with nsim=500. Test at sample sizes: 150, 160, 170, 180, 190, 200 per group. Need 80% power, alpha 0.05. Report the smallest sample size achieving >= 80% power.",
+      "expected_template": "mixed_effects_continuous",
+      "ground_truth": {
+        "subjects_per_group": 190,
+        "total_subjects": 380,
+        "time_points": 8,
+        "slope_difference": 0.1,
+        "residual_sd": 1,
+        "random_intercept_sd": 1,
+        "random_slope_sd": 0.3,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 18,
+        "power": 0.03
+      },
+      "source": "Monte Carlo simulation (R-validated 2026-02-01)",
+      "reference_code": "# simr powerSim (KR test, nsim=500):\n# n=170: 74.4%, n=180: 78.8%, n=190: 81.4%, n=200: 83.8%\n# First n to exceed 80% is n=190/group\n# GT=190; tolerance ±19 accepts 171-209"
+    },
+    {
+      "id": "t2-mixed-007",
+      "template": "mixed_effects_lmm",
+      "difficulty": "advanced",
+      "question": "2-period AB/BA crossover trial. Within-subject correlation = 0.7. Treatment effect d = 0.6 (standardized by total SD). The within-subject paired effect is d_paired = d / sqrt(2*(1-rho)). Use pwr.t.test(d=d_paired, power=0.85, sig.level=0.05, type='paired') to find the number of subjects. What is n?",
+      "expected_template": "crossover_2x2",
+      "ground_truth": {
+        "subjects": 17,
+        "periods": 2,
+        "effect_size_d": 0.6,
+        "within_subject_correlation": 0.7,
+        "power": 0.85,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 2,
+        "power": 0.03
+      },
+      "source": "pwr.t.test paired (R-validated 2026-01-28)",
+      "reference_code": "library(pwr)\n# d_paired = 0.6/sqrt(2*(1-0.7)) = 0.6/sqrt(0.6) = 0.7746\npwr.t.test(d=0.6/sqrt(2*(1-0.7)), power=0.85, sig.level=0.05, type='paired')\n# n = 17 subjects"
+    },
+    {
+      "id": "t2-mixed-008",
+      "template": "mixed_effects_lmm",
+      "difficulty": "advanced",
+      "question": "Mixed model with repeated measures: 2 correlated outcomes (r = 0.6), 3 time points. Detect d = 0.4 on primary outcome only (no multiple testing correction for secondary). ICC = 0.5. Use repeated measures design effect DE = (1+(m-1)*ICC)/m. Power 80%, alpha 0.05.",
+      "expected_template": "mixed_effects_continuous",
+      "ground_truth": {
+        "subjects_per_group": 67,
+        "total_subjects": 134,
+        "outcomes": 2,
+        "correlation_outcomes": 0.6,
+        "time_points": 3,
+        "effect_size_d": 0.4,
+        "icc": 0.5,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 7,
+        "power": 0.03
+      },
+      "source": "pwr package + RM design effect (R-validated 2026-01-29)",
+      "reference_code": "library(pwr)\n# pwr.t.test(d=0.4, power=0.80, sig.level=0.05, type='two.sample')$n = 99.08\n# ceiling(99.08) = 100 per group\n# RM design effect: DE = (1+(3-1)*0.5)/3 = 2/3 = 0.667\n# n_adjusted = ceiling(100 * 0.667) = ceiling(66.7) = 67/grp\n# Validated: R confirms base=100, adjusted=67 (2026-01-29)"
+    },
+    {
+      "id": "t2-surv-001",
+      "template": "survival_analysis",
+      "difficulty": "basic",
+      "question": "Survival analysis: detect hazard ratio HR = 0.7 (30% reduction in hazard). 3-year accrual, 2-year follow-up, control median survival 2 years. Need 80% power, alpha 0.05 (two-sided). How many per arm?",
+      "expected_template": "survival_logrank",
+      "ground_truth": {
+        "subjects_per_arm": 198,
+        "total_subjects": 396,
+        "hazard_ratio": 0.7,
+        "control_median_survival": 2,
+        "accrual_years": 3,
+        "followup_years": 2,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 20,
+        "power": 0.03
+      },
+      "source": "Schoenfeld formula (R-validated 2026-01-29)",
+      "reference_code": "# Schoenfeld: events = 4*(1.96+0.8416)^2/(log(0.7))^2 = 247\n# Uniform accrual (3yr) + FU (2yr), exponential survival:\n#   P_event_control = 68.9%, P_event_treatment = 56.3%, avg = 62.6%\n# N/arm = ceil(247/(2*0.626)) = ceil(197.3) = 198\n# Deterministic: question fully specifies all parameters"
+    },
+    {
+      "id": "t2-surv-002",
+      "template": "survival_analysis",
+      "difficulty": "basic",
+      "question": "Log-rank test comparing two treatments. HR = 0.65, 2-year survival in control = 50%. 2-year accrual, 1-year follow-up. Power 80%, alpha 0.05.",
+      "expected_template": "survival_logrank",
+      "ground_truth": {
+        "subjects_per_arm": 201,
+        "total_subjects": 402,
+        "hazard_ratio": 0.65,
+        "control_2yr_survival": 0.5,
+        "accrual_years": 2,
+        "followup_years": 1,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 20,
+        "power": 0.03
+      },
+      "source": "Schoenfeld formula (R-validated 2026-01-29)",
+      "reference_code": "# lambda_c=log(2)/2=0.3466, lambda_t=0.3466*0.65=0.2253\n# Schoenfeld events = 4*(1.96+0.8416)^2/(log(0.65))^2 = 170\n# Uniform accrual (2yr) + FU (1yr), exponential survival:\n#   P_event_control = 49.0%, P_event_treatment = 35.7%, avg = 42.4%\n# N/arm = ceil(170/(2*0.424)) = ceil(200.5) = 201\n# Validated: R confirms N/arm=201 (2026-01-29)"
+    },
+    {
+      "id": "t2-surv-003",
+      "template": "survival_analysis",
+      "difficulty": "intermediate",
+      "question": "Cox regression with continuous covariate. Detect HR = 1.3 per SD increase. Event rate 25% over study period. Need 80% power, alpha 0.05.",
+      "expected_template": "survival_logrank",
+      "ground_truth": {
+        "sample_size": 460,
+        "hazard_ratio": 1.3,
+        "event_rate": 0.25,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 23,
+        "power": 0.03
+      },
+      "source": "Schoenfeld formula for continuous predictor (verified 2026-01-29)",
+      "reference_code": "# Schoenfeld for continuous predictor (no factor of 4):\n# E = (z_alpha/2 + z_beta)^2 / log(HR)^2\n# E = (1.96 + 0.8416)^2 / log(1.3)^2 = 7.849 / 0.0689 = 114.0\n# Events needed = ceiling(114.0) = 115\n# With 25% event rate: n = ceiling(115/0.25) = 460"
+    },
+    {
+      "id": "t2-surv-004",
+      "template": "survival_analysis",
+      "difficulty": "intermediate",
+      "question": "Survival analysis with 20% overall attrition (dropout). HR = 0.75, control 1-year survival 70%. 18-month uniform accrual, 12-month additional follow-up. Power 85%, alpha 0.05. How many subjects per arm after inflating for dropout?",
+      "expected_template": "survival_logrank",
+      "ground_truth": {
+        "subjects_per_arm": 657,
+        "total_subjects": 1314,
+        "hazard_ratio": 0.75,
+        "control_1yr_survival": 0.7,
+        "dropout_rate": 0.2,
+        "accrual_months": 18,
+        "followup_months": 12,
+        "power": 0.85,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 66,
+        "power": 0.03
+      },
+      "source": "Schoenfeld formula + dropout inflation (R-validated 2026-01-29)",
+      "reference_code": "# lambda_c=-log(0.70)=0.3567, lambda_t=0.3567*0.75=0.2675\n# Schoenfeld events (85% power) = 4*(1.96+1.036)^2/(log(0.75))^2 = 434\n# Uniform accrual (1.5yr) + FU (1yr), exponential:\n#   P_event_control=45.8%, P_event_treatment=36.9%, avg=41.4%\n# N/arm_no_dropout = ceil(434/(2*0.414)) = 525\n# N/arm_with_dropout = ceil(525/0.80) = ceil(656.25) = 657\n# Deterministic: question specifies uniform accrual + 20% overall attrition"
+    },
+    {
+      "id": "t2-surv-005",
+      "template": "survival_analysis",
+      "difficulty": "advanced",
+      "question": "Survival analysis: detect HR = 0.70 (treatment vs control, proportional hazards). Control median = 18 months, study duration 36 months, equal allocation (1:1). Use the Schoenfeld formula: events_needed = (z_alpha/2 + z_beta)^2 / (log(HR))^2, where z_alpha/2 = qnorm(0.975), z_beta = qnorm(0.80). Then compute event probability per arm: P(event|control) = 1-exp(-log(2)/18 * 36), P(event|treatment) = 1-exp(-0.7*log(2)/18 * 36). Total N = ceiling(events / average_event_probability). What is the total N across both arms?",
+      "expected_template": "survival_logrank",
+      "ground_truth": {
+        "total_subjects": 90,
+        "subjects_per_arm": 45,
+        "events_needed": 62,
+        "hazard_ratio": 0.7,
+        "control_median_months": 18,
+        "study_duration_months": 36,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 4,
+        "power": 0.03
+      },
+      "source": "Schoenfeld formula (R-validated 2026-01-28)",
+      "reference_code": "# Schoenfeld: d = (1.96+0.842)^2 / log(0.7)^2 = 61.5 -> 62 events\n# P(event|ctrl,36mo) = 1-exp(-log(2)/18*36) = 0.75\n# P(event|trt,36mo) = 1-exp(-0.7*log(2)/18*36) = 0.621\n# Avg P(event) = 0.686, Total N = ceil(62/0.686) = 91\n# With ssizeCT: 184+184=368 (different formula)\n# Schoenfeld direct: N=90-91"
+    },
+    {
+      "id": "t2-surv-006",
+      "template": "survival_analysis",
+      "difficulty": "advanced",
+      "question": "Cure rate model: 30% long-term survivors (cured) in control, 45% in treatment. Among non-cured, median survival is 2 years and HR = 0.8 (treatment vs control). 5-year follow-up. Power 80%, alpha 0.05.",
+      "expected_template": "survival_logrank",
+      "ground_truth": {
+        "subjects_per_arm": 150,
+        "total_subjects": 300,
+        "cure_rate_control": 0.3,
+        "cure_rate_treatment": 0.45,
+        "hazard_ratio_uncured": 0.8,
+        "median_survival_uncured": 2,
+        "followup_years": 5,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 15,
+        "power": 0.03
+      },
+      "source": "R Monte Carlo simulation (validated 2026-01-29)",
+      "reference_code": "# R Monte Carlo (1000 sims, log-rank test):\n# n=100/arm: 66.3%, n=150/arm: 81.5%, n=200/arm: 92.3%\n# Non-cured: exponential with median=2yr (lambda=0.347)\n# Treatment non-cured: HR=0.8 -> lambda=0.277\n# Cure: cured patients censored at 5yr (no event)\n# GT=150 gives 81.5% power; simulation variance justifies \u00b120"
+    },
+    {
+      "id": "t2-surv-007",
+      "template": "survival_analysis",
+      "difficulty": "advanced",
+      "question": "Competing risks: detect cause-specific HR = 0.7 for event of interest while 15% experience competing event (independent of treatment). Control primary event rate 30% over study period. Assume exponential event times. Power 80%, alpha 0.05. Use Schoenfeld formula with cause-specific hazard model. Convert events to sample size using average primary event probability across both arms (accounting for HR effect on treatment arm). Report the formula-based sample size as your final answer (do not adjust with simulation).",
+      "expected_template": "survival_logrank",
+      "ground_truth": {
+        "subjects_per_arm": 474,
+        "total_subjects": 948,
+        "hazard_ratio": 0.7,
+        "control_event_rate": 0.3,
+        "competing_event_rate": 0.15,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 47,
+        "power": 0.03
+      },
+      "source": "Schoenfeld + cause-specific hazard competing risks model (verified 2026-01-29)",
+      "reference_code": "# Schoenfeld events = ceiling(246.79) = 247\n# Cause-specific hazard model (exponential, competing independent of treatment):\n#   Control: P(primary)=0.30, P(competing)=0.15 -> lambda ratio a:b = 2:1\n#   (a+b)*T = -log(0.55) = 0.5978, a*T = 0.3985, b*T = 0.1993\n#   Treatment: a_t*T = 0.7*0.3985 = 0.2790, b_t*T = 0.1993\n#   P_t(primary) = 0.2790/(0.2790+0.1993) * (1-exp(-0.4783)) = 0.5833*0.3801 = 0.2217\n# Avg primary event prob = (0.30+0.2217)/2 = 0.2608\n# N/arm = ceil(247/(2*0.2608)) = ceil(473.3) = 474\n# Deterministic: question specifies cause-specific HR + independent competing"
+    },
+    {
+      "id": "t2-surv-008",
+      "template": "survival_analysis",
+      "difficulty": "advanced",
+      "question": "Stratified log-rank test: 3 strata with different baseline hazards. Overall HR = 0.75. 2-year study, events expected in 40% of controls. Power 80%, alpha 0.05. Use conservative Schoenfeld approach: d = 4*(z_alpha/2 + z_beta)^2 / log(HR)^2, then N_total = ceiling(d/0.40). Report the analytical Schoenfeld sample size per arm as your final answer (do not adjust with simulation).",
+      "expected_template": "survival_logrank",
+      "ground_truth": {
+        "subjects_per_arm": 475,
+        "total_subjects": 950,
+        "hazard_ratio": 0.75,
+        "strata": 3,
+        "control_event_rate": 0.4,
+        "study_duration_years": 2,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 48,
+        "power": 0.03
+      },
+      "source": "Schoenfeld formula (R-validated 2026-02-01)",
+      "reference_code": "# Stratified log-rank using Schoenfeld formula\n# Events via Schoenfeld: d = 4*(1.96 + 0.84)^2 / log(0.75)^2 \u2248 379\n# With 40% event rate: n = 379/0.40 = 948 total \u2248 475 per arm\n# GT corrected based on Schoenfeld formula verification",
+      "reference_code_note": "Schoenfeld: d=380 events. Conservative: N=380/0.40=950 total=475/arm. Average-rate method gives 529/arm."
+    },
+    {
+      "id": "t2-poisson-001",
+      "template": "poisson_regression",
+      "difficulty": "basic",
+      "question": "Poisson regression: detect rate ratio RR = 1.5 for treatment effect. Baseline rate 2 events/person-year, 1-year follow-up. Power 80%, alpha 0.05. Sample per group?",
+      "expected_template": "poisson_regression",
+      "ground_truth": {
+        "subjects_per_group": 40,
+        "total_subjects": 79,
+        "rate_ratio": 1.5,
+        "baseline_rate": 2,
+        "followup_years": 1,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 4,
+        "power": 0.03
+      },
+      "source": "pwrss package CRAN documentation",
+      "reference_code": "library(pwrss)\npower.z.poisson(base.rate=2, rate.ratio=1.5, power=0.80, alpha=0.05, dist='bernoulli')\n# n = 79 total (40 per group)"
+    },
+    {
+      "id": "t2-poisson-002",
+      "template": "poisson_regression",
+      "difficulty": "basic",
+      "question": "Comparing infection rates: control 0.5 per person-month, expect 0.3 in treatment. 6-month follow-up. Power 80%, alpha 0.05.",
+      "expected_template": "poisson_regression",
+      "ground_truth": {
+        "subjects_per_group": 27,
+        "total_subjects": 54,
+        "control_rate": 0.5,
+        "treatment_rate": 0.3,
+        "followup_months": 6,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 3,
+        "power": 0.03
+      },
+      "source": "pwrss + MC simulation (R-validated 2026-01-29)",
+      "reference_code": "library(pwrss)\n# RR = 0.3/0.5 = 0.6, rates per 6 months: control=3, treatment=1.8\npwrss.z.poisson(exp.beta0=3, exp.beta1=0.6, power=0.80, alpha=0.05, dist='bernoulli')\n# n = 53 total (27 per group)\n# Deterministic: pwrss formula gives exactly 27/group"
+    },
+    {
+      "id": "t2-poisson-003",
+      "template": "poisson_regression",
+      "difficulty": "intermediate",
+      "question": "Negative binomial for overdispersed counts: mean = 5 in control, 4 in treatment, dispersion parameter k = 2. Power 80%, alpha 0.05.",
+      "expected_template": "poisson_regression",
+      "ground_truth": {
+        "subjects_per_group": 230,
+        "total_subjects": 460,
+        "control_mean": 5,
+        "treatment_mean": 4,
+        "dispersion_k": 2,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 23,
+        "power": 0.03
+      },
+      "source": "Wald formula + MC simulation (verified 2026-01-29)",
+      "reference_code": "library(MASS)\n# Wald: n = (z_a+z_b)^2 * (1/mu0+1/k + 1/mu1+1/k) / log(mu1/mu0)^2 = 229\n# MC simulation (5000 sims, seed=42):\n#   n=220: power=0.788, n=225: power=0.794, n=230: power=0.812\n# First n to cross 80%: n=230 per group"
+    },
+    {
+      "id": "t2-poisson-004",
+      "template": "poisson_regression",
+      "difficulty": "intermediate",
+      "question": "Count data with offset: variable exposure time (mean 0.8 years, SD 0.3). Detect RR = 1.4. Baseline rate 3/year. Power 80%, alpha 0.05.",
+      "expected_template": "poisson_regression",
+      "ground_truth": {
+        "subjects_per_group": 50,
+        "total_subjects": 100,
+        "rate_ratio": 1.4,
+        "baseline_rate": 3,
+        "mean_exposure": 0.8,
+        "sd_exposure": 0.3,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 5,
+        "power": 0.03
+      },
+      "source": "R Monte Carlo simulation (validated 2026-01-29)",
+      "reference_code": "# R Monte Carlo (2000 sims, Poisson GLM with offset):\n# n=20/grp: 43.6%, n=50/grp: 81.0%, n=80/grp: 93.8%\n# GT=50/grp gives 81% power; simulation variance justifies \u00b110"
+    },
+    {
+      "id": "t2-poisson-005",
+      "template": "poisson_regression",
+      "difficulty": "advanced",
+      "question": "Zero-inflated Poisson: 30% structural zeros, among non-zeros mean = 3 in control, 2 in treatment. Use Monte Carlo simulation (at least 1000 iterations) with a Wilcoxon rank-sum test comparing the two groups. Generate ZIP data with rzipois or by mixing rbinom(1,1,0.7)*rpois(1,lambda). What is the minimum subjects per group for 80% power at alpha 0.05?",
+      "expected_template": "poisson_regression",
+      "ground_truth": {
+        "subjects_per_group": 150,
+        "total_subjects": 300,
+        "zero_inflation": 0.3,
+        "control_mean_nonzero": 3,
+        "treatment_mean_nonzero": 2,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 15,
+        "power": 0.03
+      },
+      "source": "R Monte Carlo simulation (validated 2026-01-29)",
+      "reference_code": "# Zero-inflated Poisson (ZIP) model\n# Observed mean = (1-p_zero) * lambda\n# Control: 0.7 * 3 = 2.1, Treatment: 0.7 * 2 = 1.4\n# MC simulation with Wilcoxon test (2000 iter):\n# n=70: power=0.478, n=100: power=0.632, n=150: power=0.828\n# n \u2248 150 per group for 80% power"
+    },
+    {
+      "id": "t2-poisson-006",
+      "template": "poisson_regression",
+      "difficulty": "advanced",
+      "question": "Poisson regression with time-varying exposure: rate increases 10% per year (linearly), detect treatment RR = 0.8 over 3 years. Baseline rate 1/year at time 0. Use the Wald formula: integrate the time-varying rate to get expected events per person, then apply n = (z_alpha/2 + z_beta)^2 * (1/mu_c + 1/mu_t) / log(RR)^2. Power 80%, alpha 0.05. Report subjects per group.",
+      "expected_template": "poisson_regression",
+      "ground_truth": {
+        "subjects_per_group": 103,
+        "total_subjects": 206,
+        "rate_ratio": 0.8,
+        "baseline_rate": 1,
+        "rate_increase_per_year": 0.1,
+        "study_years": 3,
+        "power": 0.8,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "sample_size": 10,
+        "power": 0.03
+      },
+      "source": "Wald formula (R-validated 2026-02-01)",
+      "reference_code": "# Integrated rate over 3 years: lambda*integral(1+0.1t)dt from 0 to 3\n# = baseline*(3 + 0.1*9/2) = 1.0*3.45 = 3.45 expected events/person (control)\n# Treatment: 0.8*3.45 = 2.76 expected events/person\n# Wald: n = (z_a+z_b)^2*(1/mu_c+1/mu_t)/log(RR)^2 = (2.80)^2*(0.290+0.362)/0.0498 = 103\n# MC simulation (5000 sims): n=100: 0.780, n=110: 0.841\n# GT=105 per group for 80% power",
+      "reference_code_note": "Integrated rate over 3yr: compound=3.47, linear=3.45 events/person. Wald gives 103/group. Query specifies rate increases 10%/year - must integrate time-varying rate."
+    },
+    {
+      "id": "t2-poisson-007",
+      "template": "poisson_regression",
+      "difficulty": "advanced",
+      "question": "Cluster-level Poisson: 20 clusters per arm, 25 subjects per cluster. ICC = 0.03. Detect RR = 1.25. Control rate 4/year. Power 80%, alpha 0.05. Use the analytical approach: compute design effect DE = 1 + (m-1)*ICC where m=subjects per cluster, then compute effective sample size per arm = total_subjects_per_arm / DE. Use the Wald formula for Poisson rate ratio power: Z = |log(RR)| * sqrt(E_eff) / sqrt(1/lambda_c + 1/lambda_t) where E_eff = effective_n * control_rate, lambda_c = control_rate, lambda_t = RR * control_rate. Power = Phi(Z - z_alpha/2). What is the achieved power? Is this design adequate?",
+      "expected_template": "poisson_regression",
+      "ground_truth": {
+        "given_clusters_per_arm": 20,
+        "given_subjects_per_cluster": 25,
+        "given_total_subjects": 1000,
+        "rate_ratio": 1.25,
+        "control_rate": 4,
+        "icc": 0.03,
+        "power": 0.99,
+        "alpha": 0.05
+      },
+      "tolerance": {
+        "power": 0.03
+      },
+      "source": "Analytical DE + Wald formula (R-validated 2026-02-05)",
+      "reference_code": "# Clustered Poisson with ICC=0.03, rate=4/yr\n# DE = 1 + 24*0.03 = 1.72\n# Effective n per arm = 500/1.72 = 290.7\n# Expected events per arm (ctrl) = 290.7 * 4 = 1163\n# Wald Z = |log(1.25)| * sqrt(1163) / sqrt(1/4 + 1/5) = 0.2231 * 34.1 / 0.6708 = 11.34\n# Power = Phi(11.34 - 1.96) = Phi(9.38) = 1.000 (essentially 100%)\n# GT=0.99 is conservative; analytical gives >0.999"
+    }
+  ]
+}
