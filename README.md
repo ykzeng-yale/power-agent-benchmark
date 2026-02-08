@@ -116,8 +116,10 @@ However, **value-based comparison is the primary evaluation method**. LLM judgme
 | Rank | Model | Tier 1 | Tier 2 | Tier 3 | Tier 4 | Overall | Date |
 |------|-------|--------|--------|--------|--------|---------|------|
 | 1 | Power Agent (Claude Opus 4.5) | 100% | 100% | 100% | 95.2% | **99.1%** | 2025-02-06 |
+| 2 | ChatGPT Auto Mode (no code exec) | 56.7% | 65.7% | 70.0% | 28.6% | **56.6%** | 2026-02-08 |
 
-*105/106 tasks pass. Single intermittent failure on t4-binary-003 (rare outcome prediction).*
+*Power Agent: 105/106 tasks pass. Single intermittent failure on t4-binary-003 (rare outcome prediction).*
+*ChatGPT Auto: 60/106 tasks pass. Primary failure modes: z-approximation (12), no R package access (15), wrong formulas (10). [Detailed report](test-results/evaluation/chatgpt-auto/README.md)*
 
 *Submit your results via [pull request](leaderboard/README.md).*
 
