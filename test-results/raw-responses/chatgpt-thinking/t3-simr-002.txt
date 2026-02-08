@@ -1,0 +1,59 @@
+Here’s a workable **closed-form approximation** for a repeated binary outcome analyzed with a **random-intercept logistic mixed model** (3 observations/subject). I’ll treat it like a clustered design and use a **design-effect (DE)** based on the random-intercept variance.
+
+## 1) Convert the OR to a treated event probability
+
+Control (baseline) probability: (p_0 = 0.30)
+Treatment OR: (OR = 2.0)
+
+Assuming the OR acts on the logit scale:
+[
+\text{logit}(p_1) = \text{logit}(p_0) + \log(OR)
+]
+[
+p_1 = \frac{1}{1+\exp{-(\text{logit}(0.30)+\log 2)}} \approx 0.4615
+]
+
+So we’re comparing **0.30 vs 0.4615**.
+
+## 2) “Independent-observations” sample size (ignoring clustering)
+
+Using the standard 2-sample proportions normal approximation (two-sided (\alpha=0.05), power (=80%), 1:1 allocation), the required number of **independent Bernoulli observations** is about:
+[
+n_{\text{ind, per group}} \approx 141
+]
+
+## 3) Compute ICC from the random intercept SD
+
+Random intercept SD = 0.5 ⇒ variance (\sigma_b^2 = 0.25)
+
+For a logistic random-intercept model, a common approximation is:
+[
+ICC \approx \frac{\sigma_b^2}{\sigma_b^2 + \pi^2/3}
+= \frac{0.25}{0.25 + 3.2899} \approx 0.0706
+]
+
+## 4) Design effect for (m=3) observations/subject
+
+[
+DE = 1 + (m-1),ICC = 1 + 2(0.0706) \approx 1.141
+]
+
+Effective independent observations per group from (S) subjects is:
+[
+n_{\text{eff}} = \frac{S\cdot m}{DE}
+]
+Set (n_{\text{eff}} \approx 141):
+[
+S \approx \frac{141\cdot DE}{m} = \frac{141\cdot 1.141}{3} \approx 53.5
+]
+
+## Result
+
+**≈ 54 subjects per group** (so **108 total subjects**), under these assumptions.
+
+---
+
+### Notes (why this is approximate)
+
+* This uses an ICC/design-effect approximation; exact GLMM power depends on how you interpret “baseline probability” (marginal vs conditional) and whether the OR is intended as subject-specific (GLMM) vs population-average (GEE).
+* If you want, I can also give a quick **simulation-based power check** for the exact random-intercept logistic model (often shifts the answer by ~5–15% depending on assumptions).

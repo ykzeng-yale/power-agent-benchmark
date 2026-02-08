@@ -1,0 +1,73 @@
+Using the **Riley et al. “minimum sample size for prediction models (time-to-event)”** criteria (as implemented in *pmsampsize*) you take the **largest** (n) required across:
+
+1. **Criterion (i): small overfitting (target shrinkage (S\ge 0.90))** via their closed-form equation ([rcastoragev2.blob.core.windows.net][1])
+2. **Criterion (ii): small optimism in (R^2)** (often not binding once (i) is met) ([rcastoragev2.blob.core.windows.net][1])
+3. **Criterion (iii): precise estimation of the overall risk at the prediction timepoint**, using an exponential approximation and the CI width for (F(t)) ([rcastoragev2.blob.core.windows.net][1])
+
+You gave:
+
+* predictors (p=6)
+* anticipated **Cox–Snell (R^2)** (use as (R^2_{CS,adj})) (=0.25)
+* 5-year mortality (F(5)=0.40)
+* mean follow-up (=3) years
+* target shrinkage (S=0.90) (default recommendation) ([rcastoragev2.blob.core.windows.net][1])
+
+---
+
+## Step 1 — Criterion (i): shrinkage (\ge 0.90)
+
+Riley et al. give (their Eq. 11) ([rcastoragev2.blob.core.windows.net][1]):
+[
+n ;=; \frac{p}{(S-1),\ln!\left(1-\frac{R^2_{CS,adj}}{S}\right)}
+]
+
+Plug in (p=6), (S=0.9), (R^2_{CS,adj}=0.25):
+
+[
+n \approx \frac{6}{(-0.1)\ln(1-0.25/0.9)} \approx 184.4 \Rightarrow 185
+]
+
+So criterion (i) alone suggests **~185** patients.
+
+---
+
+## Step 2 — Criterion (iii): precision of 5-year overall risk (this binds here)
+
+Assume an exponential baseline to translate 5-year risk to a constant hazard (as in their worked survival example) ([rcastoragev2.blob.core.windows.net][1]):
+
+[
+F(5)=0.40 = 1-e^{-\lambda\cdot 5}
+;\Rightarrow;
+\lambda =-\ln(0.60)/5 \approx 0.102
+]
+
+Total person-time is approximately:
+[
+T \approx n \times \text{mean follow-up} = 3n
+]
+
+They then form an approximate 95% CI for (F(t)) using (\hat\lambda \pm 1.96\sqrt{\hat\lambda/T}) and transform back to risk ([rcastoragev2.blob.core.windows.net][1]). Requiring the CI to be within **±0.05** of the true 5-year risk (i.e., within ([0.35, 0.45])) gives a minimum of:
+
+* **(n \approx 511)** to achieve ~([0.350,,0.446]) at 5 years under the exponential approximation.
+
+---
+
+## Minimum sample size (take the maximum across criteria)
+
+* Criterion (i): **185**
+* Criterion (iii): **511**  ⟵ **largest**
+* Criterion (ii) will not exceed criterion (i) here (with (R^2_{CS,adj}=0.25), the required shrinkage for (ii) is typically < 0.90 unless (R^2) is extremely high and/or max (R^2) is very small) ([rcastoragev2.blob.core.windows.net][1])
+
+✅ **Recommended minimum sample size for development: ~511 patients.**
+
+Helpful derived quantities (using (\lambda) above):
+
+* Expected event fraction by mean follow-up 3y: (1-e^{-0.102\cdot 3}\approx 0.264)
+* Expected events by end of follow-up: (0.264\times 511 \approx 135)
+* **Events per predictor parameter (EPP)**: (135/6 \approx 22.5)
+
+---
+
+If you want, tell me whether any predictors will use **splines**, **categorization**, or **interactions**—that increases the *number of predictor parameters* (p) above 6 and will push the minimum (n) upward.
+
+[1]: https://rcastoragev2.blob.core.windows.net/509fc40eadd23a411835addcb6f1b2fe/PMC6519266.pdf "Minimum sample size for developing a multivariable prediction model: PART II - binary and time-to-event outcomes"

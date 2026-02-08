@@ -1,0 +1,59 @@
+Using the **Riley et al. external validation precision criteria** as implemented in **`pmvalsampsize`** (binary outcome), the required validation N is the **maximum** of the three criteria for: **O/E**, **calibration slope**, and **C-statistic**. ([CRAN][1])
+
+### Inputs
+
+* Outcome prevalence: **0.30**
+* Anticipated discrimination: **C = 0.90**
+* LP distribution (log-odds): **Normal(mean = −0.5, SD = 4.0)**
+* Target 95% CI widths:
+
+  * **C-statistic ≤ 0.05**
+  * **Calibration slope ≤ 0.20**
+  * **O/E ≤ 0.20**
+* (Not provided, so the usual defaults are assumed): **O/E = 1** and **calibration slope = 1** ([CRAN][1])
+
+---
+
+## Criterion-by-criterion results
+
+### 1) O/E precision (target CI width ≤ 0.20)
+
+`pmvalsampsize` targets a CI width for **O/E** by finding an SE for **log(O/E)** and then uses
+[
+N_1=\left\lceil\frac{1-\pi}{\pi \cdot \mathrm{SE}(\log(O/E))^2}\right\rceil
+]
+where (\pi) is prevalence. ([Rdrr.io][2])
+
+* **Required N₁ = 900** (≈270 events)
+
+### 2) Calibration slope precision (target CI width ≤ 0.20)
+
+`pmvalsampsize` simulates the LP distribution and computes an information-matrix-based requirement:
+[
+N_2=\left\lceil\frac{I_{00}}{\mathrm{SE}(slope)^2,(I_{00}I_{11}-I_{01}^2)}\right\rceil,\quad
+\mathrm{SE}(slope)=\frac{\text{CI width}}{2\cdot1.96}
+]
+with (I_{00},I_{01},I_{11}) estimated from the simulated LP distribution. ([Rdrr.io][2])
+
+* With LP ~ N(−0.5, 4.0²): **Required N₂ = 1,672** (≈502 events)
+
+### 3) C-statistic precision (target CI width ≤ 0.05)
+
+`pmvalsampsize` uses its built-in SE approximation for the AUC and finds the smallest N such that
+(2\cdot1.96\cdot SE(C) \le 0.05). ([Rdrr.io][2])
+
+* **Required N₃ = 746** (≈224 events)
+
+---
+
+# Required validation sample size
+
+Take the maximum:
+[
+N=\max(N_1,N_2,N_3)=\max(900,1672,746)=\mathbf{1,672}.
+]
+
+**Answer: You need ~1,672 participants total**, which at 30% prevalence is about **502 events** and **1,170 non-events**. ([Rdrr.io][2])
+
+[1]: https://cran.r-project.org/web/packages/pmvalsampsize/pmvalsampsize.pdf "pmvalsampsize: Sample Size for External Validation of a Prediction Model"
+[2]: https://rdrr.io/cran/pmvalsampsize/src/R/pmvalsampsize_bin.R "pmvalsampsize source: R/pmvalsampsize_bin.R"

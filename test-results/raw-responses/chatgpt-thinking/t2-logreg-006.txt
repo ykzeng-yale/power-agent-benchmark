@@ -1,0 +1,69 @@
+We can approximate the required **total sample size** for testing the **interaction term** (A\times B) in a logistic regression using the large-sample (Wald/Fisher information) approach.
+
+## 1) Work out the 4 cell outcome risks from the ORs
+
+Let (A,B\in{0,1}), each with prevalence 0.5 and independent (\Rightarrow) each cell has probability 0.25.
+
+Baseline risk:
+[
+p_{00}=0.20 ;\Rightarrow; \text{odds}_{00}=\frac{0.20}{0.80}=0.25
+]
+
+Main effects ORs: (\text{OR}_A=\text{OR}*B=1.5).
+Interaction OR: (\text{OR}*{AB}=2.0).
+
+So the odds in each cell:
+
+* (A=1,B=0:;\text{odds}*{10}=0.25\times 1.5=0.375 \Rightarrow p*{10}=\frac{0.375}{1.375}=0.2727)
+* (A=0,B=1:;\text{odds}*{01}=0.25\times 1.5=0.375 \Rightarrow p*{01}=0.2727)
+* (A=1,B=1:;\text{odds}*{11}=0.25\times 1.5\times 1.5\times 2.0=1.125 \Rightarrow p*{11}=\frac{1.125}{2.125}=0.5294)
+
+The interaction coefficient to detect is
+[
+\beta_3=\log(\text{OR}_{AB})=\log(2)=0.6931
+]
+
+## 2) Approximate the SE of (\hat\beta_3) from Fisher information
+
+For logistic regression, with design vector (x=(1, A, B, AB)), each cell contributes weight
+[
+w_g = p_g(1-p_g)
+]
+and (per observation) Fisher information
+[
+I = \sum_{g\in{00,10,01,11}} \pi_g, w_g , x_g x_g^\top,\quad \pi_g=0.25.
+]
+
+Using the (p_g) above, this yields (after inversion) an approximate variance element for the interaction term:
+[
+\mathrm{Var}(\hat\beta_3) \approx \frac{81.3889}{N}
+]
+so
+[
+\mathrm{SE}(\hat\beta_3) \approx \sqrt{\frac{81.3889}{N}}.
+]
+
+## 3) Solve for (N) to get 80% power (two-sided (\alpha=0.05))
+
+Two-sided (\alpha=0.05 \Rightarrow z_{1-\alpha/2}=1.96).
+
+Under the alternative, the Wald statistic is approximately
+[
+Z = \frac{\hat\beta_3}{\mathrm{SE}(\hat\beta_3)} \sim N!\left(\frac{\beta_3}{\mathrm{SE}},,1\right),
+]
+and power is (P(|Z|>1.96)).
+
+Solving this gives:
+
+* **Required total sample size:** **(N \approx 1330)** to achieve **80% power**
+* Since each of the 4 exposure cells is 25% of the sample: **(\approx 333) per cell** (e.g., choose **1332 total** to be divisible by 4).
+
+(With your parameters, the overall event rate is about (0.25(0.20+0.2727+0.2727+0.5294)\approx 0.319), so (N=1330) implies ~**425 events** expected.)
+
+## Practical notes (why your real (N) might be bigger)
+
+* If (A) and (B) are not exactly 50/50 or not independent, information drops and (N) increases.
+* Adding covariates usually **doesn’t** hurt much if they’re not highly collinear with (A,B,AB), but strong correlations can inflate SEs.
+* Plan to inflate for missingness/dropout (e.g., +5–15% depending on context).
+
+**Bottom line:** plan for about **1,330 participants total** (or **1,332** for a clean 4-way split) to detect the interaction OR=2.0 with **80% power** at **(\alpha=0.05)**.

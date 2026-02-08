@@ -1,0 +1,80 @@
+Using the **Riley et al. (2021)** external validation precision criteria for a **binary outcome**, you compute the required validation sample size for each target measure and then take the **maximum** across them (so all precision targets are met). ([PubMed][1])
+
+### Given
+
+* LP in target population: (LP \sim N(\mu=-1.75,\ \sigma=2.16))
+* Outcome prevalence: (\phi=0.22)
+* Anticipated C-statistic: (C=0.82)
+* Target 95% CI widths:
+
+  * C-stat: (\le 0.10)
+  * Calibration slope: (\le 0.20)
+  * O/E ratio: (\le 0.20)
+
+For the **calibration slope** calculation, the method uses the LP distribution and (typically) aligns the implied average risk with the assumed prevalence by allowing a calibration intercept (while keeping slope = 1). With your LP parameters, (E[\text{logit}^{-1}(LP)]\approx 0.264), which is higher than 0.22, so this alignment matters and increases the needed (N). ([PubMed Central][2])
+
+---
+
+## Step-by-step minimum (N) by criterion
+
+### 1) O/E ratio precision (CI width ≤ 0.20)
+
+Convert CI-width on the O/E scale to a target (SE(\log(O/E))) assuming (O/E \approx 1):
+[
+\text{CI width} = e^{1.96,SE}-e^{-1.96,SE} \le 0.20
+\Rightarrow SE(\log(O/E)) \approx \frac{\operatorname{asinh}(0.20/2)}{1.96} = 0.05094
+]
+Then (Riley/pmvalsampsize) uses:
+[
+N_{OE}=\frac{1-\phi}{\phi , SE(\log(O/E))^2}
+]
+With (\phi=0.22):
+[
+N_{OE} \approx 1367 \quad (\text{events } \approx 0.22\times 1367 \approx 301)
+]
+([PubMed Central][2])
+
+---
+
+### 2) Calibration slope precision (CI width ≤ 0.20)
+
+Target SE for slope:
+[
+SE(\beta) \le \frac{0.20}{2\times 1.96} = 0.05102
+]
+Using the Fisher-information-based formula (as implemented in pmvalsampsize) that depends on the LP distribution and the implied event probabilities, the required sample size here is:
+[
+N_{\text{slope}} \approx 1986.8 \Rightarrow 1987
+]
+Events (\approx 0.22 \times 1987 \approx 438). ([PubMed Central][2])
+
+---
+
+### 3) C-statistic precision (CI width ≤ 0.10)
+
+Target SE:
+[
+SE(C) \le \frac{0.10}{2\times 1.96} = 0.02551
+]
+Using the Newcombe-style SE approximation (iterated over (N) with (\phi=0.22), (C=0.82)), this requires about:
+[
+N_{C} \approx 510 \quad (\text{events } \approx 112)
+]
+([PubMed Central][2])
+
+---
+
+# Required validation sample size
+
+Take the maximum:
+[
+N_{\min}=\max(1367,\ 1987,\ 510)=\boxed{1987}
+]
+So you need **about 1,987 patients total**, with **~438 DVT events** expected (at 22% prevalence), to meet *all three* CI-width targets. ([PubMed][1])
+
+If you want, I can also show the same calculation under the alternative assumption that the provided LP distribution already matches the 22% prevalence (that scenario is slightly less conservative for the slope criterion).
+
+[1]: https://pubmed.ncbi.nlm.nih.gov/34031906/?utm_source=chatgpt.com "Minimum sample size for external validation of a clinical ..."
+[2]: https://pmc.ncbi.nlm.nih.gov/articles/PMC12210805/ "
+            Extended sample size calculations for evaluation of prediction models using a threshold for classification - PMC
+        "

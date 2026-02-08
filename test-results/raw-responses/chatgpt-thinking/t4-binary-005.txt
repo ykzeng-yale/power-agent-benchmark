@@ -1,0 +1,89 @@
+Using the **Riley/Ensor/Collins “pmsampsize” (Riley criteria)** approach for **binary outcomes**, you need three ingredients:
+
+* outcome prevalence ( \pi = 0.03 )
+* number of **candidate predictor parameters** (p = 8) (note: *parameters*, not just “predictors”)
+* anticipated model performance as **Cox–Snell (R^2)** (often derived from an expected **C-statistic/AUC**)
+
+## 1) Convert C-statistic (0.85) → Cox–Snell (R^2)
+
+The pmsampsize implementation estimates Cox–Snell (R^2) from AUC by simulation: it sets
+[
+\mu=\sqrt{2},\Phi^{-1}(\text{AUC})
+]
+simulates a linear predictor (LP) from two normals separated by (\mu), fits ( \text{logit}(Y)\sim LP), and returns
+[
+R^2_{CS} = 1-\exp\left(-\frac{\text{null dev} - \text{dev}}{n}\right).
+]
+(That’s exactly what `cstat2rsq` does.) ([rdrr.io][1])
+
+For **AUC = 0.85** and **prevalence = 0.03**, this gives:
+
+* [
+  \boxed{R^2_{CS} \approx 0.0572}
+  ]
+
+Also, the maximum possible Cox–Snell (R^2) at prevalence (\pi) is
+[
+R^2_{CS,\max}=1-\exp\left(2\left[\pi\ln(\pi)+(1-\pi)\ln(1-\pi)\right]\right),
+]
+which at (\pi=0.03) is:
+
+* [
+  \boxed{R^2_{CS,\max} \approx 0.236}
+  ]
+  (used internally to get Nagelkerke (R^2)). ([rdrr.io][2])
+
+## 2) Apply Riley criteria (defaults: shrinkage target 0.90, ΔNagelkerke (R^2) ≤ 0.05, intercept risk precision ±0.05)
+
+### Criterion 1 (shrinkage ≥ 0.90)
+
+pmsampsize uses ([rdrr.io][2]):
+[
+n_1=\left\lceil \frac{p}{(S-1)\ln\left(1-\frac{R^2_{CS}}{S}\right)}\right\rceil,\quad S=0.90
+]
+Plugging in (p=8), (R^2_{CS}=0.0572):
+
+* [
+  \boxed{n_1 \approx 1219}
+  ]
+
+### Criterion 2 (optimism control via ΔNagelkerke (R^2) ≤ 0.05)
+
+This yields:
+
+* [
+  \boxed{n_2 \approx 654}
+  ]
+  (using the pmsampsize “small difference” shrinkage (s=\frac{R^2_{CS}}{R^2_{CS}+0.05R^2_{CS,\max}})). ([rdrr.io][2])
+
+### Criterion 3 (overall risk / intercept precision ±0.05)
+
+pmsampsize uses ([rdrr.io][2]):
+[
+n_3=\left\lceil \left(\frac{1.96}{0.05}\right)^2 \pi(1-\pi)\right\rceil
+]
+With (\pi=0.03):
+
+* [
+  \boxed{n_3 \approx 45}
+  ]
+
+## Final (take the maximum)
+
+[
+n_{\min}=\max(n_1,n_2,n_3)=\boxed{1219}
+]
+
+### What that means in events
+
+* Expected events: (1219\times 0.03 \approx \boxed{36.6 \text{ events}})
+* Events per candidate parameter (EPP): (36.6/8 \approx \boxed{4.6}) ([rdrr.io][2])
+
+---
+
+### Important caveat
+
+This assumes your “8 predictors” correspond to **8 parameters**. If you use splines, interactions, multi-level categorical variables, etc., your **parameter count increases**, and the required (n) rises accordingly.
+
+[1]: https://rdrr.io/cran/pmsampsize/src/R/cstat2rsq.R "pmsampsize source: R/cstat2rsq.R"
+[2]: https://rdrr.io/cran/pmsampsize/src/R/pmsampsize_bin.R "pmsampsize source: R/pmsampsize_bin.R"

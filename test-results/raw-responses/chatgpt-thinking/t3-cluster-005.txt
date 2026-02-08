@@ -1,0 +1,66 @@
+We can translate your correlation structure into variance components for a **cross-sectional stepped-wedge** mixed model, then compute the GLS SE for the treatment effect using the **24 cluster-period means** (6 clusters × 4 periods).
+
+## 1) Convert the two correlations to variance components
+
+Assume a standardized continuous outcome with total variance (=1), and a model with:
+
+* cluster random intercept (u_j) (shared across all periods in cluster (j))
+* cluster-period random effect (v_{jt}) (shared by people in the same cluster and period)
+* individual residual (e_{ijt})
+
+Then for two individuals in the same cluster:
+
+* **same period correlation**:
+  [
+  \rho_W=\frac{\sigma_u^2+\sigma_v^2}{\sigma_u^2+\sigma_v^2+\sigma_e^2}=0.05
+  ]
+* **different period correlation**:
+  [
+  \rho_B=\frac{\sigma_u^2}{\sigma_u^2+\sigma_v^2+\sigma_e^2}=0.025
+  ]
+
+With total variance (=1):
+[
+\sigma_u^2=0.025,\quad \sigma_v^2=0.05-0.025=0.025,\quad \sigma_e^2=1-0.05=0.95.
+]
+
+## 2) Work at the cluster-period mean level (with (m) subjects per cluster-period)
+
+For the mean (\bar Y_{jt}) based on (m) subjects:
+
+* variance:
+  [
+  \mathrm{Var}(\bar Y_{jt})=\sigma_u^2+\sigma_v^2+\frac{\sigma_e^2}{m}
+  =0.025+0.025+\frac{0.95}{m}
+  ]
+* covariance (same cluster, different periods):
+  [
+  \mathrm{Cov}(\bar Y_{jt},\bar Y_{jt'})=\sigma_u^2=0.025.
+  ]
+
+This gives a 4×4 covariance block per cluster, and 6 independent blocks.
+
+## 3) Stepped-wedge design + power criterion
+
+Design: 4 periods with 2 clusters switching each period → treatment exposure by period is
+
+* Period 1: 0 treated clusters
+* Period 2: 2 treated clusters
+* Period 3: 4 treated clusters
+* Period 4: 6 treated clusters
+
+Fit the standard model with **period fixed effects** + **treatment indicator**, and compute the GLS variance of (\hat\beta_{\text{trt}}). Power (two-sided (\alpha=0.05)) is approximated by
+[
+\text{Power} \approx 1-\Phi!\left(z_{0.975}-\frac{d}{\mathrm{SE}(\hat\beta_{\text{trt}})}\right),
+]
+with (d=0.5).
+
+When you plug in the covariance above and search over integer (m), the smallest (m) achieving ≥80% power is:
+
+### ✅ Minimum subjects per cluster-period: **(m = 24)**
+
+(At (m=23), power is just under 0.80; at (m=24), it clears 0.80.)
+
+**Total sample size** (if fully populated): (6 \times 4 \times 24 = 576).
+
+If you want, I can also show the exact GLS matrix calculation (or give R code) so you can reproduce/modify this for different numbers of periods, unequal (m), or different correlation decay.

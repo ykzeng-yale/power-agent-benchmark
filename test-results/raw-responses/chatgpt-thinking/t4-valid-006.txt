@@ -1,0 +1,140 @@
+Below I compute the minimum **validation** sample size needed to hit *all* your requested precision targets, then take the maximum.
+
+**Given**
+
+* Expected discrimination: **C = 0.80**
+* Outcome prevalence: **π = 0.10**
+* Linear predictor (LP): **Normal(mean = −3.0, SD = 2.25)**
+* Precision targets (full CI widths):
+
+  * C-statistic width ≤ **0.10**
+  * Calibration slope width ≤ **0.20**
+  * O/E ratio (on **log** scale) width ≤ **0.20**
+  * Standardized net benefit (at pt = 10%) width ≤ **0.20**
+* Clinical utility at threshold **pt = 0.10**:
+
+  * Sensitivity **Se = 0.80**
+  * Specificity **Sp = 0.70**
+
+---
+
+## 1) C-statistic precision (CI width ≤ 0.10)
+
+Target half-width = 0.05 ⇒ require
+[
+SE(C) \le \frac{0.05}{1.96}=0.02551
+]
+Using the standard Hanley–McNeil large-sample variance for AUC with event count (n_1=\pi N) and non-event count (n_0=(1-\pi)N), solving gives:
+
+* **N ≈ 1,140** (≈114 events)
+
+✅ Not the limiting requirement.
+
+---
+
+## 2) Calibration slope precision (CI width ≤ 0.20)
+
+Target half-width = 0.10 ⇒
+[
+SE(\beta) \le \frac{0.10}{1.96}=0.05102
+]
+
+For validation, (\beta) is estimated from logistic recalibration:
+[
+\text{logit}(Y)=\alpha + \beta \cdot LP
+]
+Using the LP distribution (Normal) and choosing (\alpha) so average risk matches prevalence (π = 0.10), the Fisher-information calculation yields approximately:
+[
+SE(\beta) \approx \sqrt{\frac{7.91}{N}}
+]
+So:
+[
+\sqrt{\frac{7.91}{N}} \le 0.05102 \Rightarrow N \ge 3{,}040
+]
+
+* **N ≈ 3,040** (≈304 events)
+
+---
+
+## 3) O/E precision (CI width ≤ 0.20)
+
+For the **log(O/E)** CI, a common planning approximation is:
+[
+SE{\log(O/E)} \approx \sqrt{\frac{1}{O}}
+]
+Target half-width 0.10 ⇒
+[
+1.96\sqrt{\frac{1}{O}} \le 0.10 \Rightarrow O \ge \left(\frac{1.96}{0.10}\right)^2 \approx 384.16
+]
+So you need at least **385 events**.
+
+With prevalence π = 0.10:
+[
+N \ge \frac{385}{0.10}=3{,}850
+]
+
+* **N ≈ 3,850** (≈385 events)
+
+✅ This is (just barely) the most stringent so far.
+
+---
+
+## 4) Standardized net benefit precision (CI width ≤ 0.20)
+
+At threshold (p_t=0.10), the harm/benefit weight is:
+[
+w=\frac{p_t}{1-p_t}=\frac{0.10}{0.90}=0.1111
+]
+
+Define per-person utility (u):
+
+* If **event & treated**: (u=1) (probability (\pi \cdot Se))
+* If **non-event & treated**: (u=-w) (probability ((1-\pi)\cdot(1-Sp)))
+* Otherwise: (u=0)
+
+Then:
+[
+NB=E[u]=\pi Se - (1-\pi)(1-Sp)w
+]
+Plug in:
+
+* (NB = 0.10\cdot0.80 - 0.90\cdot0.30\cdot0.1111 = 0.05)
+
+Variance:
+[
+Var(u)=E[u^2]-E[u]^2
+]
+Here:
+
+* (E[u^2]=\pi Se \cdot 1^2 + (1-\pi)(1-Sp)\cdot w^2)
+* This gives (Var(u)\approx 0.08083)
+
+Since (NB) is an average, (SE(NB)=\sqrt{Var(u)/N}).
+Standardized net benefit is (sNB=NB/\pi), so:
+[
+SE(sNB)=\frac{\sqrt{Var(u)/N}}{\pi}
+]
+Target half-width 0.10 ⇒ (SE(sNB)\le 0.05102), giving:
+[
+N \ge \frac{Var(u)}{\pi^2 \cdot 0.05102^2} \approx 3{,}106
+]
+
+* **N ≈ 3,106**
+
+✅ Not as strict as the O/E requirement.
+
+---
+
+# Final required sample size
+
+Take the maximum across criteria:
+
+* C-statistic: **1,140**
+* Calibration slope: **3,040**
+* O/E: **3,850**  ⟵ **largest**
+* Standardized net benefit: **3,106**
+
+✅ **Minimum validation sample size: (\boxed{N \approx 3{,}850})**
+This corresponds to about **385 events** and **3,465 non-events** (given 10% prevalence).
+
+If you want a small safety buffer (common in practice), round up to **~3,900–4,000** total, and inflate further if you expect missing outcome data or substantial exclusions.

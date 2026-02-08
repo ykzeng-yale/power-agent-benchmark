@@ -1,0 +1,48 @@
+Using Riley et al.’s **binary-outcome** sample size criteria (as implemented in **pmsampsize**) with **target shrinkage (S=0.90)**, you need an anticipated **Cox–Snell (R^2_{CS})** for your setting. Because you provided only **C = 0.80** and **prevalence = 0.05**, we can approximate (R^2_{CS}) from (C) using Riley et al.’s 5-step simulation procedure (normal LP assumption, common variance) that’s specifically recommended for this situation. ([Lirias][1])
+
+## Step 1) Convert C-statistic to an anticipated Cox–Snell (R^2_{CS})
+
+Riley et al. set the separation in linear predictors as
+[
+\mu=\sqrt{2},\Phi^{-1}(C)
+]
+then simulate LPs for events vs non-events to match the prevalence and fit a logistic model to obtain (R^2_{CS}). ([Lirias][1])
+
+For **C = 0.80** and **prevalence = 0.05**, this yields approximately:
+[
+R^2_{CS}\approx 0.062
+]
+(using the Riley procedure).
+
+## Step 2) Apply the shrinkage (overfitting) criterion (criterion i)
+
+Riley’s closed-form sample size for a **binary** model targeting shrinkage (S) is: ([Lirias][1])
+[
+n=\frac{P}{(S-1)\ln!\left(1-\frac{R^2_{CS}}{S}\right)}
+]
+with **(P=12)** predictor parameters and **(S=0.90)**.
+
+Plugging in (R^2_{CS}\approx 0.062):
+[
+n \approx 1689
+]
+
+## Step 3) Check the other Riley criteria (ii) and (iii)
+
+For binary outcomes, pmsampsize also checks: (ii) difference in apparent vs adjusted Nagelkerke (R^2) ≤ 0.05, and (iii) intercept (overall risk) precision within ±0.05. ([CRAN][2])
+With **5% prevalence**, criterion (iii) is trivially satisfied at far smaller (n), and criterion (ii) is typically **less stringent** than shrinkage at (S=0.90) here—so **criterion (i)** dominates.
+
+## Result (what you need)
+
+**Minimum total sample size:** **~1,690 patients** (across all patients used for development).
+
+* Expected events: (0.05\times 1689 \approx 85) events
+* Events per predictor parameter: (\approx 85/12 \approx 7.1)
+
+### Practical notes
+
+* “12 predictors” must mean **12 parameters**. If you use splines, interactions, or multi-level categorical variables, (P) increases → **(n) increases**. ([CRAN][2])
+* If **C = 0.80** is optimistic, the required sample size can rise quickly (lower true (C\Rightarrow) lower (R^2_{CS}\Rightarrow) larger (n)). ([Lirias][1])
+
+[1]: https://lirias.kuleuven.be/retrieve/634194 "A note on estimating the Cox‐Snell R2 from a reported C statistic (AUROC) to inform sample size calculations for developing a prediction model with a binary outcome"
+[2]: https://cran.r-project.org/web/packages/pmsampsize/refman/pmsampsize.html "Help for package pmsampsize"
