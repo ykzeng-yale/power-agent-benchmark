@@ -1,0 +1,84 @@
+Here’s a standard **log-rank (Freedman) / proportional-hazards** sample-size calculation, then we translate “required events” into “required N” using your accrual + follow-up plan and a **20% dropout** assumption.
+
+## 1) Convert 1-year control survival to a control hazard
+
+Assume an exponential control survival curve (common for planning):
+
+* (S_C(12\text{ mo}) = 0.70)
+* (\lambda_C = -\ln(0.70)/12 = 0.0297) per month
+
+Treatment hazard under (HR=0.75):
+
+* (\lambda_T = 0.75\lambda_C = 0.0223) per month
+
+## 2) Required number of events (log-rank)
+
+For equal allocation, the required total number of events is
+
+[
+D ;=; \frac{(z_{1-\alpha/2}+z_{1-\beta})^2}{(\log HR)^2 , p(1-p)}
+\quad\text{with } p=0.5
+]
+
+* Two-sided (\alpha=0.05 \Rightarrow z_{1-\alpha/2}=1.96)
+* Power (=0.85 \Rightarrow z_{1-\beta}=1.036)
+* (\log(HR)=\log(0.75)=-0.2877)
+* (p(1-p)=0.25)
+
+[
+D \approx \frac{(1.96+1.036)^2}{(0.2877)^2 \cdot 0.25}
+\approx 434 \text{ events}
+]
+
+## 3) Expected event probability given accrual + follow-up + dropout
+
+Design: **18 months uniform accrual + 12 months additional follow-up**
+So study ends at month (18+12=30). A subject enrolled at month (u\in[0,18]) is administratively followed for
+[
+t_{\text{admin}} = 30-u \in [12,30]\text{ months}.
+]
+
+To “account for 20% dropout”, a common planning model is **independent exponential dropout** with ~20% dropout by 12 months:
+[
+\mu = -\ln(0.80)/12 = 0.0186 \text{ per month}.
+]
+
+For a given administrative time (t), with event hazard (\lambda) and dropout hazard (\mu), the probability the **event occurs before dropout/admin censoring** is:
+[
+P(\text{event by }t)=\frac{\lambda}{\lambda+\mu}\left(1-e^{-(\lambda+\mu)t}\right).
+]
+
+Averaging over uniform accrual (equivalently (t) uniform on ([12,30])) gives approximately:
+
+* Control average event probability: (\bar p_C \approx 0.385)
+* Treatment average event probability: (\bar p_T \approx 0.309)
+
+Overall (1:1 randomization):
+[
+\bar p_{\text{event}} = (\bar p_C+\bar p_T)/2 \approx 0.347.
+]
+
+## 4) Convert required events to required sample size
+
+[
+N_{\text{total}}=\frac{D}{\bar p_{\text{event}}}
+\approx \frac{434}{0.347} \approx 1251
+]
+
+So
+[
+N_{\text{per arm}} \approx 1251/2 \approx 625.5 ;\Rightarrow; \boxed{626 \text{ per arm}}
+]
+
+---
+
+# Answer
+
+**Plan for ~626 patients per arm (≈ 1,252 total)** to achieve **85% power** at **two-sided α = 0.05**, under:
+
+* log-rank / PH assumption with (HR=0.75)
+* exponential approximation calibrated to 70% 1-year control survival
+* 18 mo uniform accrual + 12 mo additional follow-up
+* dropout modeled as ~20% by 12 months (independent exponential censoring)
+
+If your “20% dropout” instead means **20% lost by study end regardless of follow-up time**, a conservative shortcut is to inflate a no-dropout N by (1/0.8), which would typically land a bit higher than 626/arm.

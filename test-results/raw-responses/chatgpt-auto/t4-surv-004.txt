@@ -1,0 +1,123 @@
+Here’s the **Riley et al. (time-to-event) minimum sample size** for developing a **primary-event survival model** (e.g., **cause-specific Cox** for the primary event, treating competing events as censoring), using your inputs:
+
+* Candidate predictor parameters: **p = 10**
+* Anticipated model fit: **R²_CS,adj = 0.18**
+* Target global shrinkage: **S = 0.90** (Riley’s default)
+* Primary event risk at **t = 5 years**: **F(5) = 0.20**
+* Mean follow-up: **(\bar{t} = 3) years**
+* Precision target for overall risk: **±0.05** at 5 years (Riley’s recommended default) ([RCA Storage][1])
+
+---
+
+## 1) Criterion (i): limit overfitting via shrinkage
+
+Riley gives the closed-form sample size to target shrinkage (S): ([RCA Storage][1])
+
+[
+n ;=; \frac{p}{(S-1),\ln!\left(1-\frac{R^2_{CS,adj}}{S}\right)}
+]
+([RCA Storage][1])
+
+Plug in (p=10), (S=0.90), (R^2_{CS,adj}=0.18):
+
+* (\frac{R^2}{S} = 0.18/0.90 = 0.20)
+* (\ln(1-0.20)=\ln(0.80)=-0.22314)
+* ((S-1)\ln(1-R^2/S)=(-0.10)(-0.22314)=0.022314)
+
+[
+n = \frac{10}{0.022314} = 448.14 \Rightarrow \boxed{449}
+]
+
+So **criterion (i) ⇒ n ≥ 449**.
+
+---
+
+## 2) Criterion (ii): small optimism in Nagelkerke R²
+
+This only matters if it forces a **shrinkage requirement larger than 0.90**. Riley’s requirement is: ([RCA Storage][1])
+
+[
+S \ge \frac{R^2_{CS,adj}}{R^2_{CS,adj} + \delta ,\max(R^2_{CS,app})}
+\quad \text{with } \delta=0.05
+]
+([RCA Storage][1])
+
+For time-to-event, (\max(R^2_{CS,app})) uses: ([RCA Storage][1])
+
+[
+\max(R^2_{CS,app}) = 1-\exp!\left(\frac{2\ln L_{null}}{n}\right)
+]
+([RCA Storage][1])
+
+Using Riley’s exponential null-model setup (so it depends on the **event rate** and **mean follow-up**, not on (n)): with
+[
+\lambda \approx -\ln(1-0.20)/5 = 0.04463 \text{ per year}
+]
+[
+\max(R^2_{CS,app}) \approx 0.432
+]
+
+Then
+[
+S_{req} \approx \frac{0.18}{0.18 + 0.05\times 0.432} \approx 0.893
+]
+So criterion (ii) is **not more stringent** than 0.90.
+
+✅ **Criterion (ii) does not increase n beyond 449.**
+
+---
+
+## 3) Criterion (iii): precision of overall risk at 5 years
+
+Riley checks whether total person-time (T) is enough that the **95% CI for (F(t))** is within **±0.05** of the true value, using the exponential approximation: ([RCA Storage][1])
+
+[
+F(t) = 1-\exp(-\hat\lambda t),\qquad
+CI: ; 1-\exp\Big(-(\hat\lambda \pm 1.96\sqrt{\hat\lambda/T})t\Big)
+]
+([RCA Storage][1])
+
+Solving this for your case ((\lambda=0.04463), (t=5), margin (=0.05)) gives a required:
+
+* **T ≈ 1167 person-years**
+
+With mean follow-up 3 years, (T \approx n \times 3), so:
+
+[
+n \ge 1167/3 = 389
+]
+
+So **criterion (iii) ⇒ n ≥ 389**.
+
+---
+
+## Riley minimum sample size (primary-event model)
+
+Take the largest across criteria:
+
+* Criterion (i): **449**
+* Criterion (ii): **no increase**
+* Criterion (iii): **389**
+
+[
+\boxed{n_{\min} = 449 ;;(\text{round to } \approx 450)}
+]
+
+### What this implies in expected primary events (under your inputs)
+
+Using (\lambda=0.0446) per year and mean follow-up 3 years:
+
+* Expected events (E \approx n \times 3 \times 0.0446 \approx 60)
+* Events per predictor parameter (E/p \approx 60/10 \approx 6)
+
+---
+
+## Important competing-risks note
+
+This calculation assumes the **primary-event hazard model** (cause-specific Cox) where the **competing event is censoring**. In that setting, you should ideally base (\lambda) (and the “20% by 5y”) on the **cause-specific event process under that censoring scheme**.
+
+If your **20%** is actually a **cumulative incidence function (CIF) in the presence of competing risks**, then the implied **cause-specific hazard for the primary event could be different**, and criterion (iii) (the precision check) is the part most sensitive to that.
+
+If you tell me (even roughly) the **5-year competing-event CIF** (or the **cause-specific primary event rate per person-year**), I can redo the (\lambda), person-years, and the final (n) cleanly for your exact competing-risk setting.
+
+[1]: https://rcastoragev2.blob.core.windows.net/509fc40eadd23a411835addcb6f1b2fe/PMC6519266.pdf "Minimum sample size for developing a multivariable prediction model: PART II - binary and time-to-event outcomes"

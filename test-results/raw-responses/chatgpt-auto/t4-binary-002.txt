@@ -1,0 +1,90 @@
+Using the **Riley et al. “minimum sample size” criteria** for developing a **binary-outcome** prediction model (logistic regression), you take the **largest** sample size required across 3 checks:
+(i) shrinkage (overfitting), (ii) optimism in (R^2), (iii) precision of the intercept / outcome prevalence. ([PMC][1])
+
+### Given
+
+* Candidate predictor **parameters**: (p = 24)
+* Outcome prevalence: (\phi = 0.174)
+* Anticipated **Nagelkerke** (R^2_N = 0.36)
+* Default Riley settings: target shrinkage (S=0.90), and (R^2) optimism tolerance (\delta = 0.05). ([PMC][1])
+
+---
+
+## Step A — Convert Nagelkerke (R^2) to Cox–Snell (R^2_{CS})
+
+Riley’s shrinkage formula uses **Cox–Snell (R^2)**; Nagelkerke is Cox–Snell scaled by its maximum (which depends on prevalence). ([PMC][1])
+
+For prevalence (\phi), the maximum Cox–Snell is:
+[
+R^2_{CS,\max}=1-\exp\Big(2,[\phi\ln(\phi)+(1-\phi)\ln(1-\phi)]\Big)
+]
+Then:
+[
+R^2_{CS} = R^2_N \times R^2_{CS,\max}
+]
+
+With (\phi=0.174):
+
+* (R^2_{CS,\max}\approx 0.6032)
+* (R^2_{CS}\approx 0.36\times 0.6032=0.2172)
+
+---
+
+## Criterion (i) — Global shrinkage (S \ge 0.90)
+
+Riley’s criterion (i) targets small overfitting via a global shrinkage factor (often 0.90). ([PMC][1])
+
+Using the closed-form from the Riley framework (as implemented in `pmsampsize` ([CRAN][2])), the required sample size is:
+[
+n ;\ge; \frac{p}{(1-S); \big[-\ln\big(1-\frac{R^2_{CS}}{S}\big)\big]}
+]
+
+Plugging in (p=24), (S=0.90), (R^2_{CS}=0.2172):
+
+* (n_{(i)} \approx 869.2 \Rightarrow 870)
+
+---
+
+## Criterion (ii) — Apparent vs adjusted Nagelkerke (R^2) difference (\le 0.05)
+
+Riley’s criterion (ii) ensures the optimism in Nagelkerke (R^2) is small (often (\le 0.05)). ([PMC][1])
+
+For your numbers, the shrinkage needed to keep optimism (\le 0.05) comes out **less stringent than 0.90** (≈0.878), so criterion (i) already covers it.
+
+So:
+
+* (n_{(ii)} \le n_{(i)})
+
+---
+
+## Criterion (iii) — Precision of overall outcome risk (intercept)
+
+Riley’s criterion (iii) checks you can estimate prevalence precisely; with margin of error ≤ 0.05, they use the usual binomial CI approximation. ([PMC][1])
+
+[
+n \ge \frac{1.96^2;\phi(1-\phi)}{0.05^2}
+]
+
+With (\phi=0.174):
+
+* (n_{(iii)} \approx 220.9 \Rightarrow 221)
+
+---
+
+# Required minimum sample size (take the maximum)
+
+[
+n_{\min}=\max(n_{(i)},n_{(ii)},n_{(iii)})=\max(870,\le 870,221)=\mathbf{870}
+]
+
+### What that implies in events
+
+* Expected events: (E = n\phi \approx 870\times 0.174 \approx 151)
+* Events per parameter: (EPP = E/p \approx 151/24 \approx 6.3) ([PMC][1])
+
+**Answer:** **~870 patients total** (about **151 readmissions expected**) to satisfy the Riley minimum sample size criteria, given (p=24), prevalence (=17.4%), and anticipated Nagelkerke (R^2=0.36).
+
+[1]: https://pmc.ncbi.nlm.nih.gov/articles/PMC6519266/ "
+            Minimum sample size for developing a multivariable prediction model: PART II ‐ binary and time‐to‐event outcomes - PMC
+        "
+[2]: https://cran.r-project.org/web/packages/pmsampsize/pmsampsize.pdf "pmsampsize: Sample Size for Development of a Prediction Model"

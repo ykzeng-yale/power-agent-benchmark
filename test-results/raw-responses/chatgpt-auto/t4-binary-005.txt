@@ -1,0 +1,93 @@
+Using Riley et al.’s **minimum sample size criteria** for developing a *binary* prediction model (as implemented in `pmsampsize`), you calculate the required **N** under each criterion and take the **largest**. 
+
+### Given
+
+* Outcome prevalence: (\phi = 0.03) (3%)
+* Candidate predictor **parameters**: (P = 8) (assuming each predictor contributes 1 df; more on this caveat below)
+* Expected discrimination: **C-statistic = 0.85**
+* Defaults commonly used in Riley framework:
+
+  * target shrinkage (S = 0.90) ([CRAN][1])
+  * target optimism in (R^2_{\text{Nagelkerke}}): (\delta = 0.05) 
+  * target margin of error for overall outcome proportion: (\pm 0.05) 
+
+---
+
+## Step 1 — Convert C-statistic → anticipated (R^2_{CS})
+
+For binary outcomes, Riley’s approach uses the **Cox–Snell (R^2_{CS})**. When only a C-statistic is available, `pmsampsize` approximates (R^2_{CS}) from **C** and **prevalence** via simulation. ([CRAN][1])
+
+For (C=0.85) and (\phi=0.03), this approximation gives:
+
+* (\boxed{R^2_{CS} \approx 0.056})
+
+Also, the maximum possible Cox–Snell (R^2) at prevalence 3% is:
+
+* (\boxed{\max(R^2_{CS}) \approx 0.236}) 
+
+---
+
+## Criterion A — Precise estimation of overall outcome proportion (±0.05)
+
+From Fig 1 (normal approximation to binomial CI), the required sample size is: 
+[
+n = \left(\frac{1.96}{\delta}\right)^2 \phi(1-\phi), \quad \delta=0.05
+]
+Plugging in (\phi=0.03):
+
+* (n \approx 44.7 \Rightarrow \boxed{45})
+
+*(This is never the binding constraint in rare-event model development—because it ignores predictor estimation.)*
+
+---
+
+## Criterion B — Small overfitting via shrinkage (S \ge 0.90)
+
+From Fig 3: 
+[
+n = \frac{P}{(S-1),\ln!\left(1-\frac{R^2_{CS}}{S}\right)}
+]
+With (P=8), (S=0.90), (R^2_{CS}\approx 0.056):
+
+* (n \approx 1252.9 \Rightarrow \boxed{1253})
+
+Expected events:
+
+* (E = n\phi \approx 1253 \times 0.03 = 37.6 \Rightarrow \boxed{\sim 38\text{ events}})
+
+---
+
+## Criterion C — Small optimism (≤ 0.05) in apparent (R^2_{\text{Nagelkerke}})
+
+From Fig 5, first compute an implied shrinkage factor: 
+[
+S = \frac{R^2_{CS}}{R^2_{CS} + \delta,\max(R^2_{CS})},\quad \delta=0.05
+]
+This gives (S \approx 0.825). Then plug into the same Fig 3 equation:
+
+* (n \approx 654.2 \Rightarrow \boxed{655})
+* events (\approx 655 \times 0.03 = 19.7 \Rightarrow \boxed{\sim 20\text{ events}})
+
+---
+
+# Final (take the maximum across criteria)
+
+[
+n_{\min}=\max(45,\ 1253,\ 655)=\boxed{1253}
+]
+
+### ✅ Minimum required sample size (Riley criteria)
+
+* **(\boxed{N \approx 1{,}253})** total participants
+* with **(\boxed{\sim 38})** expected outcome events (at 3% prevalence)
+
+---
+
+## Two important caveats (often the real drivers)
+
+1. **Use predictor *parameters*, not just predictors.** If any predictors are categorical (k levels → k−1 parameters), modeled with splines, interactions, etc., then (P>8) and **N increases** (sometimes a lot). ([CRAN][1])
+2. With only ~38 events, you’ll almost certainly want **penalization/shrinkage** (ridge, lasso, Firth, etc.) and very careful internal validation—Riley’s criteria are “minimum”, not “ideal.” 
+
+If you tell me roughly how many degrees of freedom you plan per predictor (e.g., any splines / categories / interactions), I can recompute (N_{\min}) with the correct (P).
+
+[1]: https://cran.r-project.org/web/packages/pmsampsize/pmsampsize.pdf "pmsampsize: Sample Size for Development of a Prediction Model"

@@ -1,0 +1,74 @@
+Here’s a workable **log-rank–type approximation** for a **mixture-cure** setting (cured = no event), assuming:
+
+* Equal randomization (1:1)
+* Only administrative censoring
+* Two-sided (\alpha=0.05), power (=80%)
+
+## 1) Translate inputs into model pieces
+
+**Cure fractions**
+
+* Control: (\pi_C=0.30) (cured), so (1-\pi_C=0.70) uncured
+* Treatment: (\pi_T=0.45) (cured), so (1-\pi_T=0.55) uncured
+
+**Among uncured** (assume exponential for planning):
+
+* Control median (=2) years (\Rightarrow \lambda_C=\ln(2)/2=0.3466) per year
+* HR among uncured (=0.8 \Rightarrow \lambda_T=0.8\lambda_C=0.2773)
+
+**Mixture survival in arm (g\in{C,T}):**
+[
+S_g(t)=\pi_g + (1-\pi_g)e^{-\lambda_g t},
+\quad
+f_g(t)=(1-\pi_g)\lambda_g e^{-\lambda_g t}.
+]
+
+## 2) How many events by 5 years? (sanity check)
+
+Uncured event probability by 5 years under exponential:
+
+* Control uncured:
+  [
+  1-e^{-\lambda_C 5}=1-e^{-0.3466\cdot 5}=1-e^{-1.733}=0.824
+  ]
+  Overall control event prob:
+  [
+  P(\text{event}|C)=0.70\times 0.824=0.577
+  ]
+
+* Treatment uncured:
+  [
+  1-e^{-\lambda_T 5}=1-e^{-0.2773\cdot 5}=1-e^{-1.386}=0.750
+  ]
+  Overall treatment event prob:
+  [
+  P(\text{event}|T)=0.55\times 0.750=0.413
+  ]
+
+So over 5 years you expect **~57.7%** events in control vs **~41.3%** in treatment (big separation mainly from the cure fraction increase).
+
+## 3) Sample size (log-rank approximation under non-PH)
+
+Because cure makes hazards **non-proportional**, a simple Schoenfeld “single HR” isn’t strictly correct. A standard workaround for planning is to compute the **expected log-rank mean/variance** under the specified mixture curves (administrative censoring at 5y), then solve:
+[
+\frac{(\mathbb{E}[U])^2}{\mathrm{Var}(U)} = (z_{1-\alpha/2}+z_{1-\beta})^2.
+]
+
+Doing that integral numerically for your parameters gives:
+
+* **Total (N \approx 280)**
+* **Per arm (\approx 140)**
+
+### Sensitivity to accrual (if “5-year follow-up” means total study duration)
+
+If instead you have **uniform accrual over 2 years** and study ends at year 5 (so follow-up ranges 3–5 years), required (N) rises modestly to about:
+
+* **Total (N \approx 310)**
+* **Per arm (\approx 155)**
+
+## Answer
+
+* If each subject is followed **a full 5 years**: **~140 per arm**.
+* If study is **5 years total with ~2 years accrual**: **~155 per arm**.
+
+(Then inflate for loss-to-follow-up/nonadherence if you expect it.)

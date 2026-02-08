@@ -1,0 +1,83 @@
+Using the **Riley et al. external validation precision criteria** as implemented in the **`pmvalsampsize`** approach for binary outcomes, the required total sample size is the **maximum** of the sample sizes needed to achieve each target CI width for:
+
+1. **O/E**, 2) **calibration slope**, and 3) **C-statistic**. ([CRAN][1])
+
+Below I assume (as is standard when you only specify precision targets) **anticipated O/E = 1** and **anticipated calibration slope = 1** in the validation population. ([CRAN][1])
+
+---
+
+## Inputs
+
+* Expected C-statistic: **0.75**
+* Outcome prevalence: **0.15**
+* LP distribution: **LP ~ Normal(mean = −2.0, SD = 1.44)**
+* Target 95% CI widths:
+
+  * C-statistic width ≤ **0.08**
+  * Calibration slope width ≤ **0.30**
+  * O/E width ≤ **0.30**
+
+---
+
+## Criterion 1: O/E precision  (target width 0.30)
+
+`pmvalsampsize` targets a CI for **log(O/E)** and converts back to the O/E scale:
+[
+\text{CI width} = \exp(\log(O/E)+1.96,SE)-\exp(\log(O/E)-1.96,SE)
+]
+and then
+[
+N_{OE}=\left\lceil \frac{1-\phi}{\phi;SE^2} \right\rceil,\quad \phi=\text{prevalence}.
+]
+([R Documentation][2])
+
+For width ≤ 0.30, this yields:
+
+* **Required N for O/E:** **974** (≈146 events)
+
+---
+
+## Criterion 2: Calibration slope precision  (target width 0.30)
+
+`pmvalsampsize` uses the LP distribution to compute elements of the Fisher information for the calibration model and then:
+[
+SE(\text{slope})=\frac{\text{target width}}{2\times1.96},\qquad
+N_{\text{slope}}=\left\lceil \frac{I_{00}}{SE^2,(I_{00}I_{11}-I_{01}^2)} \right\rceil
+]
+with (I_{00},I_{01},I_{11}) estimated by averaging functions of LP under the assumed LP distribution. ([R Documentation][2])
+
+Using **LP ~ N(−2.0, 1.44²)** and target width 0.30:
+
+* **Required N for slope:** **1180** (≈177 events)
+
+---
+
+## Criterion 3: C-statistic precision  (target width 0.08)
+
+`pmvalsampsize` uses a closed-form SE approximation and finds the smallest (N) such that:
+[
+\text{CI width}=2\times1.96\times SE(C)\le 0.08
+]
+with (SE(C)) depending on (C), (N), and prevalence. ([R Documentation][2])
+
+This yields:
+
+* **Required N for C-statistic:** **1111** (≈167 events)
+
+---
+
+# Final required sample size
+
+Take the maximum across criteria:
+
+* (N = \max(974,;1180,;1111) = \mathbf{1180})
+
+So you need **≈ 1180 participants total**, which corresponds to:
+
+* **≈ 177 events** (0.15×1180)
+* **≈ 1003 non-events**
+
+This sample size meets **all three** CI-width requirements under the assumptions above. ([R Documentation][2])
+
+[1]: https://cran.r-project.org/web/packages/pmvalsampsize/pmvalsampsize.pdf "pmvalsampsize: Sample Size for External Validation of a Prediction Model"
+[2]: https://rdrr.io/cran/pmvalsampsize/src/R/pmvalsampsize_bin.R "pmvalsampsize source: R/pmvalsampsize_bin.R"

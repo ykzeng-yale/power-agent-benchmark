@@ -1,0 +1,150 @@
+Below is a practical large-sample approximation for the **marginal (actual) power** when the *data truly have shared gamma frailty* but you analyze with a **standard Cox model without frailty** (i.e., a “marginal” working model). I’ll show both:
+
+* **(A) power if you use a cluster-robust (sandwich) SE** (what people usually mean by “marginal” inference under misspecification), and
+* **(B) the overly-optimistic power you’d *think* you have if you also ignore clustering in the SE**.
+
+---
+
+## 1) Setup
+
+* Arms: 2, equal allocation
+* Clusters per arm: 20
+* Cluster size: 15 → **N per arm = 300**, total N = 600
+* Shared **gamma frailty variance**: (\theta = 0.5)
+* Follow-up: 2 years
+* Control marginal survival at 2y: (S_0(2)=0.60) → event risk (p_0=0.40)
+* Target HR: (0.7) → (\beta=\log(0.7)=-0.3567)
+* Two-sided (\alpha=0.05) → (z_{0.975}=1.96)
+
+Under a Cox PH model, a standard event-driven approximation uses the Wald statistic
+[
+Z \approx \frac{\beta}{\mathrm{SE}(\hat\beta)}, \quad \mathrm{Var}(\hat\beta)\approx \frac{1}{D,p(1-p)}
+]
+where (D) is the **effective number of events** and (p) is the allocation proportion (here (p=0.5)).
+So (\mathrm{SE}\approx 2/\sqrt{D}) and
+[
+\mathbb{E}[Z\mid \beta]\approx \beta,\frac{\sqrt{D}}{2}.
+]
+
+The key with clustering is: **replace (D) by an “effective events” (D_{\text{eff}})**.
+
+---
+
+## 2) Convert the given marginal survival to a cumulative hazard under gamma frailty
+
+For shared gamma frailty with variance (\theta), marginal survival is
+[
+S(t)=\left(1+\theta H(t)\right)^{-1/\theta}.
+]
+
+Given (S_0(2)=0.6), solve for (H_0(2)):
+[
+0.6=\left(1+\theta H_0\right)^{-1/\theta}
+;\Rightarrow;
+H_0=\frac{0.6^{-\theta}-1}{\theta}.
+]
+With (\theta=0.5),
+[
+H_0(2)=\frac{0.6^{-0.5}-1}{0.5}\approx 0.582.
+]
+
+Under treatment, the *conditional* hazard is multiplied by HR, so (H_1(2)=\text{HR}\cdot H_0(2)). The marginal treated survival is
+[
+S_1(2)=\left(1+\theta,\text{HR},H_0\right)^{-1/\theta}
+\approx \left(1+0.5\cdot 0.7\cdot 0.582\right)^{-2}
+\approx 0.690.
+]
+So (p_1 = 1-S_1 \approx 0.310).
+
+**Expected events**
+
+* Control: (D_0 = 300\times 0.40 = 120)
+* Treatment: (D_1 = 300\times 0.3098 \approx 92.94)
+
+Total expected events (ignoring correlation):
+[
+D \approx 212.94.
+]
+
+---
+
+## 3) Approximate within-cluster correlation of the 2-year event indicator from frailty
+
+A simple way to get an **ICC for the binary event-by-2y indicator** under shared gamma frailty:
+
+* Marginal survival: (S=(1+\theta H)^{-1/\theta})
+* Joint survival for two subjects in same cluster (shared frailty):
+  [
+  S_{2}=\Pr(T_1>t,T_2>t)=(1+\theta(2H))^{-1/\theta}.
+  ]
+  Then for (Y=\mathbb{1}(T\le t)),
+  [
+  \mathrm{Cov}(Y_1,Y_2)=S_2 - S^2,\quad
+  \mathrm{Var}(Y)=S(1-S),
+  ]
+  [
+  \text{ICC}=\frac{S_2 - S^2}{S(1-S)}.
+  ]
+
+Compute ICCs:
+
+* Control ((S=0.6)): (\text{ICC}_0 \approx 0.165)
+* Treatment ((S\approx 0.690)): (\text{ICC}_1 \approx 0.133)
+
+Design effects (cluster size (m=15)):
+[
+\text{DE}_a = 1+(m-1)\text{ICC}_a.
+]
+So
+
+* (\text{DE}_0 \approx 1+14(0.165)=3.31)
+* (\text{DE}_1 \approx 1+14(0.133)=2.87)
+
+Effective events:
+[
+D_{\text{eff}} \approx \frac{D_0}{\text{DE}_0}+\frac{D_1}{\text{DE}_1}
+\approx \frac{120}{3.31}+\frac{92.94}{2.87}
+\approx 68.70.
+]
+
+---
+
+## 4) Marginal power (two-sided (\alpha=0.05))
+
+Mean of Wald Z under alternative:
+[
+\mu = \beta \frac{\sqrt{D_{\text{eff}}}}{2}
+= \log(0.7)\frac{\sqrt{68.70}}{2}
+\approx -1.48.
+]
+
+Two-sided power:
+[
+\text{Power}=\Pr(|Z|>1.96),\quad Z\sim N(\mu,1)
+\approx 0.315.
+]
+
+### ✅ Answer (marginal / cluster-robust sense)
+
+**Marginal power ≈ 0.32 (32%)** at (\alpha=0.05).
+
+---
+
+## 5) What you’d get if you (incorrectly) ignore clustering in the SE too
+
+If you naïvely take (D\approx 212.94) as independent events:
+[
+\mu_{\text{naive}}=\log(0.7)\frac{\sqrt{212.94}}{2}\approx -2.60
+\Rightarrow \text{Power}\approx 0.74.
+]
+
+So you’d *think* you have about **74% power**, but that’s optimistic because correlation inflates the variance.
+
+---
+
+### Bottom line
+
+* **Actual marginal power (with clustering accounted for): ~32%**
+* **Naïve (independence) power: ~74%**
+
+If you want, I can also compute this using a more “Cox-like” event-time correlation approximation (rather than the binary-by-2y ICC), but the conclusion (substantial power loss with (\theta=0.5), (m=15)) usually stays similar.

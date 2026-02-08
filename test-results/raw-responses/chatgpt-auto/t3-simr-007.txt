@@ -1,0 +1,74 @@
+Using a linear mixed model with **cluster-level** random intercept and random slope (and independent residuals), the model for subject (i) in cluster (c) at time (t\in{0,1,2,3}) is
+
+[
+y_{cit} = \beta_0 + \beta_1 t + \beta_2 \text{Trt}*c + \beta_3 (t\cdot \text{Trt}*c) + b*{0c} + b*{1c} t + \varepsilon_{cit},
+]
+
+with
+
+* (b_{0c}\sim N(0,0.5^2)), (b_{1c}\sim N(0,0.1^2)), (\text{Cov}(b_{0c},b_{1c})=0) (not given, so assumed 0),
+* (\varepsilon_{cit}\sim N(0,1.0^2)) iid.
+
+You asked power for the **time × treatment** interaction, i.e. testing (H_0:\beta_3=0) with true (\beta_3=0.15).
+
+## Step 1: Reduce to cluster-time means (valid here)
+
+Because the random effects are **shared by everyone in a cluster**, the 20 subjects per cluster just reduce the residual variance at each time point. The cluster-time mean has residual variance:
+
+[
+\sigma^2_{\bar\varepsilon}=\frac{1.0^2}{20}=0.05.
+]
+
+So each cluster effectively contributes 4 observations (means at (t=0,1,2,3)) with covariance:
+
+[
+\text{Cov}(\bar y_{ct},\bar y_{ct'}) = 0.5^2 + 0.1^2 , t t' + 0.05\cdot \mathbf{1}(t=t').
+]
+
+Numerically (times 0,1,2,3), the within-cluster (4\times 4) covariance is:
+[
+V=\begin{pmatrix}
+0.30&0.25&0.25&0.25\
+0.25&0.31&0.27&0.28\
+0.25&0.27&0.34&0.31\
+0.25&0.28&0.31&0.39
+\end{pmatrix}.
+]
+
+## Step 2: Standard error for (\hat\beta_3)
+
+With 30 clusters total (15/arm) and fixed effects ([1,\ t,\ \text{Trt},\ t\cdot \text{Trt}]), the GLS variance is
+[
+\text{Var}(\hat\beta)=(X^\top V^{-1}X)^{-1}.
+]
+
+From that,
+[
+\text{SE}(\hat\beta_3)\approx 0.0516,
+\quad
+\text{NCP}=\frac{0.15}{0.0516}\approx 2.905.
+]
+
+## Step 3: Degrees of freedom and power
+
+For a cluster-randomized treatment effect, a common large-sample df approximation is
+[
+\text{df}\approx #\text{clusters} - #\text{arms} = 30-2=28.
+]
+Two-sided (\alpha=0.05) gives (t_{0.975,28}\approx 2.048).
+
+Power for a noncentral (t) with df=28 and NCP=2.905 is:
+
+[
+\text{Power}\approx 0.801.
+]
+
+## Result
+
+**Estimated power ≈ 0.80 (80%)** to detect the **time × treatment** interaction ((\beta_3=0.15)) at **two-sided (\alpha=0.05)**, under the assumptions above.
+
+---
+
+### Quick note on assumptions (important)
+
+This ~80% result **assumes the random intercept and random slope are at the *cluster* level** (shared by all subjects in a cluster). If instead those random effects are **subject-level** (within cluster) and there’s little/no additional cluster-level correlation, the effective information can be larger and the power could be higher. If you tell me whether the ((0.5, 0.1)) SDs are cluster-level vs subject-level (and whether there’s a cluster random effect too), I can recompute under the correct hierarchy.

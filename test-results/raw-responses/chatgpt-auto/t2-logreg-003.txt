@@ -1,0 +1,80 @@
+Here’s a standard **Hsieh/Lachin-style** power approximation for a **single continuous predictor** in a multivariable logistic regression, with the other covariates accounted for via the **partial (R^2)** (your “confounders explain 10% of variance in the predictor”).
+
+## 1) Translate your inputs
+
+* Main predictor (X): continuous, Normal, scaled **per 1 SD** of the biomarker.
+* Target effect: (\text{OR}=1.8) per SD
+  [
+  \beta=\log(1.8)=0.5878
+  ]
+* Baseline (overall) event rate: (\pi = 0.15)
+* Confounders explain (R^2=0.10) of the variance in (X)
+  [
+  \mathrm{Var}(X\mid \text{confounders}) = (1-R^2)\mathrm{Var}(X) = 0.9 \times 1 = 0.9
+  ]
+* Two-sided (\alpha=0.05 \Rightarrow z_{1-\alpha/2}=1.96)
+* Power (=80% \Rightarrow z_{1-\beta}=0.842)
+
+## 2) Core idea (Wald test / Fisher information)
+
+For logistic regression, the (per-subject) Fisher information for (\beta) is
+[
+I_1 = \mathbb{E}\big[p(X)(1-p(X))X^2\big]
+]
+where
+[
+p(X)=\text{logit}^{-1}(\alpha_0 + \beta X),
+\quad X\sim N(0,;0.9)
+]
+and (\alpha_0) is chosen so that (\mathbb{E}[p(X)] = 0.15).
+
+Then the approximate required sample size for testing (H_0:\beta=0) is
+[
+n \approx \frac{(z_{1-\alpha/2}+z_{1-\beta})^2}{\beta^2, I_1}.
+]
+
+## 3) Plugging in (numerical expectation under Normal (X))
+
+Solving (\mathbb{E}[p(X)]=0.15) gives an intercept about
+[
+\alpha_0 \approx -1.839.
+]
+
+Evaluating the expectation
+[
+I_1 = \mathbb{E}\big[p(X)(1-p(X))X^2\big]
+]
+with (X\sim N(0,0.9)) and (\beta=\log(1.8)) gives
+[
+I_1 \approx 0.116.
+]
+
+Now compute:
+[
+z_{1-\alpha/2}+z_{1-\beta} = 1.96 + 0.842 = 2.802,
+]
+[
+n \approx \frac{(2.802)^2}{(0.5878)^2 \cdot 0.116}
+\approx \frac{7.85}{0.0400}
+\approx 196.
+]
+
+## Result
+
+**You need about (\boxed{196}) patients total** for **80% power** at **(\alpha=0.05)** to detect **OR = 1.8 per SD** for the biomarker, **given (R^2=0.10)** with the other covariates and **15%** readmission rate.
+
+* Expected readmissions: (0.15 \times 196 \approx 29) events.
+
+## Practical note (model reliability vs power)
+
+You said **5 covariates + the biomarker = 6 predictors**. With ~29 events, that’s about **4.8 events per predictor**, which is often *thin* for stable multivariable logistic regression (even if power for the biomarker is OK). A conservative “events-per-predictor” planning target like 10 would suggest:
+
+* Need (\approx 6\times 10 = 60) events
+* With 15% event rate: (N \approx 60/0.15 = 400).
+
+So:
+
+* **Power target for biomarker:** ~**196 total**
+* **Stability/estimation target:** often closer to **~400 total** (rule-of-thumb style)
+
+If you tell me whether you’ll use **penalization** (ridge/lasso/Firth) and whether the 5 covariates are prespecified vs selected, I can suggest a more tailored “power + stability” sample size.
