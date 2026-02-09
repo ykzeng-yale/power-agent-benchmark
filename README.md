@@ -116,12 +116,12 @@ However, **value-based comparison is the primary evaluation method**. LLM judgme
 | Rank | Model | Tier 1 | Tier 2 | Tier 3 | Tier 4 | Overall | Date |
 |------|-------|--------|--------|--------|--------|---------|------|
 | 1 | Power Agent (Claude Opus 4.5) | 100% | 100% | 100% | 95.2% | **99.1%** | 2025-02-06 |
-| 2 | ChatGPT Thinking Mode (no code exec) | 60.0% | 62.9% | 75.0% | 28.6% | **57.5%** | 2026-02-08 |
-| 3 | ChatGPT Auto Mode (no code exec) | 56.7% | 65.7% | 70.0% | 28.6% | **56.6%** | 2026-02-08 |
+| 2 | ChatGPT Thinking Mode | 60.0% | 62.9% | 75.0% | 28.6% | **57.5%** | 2026-02-08 |
+| 3 | ChatGPT Auto Mode | 56.7% | 65.7% | 70.0% | 28.6% | **56.6%** | 2026-02-08 |
 
 *Power Agent: 105/106 tasks pass. Single intermittent failure on t4-binary-003 (rare outcome prediction).*
-*ChatGPT Thinking: 61/106 tasks pass. Marginal improvement over Auto Mode (+1 task). Same core limitations: z-approximation (9), no R package access (15), wrong formulas (10). [Detailed report](test-results/evaluation/chatgpt-thinking/README.md)*
-*ChatGPT Auto: 60/106 tasks pass. Primary failure modes: z-approximation (12), no R package access (15), wrong formulas (10). [Detailed report](test-results/evaluation/chatgpt-auto/README.md)*
+*ChatGPT Thinking: 61/106 tasks pass. Did not invoke code execution for any task — all responses are analytical formulas. Marginal improvement over Auto Mode (+1 task). Failure modes: wrong formulas (10), no R package access (15), z-approximation (9). [Detailed report](test-results/evaluation/chatgpt-thinking/README.md)*
+*ChatGPT Auto: 60/106 tasks pass. Did not invoke code execution for any task — all responses are analytical formulas. Failure modes: z-approximation (12), no R package access (15), wrong formulas (10). [Detailed report](test-results/evaluation/chatgpt-auto/README.md)*
 
 *Submit your results via [pull request](leaderboard/README.md).*
 

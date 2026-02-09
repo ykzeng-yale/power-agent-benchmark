@@ -1,6 +1,6 @@
 # ChatGPT Thinking Mode — Benchmark Evaluation
 
-**Model:** ChatGPT Thinking Mode (GPT with extended thinking, no code execution)
+**Model:** ChatGPT Thinking Mode (GPT with extended thinking; has Code Interpreter but did not use it)
 **Date:** 2026-02-08
 **Evaluator:** Claude Sonnet 4.5 (LLM-based value extraction) + deterministic tolerance comparison
 **Benchmark:** power-agent-benchmark v1.0.0 (106 tasks, R-validated ground truths)
@@ -46,9 +46,10 @@ The extended reasoning helps with:
 
 However, fundamental limitations remain identical — thinking harder cannot substitute for code execution.
 
-### 2. Same Core Limitation: No Code Execution
+### 2. Same Core Limitation: Did Not Use Code Execution
 
-Like Auto Mode, Thinking Mode does not execute R code. The same systematic failures persist:
+Like Auto Mode, Thinking Mode has access to Code Interpreter but chose not to invoke it for any of the 106 tasks.
+Instead, it computed all answers analytically from parametric knowledge. The same systematic failures persist:
 - **Specialized R packages** (pmsampsize, pmvalsampsize, simr) — 18 tasks affected
 - **Exact distributions** (t-distribution vs z-approximation) — 9 tasks affected
 - **Simulation-dependent answers** — 2 tasks affected
@@ -82,7 +83,7 @@ If tolerances were relaxed by +2 to accommodate z-approximation (±3 instead of 
 | Tier 2 | 100% (35/35) | 62.9% (22/35) | 65.7% (23/35) |
 | Tier 3 | 100% (20/20) | 75.0% (15/20) | 70.0% (14/20) |
 | Tier 4 | 95.2% (20/21) | 28.6% (6/21) | 28.6% (6/21) |
-| Approach | R code execution via Docker | Extended thinking, no code | Analytical formulas, no code |
+| Approach | R code execution via Docker | Extended thinking, did not invoke code | Analytical formulas, did not invoke code |
 
 ---
 
