@@ -144,8 +144,8 @@ The benchmark accompanies the following paper:
 
 ```bibtex
 @inproceedings{zeng2026poweragent,
-  author = {Zeng, Yukang and Parikh, Harsh and Zhang, Haoxiang and Mukherjee, Bhramar},
-  title = {Power {AI} Agent: A Collaborative Multi-Agent Framework for Automated Statistical Power and Sample Size Determination},
+  author = {Zeng, Yukang and Parikh, Harsh and Zhang, Heping and Mukherjee, Bhramar},
+  title = {Power Agent: A Multi-Agent Framework for Automated Statistical Power and Sample Size Determination},
   booktitle = {ENAR 2026 Spring Meeting Abstracts},
   year = {2026},
   note = {Accepted for publication}
