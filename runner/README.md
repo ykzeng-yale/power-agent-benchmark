@@ -1,12 +1,16 @@
-# Benchmark Runner
+# Benchmark Runner (Reference Implementation)
 
-Automated benchmark execution system for evaluating power analysis agents.
+> **Note:** This runner is a reference implementation designed for the [Power Agent](https://github.com/ykzeng-yale/Power-Agent) SSE API.
+> Most users will write their own runner adapted to their agent's interface.
+> See the [evaluator README](../evaluator/README.md) for how to evaluate results from any agent.
+
+Automated benchmark execution system for the Power Agent API.
 
 ## Overview
 
 The runner orchestrates:
 1. Loading tasks from JSON files
-2. Sending queries to the agent API
+2. Sending queries to the Power Agent SSE API
 3. Collecting responses via Server-Sent Events (SSE)
 4. Invoking the LLM evaluator
 5. Aggregating and saving results

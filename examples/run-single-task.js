@@ -3,6 +3,9 @@
 /**
  * Example: Run a Single Benchmark Task
  *
+ * This is a reference example using the Power Agent SSE API.
+ * Adapt the runAgentTask() function to call your own agent.
+ *
  * Demonstrates how to:
  * 1. Load a specific task
  * 2. Send it to an agent

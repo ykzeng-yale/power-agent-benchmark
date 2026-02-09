@@ -14,8 +14,9 @@ The Power Agent Benchmark evaluates language model agents on their ability to pe
 
 - **106 R-validated tasks** covering fundamental to advanced statistical methods
 - **4 difficulty tiers** with progressive complexity
-- **LLM-as-judge evaluation** using Claude for nuanced, multi-criteria scoring
-- **Strict tolerance checking** with method-appropriate acceptance ranges
+- **Agent-agnostic** — test any LLM, agent framework, or tool
+- **Deterministic evaluation** via direct numerical comparison with per-task tolerances
+- **Optional LLM-as-judge** for extracting values from unstructured agent output
 - **Reproducible ground truths** with documented R reference code
 
 ### Statistical Methods Covered
@@ -42,39 +43,56 @@ The Power Agent Benchmark evaluates language model agents on their ability to pe
 
 ## Quick Start
 
-### Installation
+### 1. Get the Benchmark
 
 ```bash
 git clone https://github.com/ykzeng-yale/power-agent-benchmark.git
 cd power-agent-benchmark
-cd runner && npm install
 ```
 
-### Configuration
+### 2. Understand the Task Format
 
-Set your API keys in environment variables:
+Each task in `tasks/tierN/tasks.json` contains a natural language question and ground truth:
+
+```json
+{
+  "id": "t1-ttest-001",
+  "question": "Calculate the required sample size per group for a two-sample t-test with effect size d=0.5, alpha=0.05, power=0.80...",
+  "ground_truth": { "sample_size_per_group": 64, "total_sample_size": 128, "power": 0.80 },
+  "tolerance": { "sample_size": 1 }
+}
+```
+
+### 3. Run Your Agent
+
+Send each task's `question` to your agent and collect the numerical answers. Your agent can be any LLM, API, or tool — the benchmark is agent-agnostic.
+
+```python
+# Example: Run your agent on all tasks (pseudocode)
+import json
+
+results = {}
+for tier in ["tier1", "tier2", "tier3", "tier4"]:
+    tasks = json.load(open(f"tasks/{tier}/tasks.json"))["tasks"]
+    for task in tasks:
+        answer = your_agent.analyze(task["question"])  # Your agent here
+        results[task["id"]] = answer  # e.g., 64 or {"sample_size_per_group": 64}
+
+json.dump(results, open("my-results.json", "w"), indent=2)
+```
+
+### 4. Evaluate Results
 
 ```bash
-export ANTHROPIC_API_KEY="your-key"
-export POWER_AGENT_API_URL="your-agent-api-endpoint"
+cd evaluator && npm install
+node simple-evaluator.js ../my-results.json
 ```
-
-### Run the Benchmark
-
-```bash
-# Run all tiers
-node runner/run-benchmark.js
-
-# Run specific tier
-node runner/run-benchmark.js --tier=1
-
-# Run with verbose output
-node runner/run-benchmark.js --tier=2 --verbose
-```
-
-### Evaluate Results
 
 Results are evaluated by **direct numerical comparison** against ground truth values.
+
+> **Note:** The `runner/` directory contains a reference runner specific to the Power Agent's SSE API.
+> Most users will write their own runner adapted to their agent's interface.
+> See [evaluator/README.md](evaluator/README.md) for integration options.
 
 ## Evaluation Methodology
 
@@ -169,9 +187,10 @@ power-agent-benchmark/
 │   ├── tier2/               # Regression & models (35 tasks)
 │   ├── tier3/               # Advanced designs (20 tasks)
 │   └── tier4/               # Prediction models (21 tasks)
-├── evaluator/               # LLM-as-judge evaluation code
-├── runner/                  # Benchmark execution scripts
-├── leaderboard/             # Results and submissions
+├── evaluator/               # Evaluation tools (value comparison + LLM judge)
+├── runner/                  # Reference runner (Power Agent SSE API)
+├── test-results/            # Evaluation results for tested models
+├── leaderboard/             # Current standings and submission guide
 ├── docs/                    # Documentation
 └── examples/                # Usage examples
 ```
