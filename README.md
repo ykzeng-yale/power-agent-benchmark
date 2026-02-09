@@ -197,7 +197,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
-- Sincerely thanks to Professor Bhramar Mukherjee, Professor Heping Zhang, and Dr. Harsh Parikh at Yale University for their guidance and input on this project
+- Sincerely thanks to Professor Bhramar Mukherjee, Professor Heping Zhang, and Professor Harsh Parikh at Yale University for their guidance and input on this project
 - Evaluation powered by [Claude](https://www.anthropic.com/) (Anthropic)
 - Statistical validation using [R](https://www.r-project.org/) and CRAN packages:
   - [pwr](https://cran.r-project.org/package=pwr) - Basic power analysis
