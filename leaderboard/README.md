@@ -6,19 +6,25 @@ Current benchmark results and submission guidelines.
 
 | Rank | Agent | Tier 1 | Tier 2 | Tier 3 | Tier 4 | Overall | Date |
 |------|-------|--------|--------|--------|--------|---------|------|
-| 1 | Power Agent (Claude Opus 4.5) | 30/30 (100%) | 35/35 (100%) | 20/20 (100%) | 21/21 (100%) | **106/106 (100%)** | 2025-01-26 |
+| 1 | Power Agent (Claude Opus 4.5) | 30/30 (100%) | 35/35 (100%) | 20/20 (100%) | 20/21 (95.2%) | **105/106 (99.1%)** | 2026-02-06 |
+| 2 | ChatGPT Thinking Mode | 18/30 (60.0%) | 22/35 (62.9%) | 15/20 (75.0%) | 6/21 (28.6%) | **61/106 (57.5%)** | 2026-02-08 |
+| 3 | ChatGPT Auto Mode | 17/30 (56.7%) | 23/35 (65.7%) | 14/20 (70.0%) | 6/21 (28.6%) | **60/106 (56.6%)** | 2026-02-08 |
+
+See [results.json](results.json) for machine-readable results with detailed failure breakdowns.
 
 ## Scoring Breakdown
 
 ### Power Agent (Claude Opus 4.5)
 
-| Tier | Tasks | Passed | Pass Rate | Avg Score |
-|------|-------|--------|-----------|-----------|
-| Tier 1: Basic Comparisons | 30 | 30 | 100% | 97.2 |
-| Tier 2: Regression & Models | 35 | 35 | 100% | 95.8 |
-| Tier 3: Advanced Designs | 20 | 20 | 100% | 94.1 |
-| Tier 4: Prediction Models | 21 | 21 | 100% | 96.5 |
-| **Overall** | **106** | **106** | **100%** | **95.9** |
+| Tier | Tasks | Passed | Pass Rate |
+|------|-------|--------|-----------|
+| Tier 1: Basic Comparisons | 30 | 30 | 100% |
+| Tier 2: Regression & Models | 35 | 35 | 100% |
+| Tier 3: Advanced Designs | 20 | 20 | 100% |
+| Tier 4: Prediction Models | 21 | 20 | 95.2% |
+| **Overall** | **106** | **105** | **99.1%** |
+
+*Single intermittent failure on t4-binary-003 (rare outcome prediction). Task passes on retry.*
 
 ## How to Submit
 

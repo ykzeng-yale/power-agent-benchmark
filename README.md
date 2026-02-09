@@ -115,7 +115,7 @@ However, **value-based comparison is the primary evaluation method**. LLM judgme
 
 | Rank | Model | Tier 1 | Tier 2 | Tier 3 | Tier 4 | Overall | Date |
 |------|-------|--------|--------|--------|--------|---------|------|
-| 1 | Power Agent (Claude Opus 4.5) | 100% | 100% | 100% | 95.2% | **99.1%** | 2025-02-06 |
+| 1 | Power Agent (Claude Opus 4.5) | 100% | 100% | 100% | 95.2% | **99.1%** | 2026-02-06 |
 | 2 | ChatGPT Thinking Mode | 60.0% | 62.9% | 75.0% | 28.6% | **57.5%** | 2026-02-08 |
 | 3 | ChatGPT Auto Mode | 56.7% | 65.7% | 70.0% | 28.6% | **56.6%** | 2026-02-08 |
 
@@ -130,13 +130,25 @@ However, **value-based comparison is the primary evaluation method**. LLM judgme
 If you use this benchmark in your research, please cite:
 
 ```bibtex
-@software{zeng2025poweragent,
+@software{zeng2026poweragentbenchmark,
   author = {Zeng, Yukang},
   title = {Power Agent Biostatistics Benchmark},
-  year = {2025},
+  year = {2026},
   publisher = {GitHub},
   url = {https://github.com/ykzeng-yale/power-agent-benchmark},
   version = {1.0.0}
+}
+```
+
+The benchmark accompanies the following paper:
+
+```bibtex
+@inproceedings{zeng2026poweragent,
+  author = {Zeng, Yukang and Parikh, Harsh and Zhang, Haoxiang and Mukherjee, Bhramar},
+  title = {Power {AI} Agent: A Collaborative Multi-Agent Framework for Automated Statistical Power and Sample Size Determination},
+  booktitle = {ENAR 2026 Spring Meeting Abstracts},
+  year = {2026},
+  note = {Accepted for publication}
 }
 ```
 

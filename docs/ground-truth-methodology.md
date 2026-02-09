@@ -103,7 +103,7 @@ Set tolerance based on method characteristics:
 Ground truths include validation dates to track currency:
 
 ```json
-"source": "pwr package (R-validated 2025-02-06)"
+"source": "pwr package (R-validated 2026-02-06)"
 ```
 
 This indicates:

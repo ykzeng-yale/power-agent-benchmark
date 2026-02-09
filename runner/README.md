@@ -75,7 +75,7 @@ Results are saved to `results/benchmark_{timestamp}.json`:
 ```json
 {
   "runId": "benchmark_1706789012345",
-  "timestamp": "2025-02-01T12:00:00.000Z",
+  "timestamp": "2026-02-01T12:00:00.000Z",
   "tiers": [
     {
       "tier": 1,
