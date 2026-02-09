@@ -4,7 +4,8 @@ Raw responses from automated Playwright-based ChatGPT Thinking Mode benchmark co
 
 - **106/106 tasks collected** across all 4 tiers using GPT Thinking Mode
 - Responses collected via automated browser interaction (no API)
-- Each `.txt` file contains ChatGPT Thinking Mode's complete response to one benchmark task
+- Each `.txt` file contains ChatGPT Thinking Mode's text response to one benchmark task
+- **Note:** ChatGPT used Python Code Interpreter for these tasks, but code execution blocks were folded/collapsed in the UI and were not captured by the Playwright collector. The `.txt` files contain only the visible text output.
 
 ## Evaluation Results
 

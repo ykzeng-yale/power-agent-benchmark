@@ -1,6 +1,6 @@
 # ChatGPT Thinking Mode — Benchmark Evaluation
 
-**Model:** ChatGPT Thinking Mode (GPT with extended thinking; has Code Interpreter but did not use it)
+**Model:** ChatGPT Thinking Mode (GPT with extended thinking + Python Code Interpreter)
 **Date:** 2026-02-08
 **Evaluator:** Claude Sonnet 4.5 (LLM-based value extraction) + deterministic tolerance comparison
 **Benchmark:** power-agent-benchmark v1.0.0 (106 tasks, R-validated ground truths)
@@ -44,12 +44,13 @@ The extended reasoning helps with:
 - Some complex computation steps (slightly fewer arithmetic errors)
 - Better formula selection in some regression/survival tasks
 
-However, fundamental limitations remain identical — thinking harder cannot substitute for code execution.
+However, fundamental limitations remain identical — Python Code Interpreter cannot substitute for R statistical packages.
 
-### 2. Same Core Limitation: Did Not Use Code Execution
+### 2. Same Core Limitation: Python Code Interpreter Lacks R Statistical Packages
 
-Like Auto Mode, Thinking Mode has access to Code Interpreter but chose not to invoke it for any of the 106 tasks.
-Instead, it computed all answers analytically from parametric knowledge. The same systematic failures persist:
+Both modes use ChatGPT's Python Code Interpreter, but lack access to specialized R packages.
+The benchmark's ground truths are computed using R packages (pwr, pwrss, pmsampsize, pmvalsampsize, simr),
+and Python equivalents either don't exist or produce different results. The same systematic failures persist:
 - **Specialized R packages** (pmsampsize, pmvalsampsize, simr) — 18 tasks affected
 - **Exact distributions** (t-distribution vs z-approximation) — 9 tasks affected
 - **Simulation-dependent answers** — 2 tasks affected
@@ -83,7 +84,7 @@ If tolerances were relaxed by +2 to accommodate z-approximation (±3 instead of 
 | Tier 2 | 100% (35/35) | 62.9% (22/35) | 65.7% (23/35) |
 | Tier 3 | 100% (20/20) | 75.0% (15/20) | 70.0% (14/20) |
 | Tier 4 | 95.2% (20/21) | 28.6% (6/21) | 28.6% (6/21) |
-| Approach | R code execution via Docker | Extended thinking, did not invoke code | Analytical formulas, did not invoke code |
+| Approach | R code execution via Docker | Extended thinking + Python Code Interpreter | Python Code Interpreter |
 
 ---
 

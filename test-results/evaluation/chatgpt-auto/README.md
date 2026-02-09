@@ -1,6 +1,6 @@
 # ChatGPT Auto Mode — Benchmark Evaluation
 
-**Model:** ChatGPT Auto Mode (GPT; has Code Interpreter but did not use it)
+**Model:** ChatGPT Auto Mode (GPT + Python Code Interpreter)
 **Date:** 2026-02-08
 **Evaluator:** Claude Sonnet 4.5 (LLM-based value extraction) + deterministic tolerance comparison
 **Benchmark:** power-agent-benchmark v1.0.0 (106 tasks, R-validated ground truths)
@@ -41,10 +41,10 @@
 
 ## Key Findings
 
-### 1. Not Using Code Execution is the Core Limitation
+### 1. Python Code Interpreter Lacks R Statistical Packages
 
-ChatGPT Auto Mode has access to Code Interpreter but chose not to invoke it for any of the 106 tasks.
-It computes everything analytically from parametric knowledge.
+ChatGPT Auto Mode uses Python Code Interpreter but lacks access to the specialized R packages
+that produce the benchmark's ground truths (pwr, pwrss, pmsampsize, pmvalsampsize, simr).
 This creates systematic failures for:
 - **Specialized R packages** (pmsampsize, pmvalsampsize, simr, swdpwr) — 18 tasks affected
 - **Exact distributions** (t-distribution vs z-approximation) — 12 tasks affected
@@ -87,7 +87,7 @@ If tolerances were relaxed by +2 to accommodate z-approximation (±3 instead of 
 | Tier 2 | 100% (35/35) | 65.7% (23/35) |
 | Tier 3 | 100% (20/20) | 70.0% (14/20) |
 | Tier 4 | 95.2% (20/21) | 28.6% (6/21) |
-| Approach | R code execution via Docker | Analytical formulas, did not invoke code |
+| Approach | R code execution via Docker | Python Code Interpreter |
 
 ---
 
