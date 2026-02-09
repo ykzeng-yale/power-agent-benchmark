@@ -145,19 +145,7 @@ However, **value-based comparison is the primary evaluation method**. LLM judgme
 
 ## Citation
 
-If you use this benchmark or agent in your work, please cite our paper:
-
-```bibtex
-@inproceedings{zeng2026poweragent,
-  author = {Zeng, Yukang and Parikh, Harsh and Zhang, Heping and Mukherjee, Bhramar},
-  title = {Power {AI} Agent: A Collaborative Multi-Agent Framework for Automated Statistical Power and Sample Size Determination},
-  booktitle = {ENAR 2026 Spring Meeting Abstracts},
-  year = {2026},
-  note = {Accepted for publication}
-}
-```
-
-To cite the benchmark dataset specifically:
+If you use this benchmark in your research, please cite:
 
 ```bibtex
 @software{zeng2026poweragentbenchmark,
