@@ -197,6 +197,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
+- Thanks to Harsh Parikh, Heping Zhang, and Bhramar Mukherjee for their contributions and guidance
 - Evaluation powered by [Claude](https://www.anthropic.com/) (Anthropic)
 - Statistical validation using [R](https://www.r-project.org/) and CRAN packages:
   - [pwr](https://cran.r-project.org/package=pwr) - Basic power analysis
