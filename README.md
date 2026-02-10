@@ -168,13 +168,13 @@ If you use this benchmark in your research, please cite:
 
 ## Benchmark Versions
 
-| Version | Strategy | Tasks | Description |
-|---------|----------|-------|-------------|
-| **v2.0** | Curated | 106 | Hand-curated tasks used for leaderboard evaluation ([`tasks/`](tasks/)) |
-| **v2.1** | Real-Source (Strategy A) | 989 | 500 real-source examples + 489 supplements, all R-verified ([`v2.1/`](v2.1/)) |
-| **v2.2** | Claude-Generated (Strategy B) | 1,099 | Systematically generated from 17 R packages ([`v2.2/`](v2.2/)) |
+| Version | Tasks | Description |
+|---------|-------|-------------|
+| **v2.0** | 106 | Curated tasks used for leaderboard evaluation ([`tasks/`](tasks/)) |
+| **v2.1** | 989 | Constructed from published sources (R help pages, CRAN vignettes, textbooks, papers) with supplementary tasks, all R-verified ([`v2.1/`](v2.1/)) |
+| **v2.2** | 1,099 | Constructed with systematic coverage across 17 R packages ([`v2.2/`](v2.2/)) |
 
-**v2.1** prioritizes tasks derived from real published sources (R help pages, CRAN vignettes, GitHub repos, published papers, educational sites, textbooks). **v2.2** uses systematic Claude-generated coverage across all functions in each R package. Each version has its own README with full details.
+**v2.1** prioritizes tasks derived from real published sources (R help pages, CRAN vignettes, GitHub repos, published papers, educational sites, textbooks). **v2.2** provides systematic coverage across all functions in each R package. Each version has its own README with full details.
 
 ## Repository Structure
 
@@ -185,12 +185,12 @@ power-agent-benchmark/
 │   ├── tier2/               # Regression & models (35 tasks)
 │   ├── tier3/               # Advanced designs (20 tasks)
 │   └── tier4/               # Prediction models (21 tasks)
-├── v2.1/                    # Strategy A: Real-source edition (989 tasks)
+├── v2.1/                    # Published-source edition (989 tasks)
 │   ├── tier1/               # Basic comparisons (296 tasks)
 │   ├── tier2/               # Regression & models (295 tasks)
 │   ├── tier3/               # Complex designs (298 tasks)
 │   └── tier4/               # Prediction & specialized (100 tasks)
-├── v2.2/                    # Strategy B: Claude-generated edition (1,099 tasks)
+├── v2.2/                    # Systematic-coverage edition (1,099 tasks)
 │   ├── tier1/               # Basic comparisons (259 tasks)
 │   ├── tier2/               # Regression & models (354 tasks)
 │   ├── tier3/               # Complex designs (375 tasks)

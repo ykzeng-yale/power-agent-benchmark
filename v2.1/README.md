@@ -1,10 +1,10 @@
-# Benchmark v2.1 - Strategy A: Real-Source Edition
+# Benchmark v2.1 - Published-Source Edition
 
-**989 tasks** across 4 tiers, with **500 real-source examples (50.6%)** and 489 Claude-generated supplements.
+**989 tasks** across 4 tiers, constructed from **500 published examples** and 489 supplementary tasks, all R-verified.
 
 ## Overview
 
-This benchmark prioritizes **real published examples** as the primary content source. Tasks are derived from R package help pages, CRAN vignettes, GitHub repositories, published papers, educational sites, textbooks, and software documentation.
+This benchmark edition prioritizes tasks constructed from **published sources** including R package help pages, CRAN vignettes, GitHub repositories, published papers, educational sites, textbooks, and software documentation.
 
 ## Tier Distribution
 
