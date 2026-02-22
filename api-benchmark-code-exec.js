@@ -51,7 +51,7 @@ const RATE_LIMITS = {
 
 // Per-model delay overrides (some preview models have tighter limits)
 const MODEL_RATE_LIMITS = {
-  'gemini-3.1-pro-preview': 120000,  // 120s between requests for preview model
+  'gemini-3.1-pro-preview': 45000,  // 45s between requests for preview model
 };
 
 const MAX_RETRIES = 5;

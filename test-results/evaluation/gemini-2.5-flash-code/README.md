@@ -16,8 +16,8 @@
 
 ## Failure Analysis
 
-- value_incorrect: 38
-- partial_answer: 14
+- value_incorrect: 39
+- partial_answer: 13
 - no_numerical_answer: 5
 
 ## Detailed Results
