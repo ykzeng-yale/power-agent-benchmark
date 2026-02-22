@@ -25,7 +25,9 @@ const CONCURRENCY = 5; // parallel LLM extraction calls
 const ALL_MODELS = [
   'gpt-5.2', 'gpt-5.2-pro',
   'claude-sonnet-4-6', 'claude-opus-4-6',
-  'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3.1-pro-preview'
+  'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3.1-pro-preview',
+  // Code execution models
+  'gpt-5.2-code', 'gemini-2.5-flash-code', 'gemini-2.5-pro-code', 'gemini-3.1-pro-preview-code',
 ];
 
 // Display names
@@ -37,6 +39,10 @@ const DISPLAY_NAMES = {
   'gemini-2.5-flash': 'Gemini 2.5 Flash',
   'gemini-2.5-pro': 'Gemini 2.5 Pro',
   'gemini-3.1-pro-preview': 'Gemini 3.1 Pro Preview',
+  'gpt-5.2-code': 'GPT-5.2 + Code Interpreter',
+  'gemini-2.5-flash-code': 'Gemini 2.5 Flash + Code Execution',
+  'gemini-2.5-pro-code': 'Gemini 2.5 Pro + Code Execution',
+  'gemini-3.1-pro-preview-code': 'Gemini 3.1 Pro Preview + Code Execution',
 };
 
 async function loadAllTasks() {
