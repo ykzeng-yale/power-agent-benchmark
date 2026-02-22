@@ -136,10 +136,18 @@ However, **value-based comparison is the primary evaluation method**. LLM judgme
 | 1 | Power Agent (Claude Opus 4.5) | 100% | 100% | 100% | 95.2% | **99.1%** | 2026-02-06 |
 | 2 | ChatGPT Thinking Mode (Web UI) | 60.0% | 62.9% | 75.0% | 28.6% | **57.5%** | 2026-02-08 |
 | 3 | ChatGPT Auto Mode (Web UI) | 56.7% | 65.7% | 70.0% | 28.6% | **56.6%** | 2026-02-08 |
+| 4 | GPT-5.2 Pro (API) | 60.0% | 60.0% | 80.0% | 9.5% | **53.8%** | 2026-02-22 |
+| 5 | Gemini 3.1 Pro Preview (API) | 60.0% | 62.9% | 70.0% | 4.8% | **51.9%** | 2026-02-22 |
+| 6 | Claude Opus 4.6 (API) | 43.3% | 62.9% | 80.0% | 4.8% | **49.1%** | 2026-02-22 |
+| 7 | Gemini 2.5 Pro (API) | 43.3% | 54.3% | 55.0% | 4.8% | **41.5%** | 2026-02-22 |
+| 8 | GPT-5.2 (API) | 30.0% | 65.7% | 45.0% | 4.8% | **39.6%** | 2026-02-22 |
+| 9 | Claude Sonnet 4.6 (API) | 33.3% | 37.1% | 65.0% | 4.8% | **34.9%** | 2026-02-22 |
+| 10 | Gemini 2.5 Flash (API) | 33.3% | 34.3% | 45.0% | 0.0% | **29.2%** | 2026-02-22 |
 
 *Power Agent: 105/106 tasks pass. Single intermittent failure on t4-binary-003 (rare outcome prediction).*
 *ChatGPT Thinking (Web UI): 61/106 tasks pass. Uses Python Code Interpreter but lacks R statistical packages. Failure modes: wrong formulas (10), no R package access (15), z-approximation (9). [Detailed report](test-results/evaluation/chatgpt-thinking/README.md)*
 *ChatGPT Auto (Web UI): 60/106 tasks pass. Uses Python Code Interpreter but lacks R statistical packages. Failure modes: z-approximation (12), no R package access (15), wrong formulas (10). [Detailed report](test-results/evaluation/chatgpt-auto/README.md)*
+*API models (ranks 4-10): Tested via direct API calls with no code execution capability. Models receive only the natural language question and must reason about statistical formulas without running R code. [Raw responses & evaluation details](test-results/)*
 
 *Submit your results via [pull request](leaderboard/README.md).*
 
