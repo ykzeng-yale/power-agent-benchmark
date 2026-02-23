@@ -124,14 +124,16 @@ async function callOpenAIWithCode(modelId, question) {
 }
 
 async function callGeminiWithCode(modelId, question) {
+  // NOTE: For gemini-3.1-pro-preview, combining systemInstruction with codeExecution
+  // causes "fetch failed" errors. We prepend system prompt to user message instead.
   const model = geminiClient.getGenerativeModel({
     model: modelId,
-    systemInstruction: SYSTEM_PROMPT,
     tools: [{ codeExecution: {} }],
   });
 
+  const fullQuestion = SYSTEM_PROMPT + '\n\n' + question;
   const start = Date.now();
-  const result = await model.generateContent(question);
+  const result = await model.generateContent(fullQuestion);
   const latency = Date.now() - start;
   const response = result.response;
 
@@ -253,7 +255,8 @@ async function runModelBenchmark(modelConfig, tasks) {
   for (let i = 0; i < tasks.length; i++) {
     const task = tasks[i];
 
-    if (responses[task.id] && responses[task.id].response_text && responses[task.id].response_text.length > 20) {
+    // Skip tasks that already have successful responses (not error entries)
+    if (responses[task.id] && !responses[task.id].error && responses[task.id].response_text && responses[task.id].response_text.length > 20) {
       skipped++;
       if (responses[task.id].used_code) usedCode++;
       continue;
