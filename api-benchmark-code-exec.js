@@ -54,7 +54,7 @@ const MODEL_RATE_LIMITS = {
   'gemini-3.1-pro-preview': 45000,  // 45s between requests for preview model
 };
 
-const MAX_RETRIES = 2;  // Reduced from 5 - preview model times out on some tasks
+const MAX_RETRIES = 5;
 const TASKS_FILE = path.join(__dirname, 'all_tasks.json');
 const OUTPUT_BASE = path.join(__dirname, 'test-results', 'raw-responses');
 
@@ -124,7 +124,6 @@ async function callOpenAIWithCode(modelId, question) {
 }
 
 async function callGeminiWithCode(modelId, question) {
-  const abortController = new AbortController();
   const model = geminiClient.getGenerativeModel({
     model: modelId,
     systemInstruction: SYSTEM_PROMPT,
@@ -132,19 +131,7 @@ async function callGeminiWithCode(modelId, question) {
   });
 
   const start = Date.now();
-  const timeoutMs = 180000; // 3 minute timeout
-  const timer = setTimeout(() => abortController.abort(), timeoutMs);
-  let result;
-  try {
-    result = await model.generateContent({ contents: [{ role: 'user', parts: [{ text: question }] }] }, { signal: abortController.signal });
-  } catch (err) {
-    clearTimeout(timer);
-    if (abortController.signal.aborted) {
-      throw new Error('API call timed out after 5 minutes');
-    }
-    throw err;
-  }
-  clearTimeout(timer);
+  const result = await model.generateContent(question);
   const latency = Date.now() - start;
   const response = result.response;
 
@@ -266,10 +253,7 @@ async function runModelBenchmark(modelConfig, tasks) {
   for (let i = 0; i < tasks.length; i++) {
     const task = tasks[i];
 
-    if (responses[task.id] && (
-      (responses[task.id].response_text && responses[task.id].response_text.length > 20) ||
-      responses[task.id].error
-    )) {
+    if (responses[task.id] && responses[task.id].response_text && responses[task.id].response_text.length > 20) {
       skipped++;
       if (responses[task.id].used_code) usedCode++;
       continue;

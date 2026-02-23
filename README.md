@@ -142,17 +142,16 @@ However, **value-based comparison is the primary evaluation method**. LLM judgme
 | 7 | Claude Opus 4.6 (API Only) | 43.3% | 62.9% | 80.0% | 4.8% | **49.1%** | 2026-02-22 |
 | 8 | GPT-5.2 + Code Interpreter (API) | 63.3% | 60.0% | 50.0% | 4.8% | **48.1%** | 2026-02-22 |
 | 9 | Gemini 2.5 Flash + Code Execution (API) | 70.0% | 51.4% | 50.0% | 0.0% | **46.2%** | 2026-02-22 |
-| 10 | Gemini 3.1 Pro Preview + Code Execution (API) | 86.7% | 40.0% | 40.0% | 0.0% | **45.3%** | 2026-02-23 |
-| 11 | Gemini 2.5 Pro (API Only) | 43.3% | 54.3% | 55.0% | 4.8% | **41.5%** | 2026-02-22 |
-| 12 | GPT-5.2 (API Only) | 30.0% | 65.7% | 45.0% | 4.8% | **39.6%** | 2026-02-22 |
-| 13 | Claude Sonnet 4.6 (API Only) | 33.3% | 37.1% | 65.0% | 4.8% | **34.9%** | 2026-02-22 |
-| 14 | Gemini 2.5 Flash (API Only) | 33.3% | 34.3% | 45.0% | 0.0% | **29.2%** | 2026-02-22 |
+| 10 | Gemini 2.5 Pro (API Only) | 43.3% | 54.3% | 55.0% | 4.8% | **41.5%** | 2026-02-22 |
+| 11 | GPT-5.2 (API Only) | 30.0% | 65.7% | 45.0% | 4.8% | **39.6%** | 2026-02-22 |
+| 12 | Claude Sonnet 4.6 (API Only) | 33.3% | 37.1% | 65.0% | 4.8% | **34.9%** | 2026-02-22 |
+| 13 | Gemini 2.5 Flash (API Only) | 33.3% | 34.3% | 45.0% | 0.0% | **29.2%** | 2026-02-22 |
 
 *Power Agent: 105/106 tasks pass. Single intermittent failure on t4-binary-003 (rare outcome prediction).*
 *ChatGPT Thinking (Web UI): 61/106 tasks pass. Uses Python Code Interpreter but lacks R statistical packages. Failure modes: wrong formulas (10), no R package access (15), z-approximation (9). [Detailed report](test-results/evaluation/chatgpt-thinking/README.md)*
 *ChatGPT Auto (Web UI): 60/106 tasks pass. Uses Python Code Interpreter but lacks R statistical packages. Failure modes: z-approximation (12), no R package access (15), wrong formulas (10). [Detailed report](test-results/evaluation/chatgpt-auto/README.md)*
 *API Only models: Tested via direct API calls with no code execution capability. Models receive only the natural language question and must reason about statistical formulas without running R code.*
-*API + Code Execution models: Tested via API with built-in code execution enabled (OpenAI Code Interpreter / Gemini Code Execution). Models can write and run Python code to compute answers. GPT-5.2 Pro does not support Code Interpreter via API. Gemini 3.1 Pro Preview + Code Execution: 53/106 tasks completed (47 timed out >3min, 6 quota exceeded); 48/53 passed on completed tasks (90.6%). [Raw responses & evaluation details](test-results/)*
+*API + Code Execution models: Tested via API with built-in code execution enabled (OpenAI Code Interpreter / Gemini Code Execution). Models can write and run Python code to compute answers. GPT-5.2 Pro does not support Code Interpreter via API. [Raw responses & evaluation details](test-results/)*
 
 *Submit your results via [pull request](leaderboard/README.md).*
 
