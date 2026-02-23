@@ -139,7 +139,7 @@ However, **value-based comparison is the primary evaluation method**. LLM judgme
 | 4 | ChatGPT Auto Mode (Web UI) | 56.7% | 65.7% | 70.0% | 28.6% | **56.6%** | 2026-02-08 |
 | 5 | GPT-5.2 Pro (API Only) | 60.0% | 60.0% | 80.0% | 9.5% | **53.8%** | 2026-02-22 |
 | 6 | Gemini 3.1 Pro Preview (API Only) | 60.0% | 62.9% | 70.0% | 4.8% | **51.9%** | 2026-02-22 |
-| 7 | Gemini 2.5 Pro + Code Execution (API) | 73.3% | 58.8% | 50.0% | 4.8% | **50.0%** | 2026-02-22 |
+| 7 | Gemini 2.5 Pro + Code Execution (API) | 73.3% | 57.1% | 50.0% | 4.8% | **50.0%** | 2026-02-22 |
 | 8 | Claude Opus 4.6 (API Only) | 43.3% | 62.9% | 80.0% | 4.8% | **49.1%** | 2026-02-22 |
 | 9 | GPT-5.2 + Code Interpreter (API) | 63.3% | 60.0% | 50.0% | 4.8% | **48.1%** | 2026-02-22 |
 | 10 | Gemini 2.5 Flash + Code Execution (API) | 70.0% | 51.4% | 50.0% | 0.0% | **46.2%** | 2026-02-22 |
