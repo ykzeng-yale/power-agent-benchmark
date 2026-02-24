@@ -41,6 +41,36 @@ The Power Agent Benchmark evaluates language model agents on their ability to pe
 | 4 | Prediction Models | 21 | Riley criteria (pmsampsize), external validation (pmvalsampsize) |
 | **Total** | | **106** | |
 
+## Leaderboard
+
+![Leaderboard](leaderboard/leaderboard-chart.svg)
+
+| Rank | Model | Tier 1 | Tier 2 | Tier 3 | Tier 4 | Overall | Date |
+|------|-------|--------|--------|--------|--------|---------|------|
+| 1 | Power Agent (Claude Opus 4.5) | 100% | 100% | 100% | 95.2% | **99.1%** | 2026-02-06 |
+| 2 | Gemini 3.1 Pro Preview + Code Execution (API) | 86.7% | 74.3% | 70.0% | 38.1% | **69.8%** | 2026-02-23 |
+| 3 | ChatGPT Thinking Mode (Web UI) | 60.0% | 62.9% | 75.0% | 28.6% | **57.5%** | 2026-02-08 |
+| 4 | ChatGPT Auto Mode (Web UI) | 56.7% | 65.7% | 70.0% | 28.6% | **56.6%** | 2026-02-08 |
+| 5 | GPT-5.2 Pro (API Only) | 60.0% | 60.0% | 80.0% | 9.5% | **53.8%** | 2026-02-22 |
+| 6 | Gemini 3.1 Pro Preview (API Only) | 60.0% | 62.9% | 70.0% | 4.8% | **51.9%** | 2026-02-22 |
+| 7 | Gemini 2.5 Pro + Code Execution (API) | 73.3% | 57.1% | 50.0% | 4.8% | **50.0%** | 2026-02-22 |
+| 8 | Claude Opus 4.6 (API Only) | 43.3% | 62.9% | 80.0% | 4.8% | **49.1%** | 2026-02-22 |
+| 9 | GPT-5.2 + Code Interpreter (API) | 63.3% | 60.0% | 50.0% | 4.8% | **48.1%** | 2026-02-22 |
+| 10 | Gemini 2.5 Flash + Code Execution (API) | 70.0% | 51.4% | 50.0% | 0.0% | **46.2%** | 2026-02-22 |
+| 11 | Gemini 2.5 Pro (API Only) | 43.3% | 54.3% | 55.0% | 4.8% | **41.5%** | 2026-02-22 |
+| 12 | GPT-5.2 (API Only) | 30.0% | 65.7% | 45.0% | 4.8% | **39.6%** | 2026-02-22 |
+| 13 | Claude Sonnet 4.6 (API Only) | 33.3% | 37.1% | 65.0% | 4.8% | **34.9%** | 2026-02-22 |
+| 14 | Gemini 2.5 Flash (API Only) | 33.3% | 34.3% | 45.0% | 0.0% | **29.2%** | 2026-02-22 |
+
+*Power Agent: 105/106 tasks pass. Single intermittent failure on t4-binary-003 (rare outcome prediction).*
+*ChatGPT Thinking (Web UI): 61/106 tasks pass. Uses Python Code Interpreter but lacks R statistical packages. Failure modes: wrong formulas (10), no R package access (15), z-approximation (9). [Detailed report](test-results/evaluation/chatgpt-thinking/README.md)*
+*ChatGPT Auto (Web UI): 60/106 tasks pass. Uses Python Code Interpreter but lacks R statistical packages. Failure modes: z-approximation (12), no R package access (15), wrong formulas (10). [Detailed report](test-results/evaluation/chatgpt-auto/README.md)*
+*API Only models: Tested via direct API calls with no code execution capability. Models receive only the natural language question and must reason about statistical formulas without running R code.*
+*API + Code Execution models: Tested via API with built-in code execution enabled (OpenAI Code Interpreter / Gemini Code Execution). Models can write and run Python code to compute answers. GPT-5.2 Pro does not support Code Interpreter via API.*
+*Gemini 3.1 Pro Preview + Code Execution: 74/106 tasks pass. Code execution takes 5-10 min per task (~300K tokens avg). Significant improvement over API-only (51.9% → 69.8%). [Raw responses & evaluation details](test-results/)*
+
+*Submit your results via [pull request](leaderboard/README.md).*
+
 ## Quick Start
 
 ### 1. Get the Benchmark
@@ -128,34 +158,6 @@ An LLM-based evaluator is provided for:
 - Diagnostic scoring when debugging agent behavior
 
 However, **value-based comparison is the primary evaluation method**. LLM judgment is supplementary.
-
-## Leaderboard
-
-| Rank | Model | Tier 1 | Tier 2 | Tier 3 | Tier 4 | Overall | Date |
-|------|-------|--------|--------|--------|--------|---------|------|
-| 1 | Power Agent (Claude Opus 4.5) | 100% | 100% | 100% | 95.2% | **99.1%** | 2026-02-06 |
-| 2 | Gemini 3.1 Pro Preview + Code Execution (API) | 86.7% | 74.3% | 70.0% | 38.1% | **69.8%** | 2026-02-23 |
-| 3 | ChatGPT Thinking Mode (Web UI) | 60.0% | 62.9% | 75.0% | 28.6% | **57.5%** | 2026-02-08 |
-| 4 | ChatGPT Auto Mode (Web UI) | 56.7% | 65.7% | 70.0% | 28.6% | **56.6%** | 2026-02-08 |
-| 5 | GPT-5.2 Pro (API Only) | 60.0% | 60.0% | 80.0% | 9.5% | **53.8%** | 2026-02-22 |
-| 6 | Gemini 3.1 Pro Preview (API Only) | 60.0% | 62.9% | 70.0% | 4.8% | **51.9%** | 2026-02-22 |
-| 7 | Gemini 2.5 Pro + Code Execution (API) | 73.3% | 57.1% | 50.0% | 4.8% | **50.0%** | 2026-02-22 |
-| 8 | Claude Opus 4.6 (API Only) | 43.3% | 62.9% | 80.0% | 4.8% | **49.1%** | 2026-02-22 |
-| 9 | GPT-5.2 + Code Interpreter (API) | 63.3% | 60.0% | 50.0% | 4.8% | **48.1%** | 2026-02-22 |
-| 10 | Gemini 2.5 Flash + Code Execution (API) | 70.0% | 51.4% | 50.0% | 0.0% | **46.2%** | 2026-02-22 |
-| 11 | Gemini 2.5 Pro (API Only) | 43.3% | 54.3% | 55.0% | 4.8% | **41.5%** | 2026-02-22 |
-| 12 | GPT-5.2 (API Only) | 30.0% | 65.7% | 45.0% | 4.8% | **39.6%** | 2026-02-22 |
-| 13 | Claude Sonnet 4.6 (API Only) | 33.3% | 37.1% | 65.0% | 4.8% | **34.9%** | 2026-02-22 |
-| 14 | Gemini 2.5 Flash (API Only) | 33.3% | 34.3% | 45.0% | 0.0% | **29.2%** | 2026-02-22 |
-
-*Power Agent: 105/106 tasks pass. Single intermittent failure on t4-binary-003 (rare outcome prediction).*
-*ChatGPT Thinking (Web UI): 61/106 tasks pass. Uses Python Code Interpreter but lacks R statistical packages. Failure modes: wrong formulas (10), no R package access (15), z-approximation (9). [Detailed report](test-results/evaluation/chatgpt-thinking/README.md)*
-*ChatGPT Auto (Web UI): 60/106 tasks pass. Uses Python Code Interpreter but lacks R statistical packages. Failure modes: z-approximation (12), no R package access (15), wrong formulas (10). [Detailed report](test-results/evaluation/chatgpt-auto/README.md)*
-*API Only models: Tested via direct API calls with no code execution capability. Models receive only the natural language question and must reason about statistical formulas without running R code.*
-*API + Code Execution models: Tested via API with built-in code execution enabled (OpenAI Code Interpreter / Gemini Code Execution). Models can write and run Python code to compute answers. GPT-5.2 Pro does not support Code Interpreter via API.*
-*Gemini 3.1 Pro Preview + Code Execution: 74/106 tasks pass. Code execution takes 5-10 min per task (~300K tokens avg). Significant improvement over API-only (51.9% → 69.8%). [Raw responses & evaluation details](test-results/)*
-
-*Submit your results via [pull request](leaderboard/README.md).*
 
 ## Citation
 
