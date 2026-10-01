@@ -32,17 +32,17 @@ Reference reproduction is separate from an agent run. `audited/tasks.json` conta
 Use a command provider implementing the scientific-harness JSON contract, or a scientific-analysis HTTP endpoint. Every condition gets identical questions and fixed shared call/execution/repair/deadline limits. The multi-agent condition necessarily spends some of that budget on planning/review; report its token usage and latency.
 
 ```bash
-python3 runner/audited_benchmark_v2_0_2.py \
+python3 runner/audited_benchmark_v2_0_3.py \
   --cli /absolute/path/scientific-harness-cli.js \
   --split all --repeats 3 --workers 3 \
   --out results/new-frozen-run
 
-python3 runner/audited_benchmark_v2_0_2.py \
+python3 runner/audited_benchmark_v2_0_3.py \
   --endpoint https://your-service/api/scientific-analysis \
   --split evaluation --repeats 3 --out results/new-api-run
 ```
 
-The current 2.0.2 runner writes `protocol.json` **before calls**, hashes questions/oracles/scorer/harness files, randomizes condition order, persists provider responses before scoring and counts every planned attempt. Null/malformed schemas fail without crashing scoring. Version-change failures are also written to disk without calling the provider. It refuses to overwrite a run. The exact original 2.0.0/2.0.1 study runners remain unchanged for audit. Missing or interrupted records count as failures on the planned denominator. Do not resume by replacing failed records with new responses.
+The current 2.0.3 runner writes `protocol.json` **before calls**, hashes questions/oracles/scorer/harness files, randomizes condition order, persists provider responses before scoring and counts every planned attempt. Null/malformed schemas fail without crashing scoring. Version-change failures are also written to disk without calling the provider. It refuses to overwrite a run. The exact original 2.0.0/2.0.1 study runners remain unchanged for audit. Missing or interrupted records count as failures on the planned denominator. Do not resume by replacing failed records with new responses.
 
 The 9 development and 11 evaluation tasks use declared example-family labels; related sample-size and power questions stay together. Direct constructed variants share method templates with anchors, and two cross the nominal split. Both splits were inspected during construction and do not establish a semantic, unseen or contamination-free holdout. Freeze a new private source/method-family-disjoint set before future prompt optimization. The current experiment is exploratory. Declared-family bootstrap intervals keep related questions, repeats and modes together; a post-hoc sensitivity merges variants into anchors. Wilson intervals are only descriptive because attempts are dependent.
 
@@ -73,6 +73,8 @@ Rscript validation/monte_carlo.R .
 ```
 
 Never regenerate reference files or edit hashed sources while a frozen model run is active. Reproduce references in a separate checkout, or after the run completes.
+
+Future CLI freezes now include the sixth runtime dependency, `scientific-reference-guard.js`. A null hash explicitly records its absence in a legacy guardless release; later addition/removal or byte changes invalidate the fingerprint. Runner 2.0.3 changes dependency capture only. All earlier runner copies, cohort protocols, scores and oracles remain unchanged. HTTP studies must retain the exact remote deployment manifest separately.
 
 ## Post-study current-release regression
 

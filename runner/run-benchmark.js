@@ -3,7 +3,7 @@
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-const script=path.join(path.dirname(fileURLToPath(import.meta.url)),'audited_benchmark_v2_0_2.py');
+const script=path.join(path.dirname(fileURLToPath(import.meta.url)),'audited_benchmark_v2_0_3.py');
 if(process.argv.slice(2).some(a=>a.startsWith('--tier')||a==='--legacy')){
   process.stderr.write('Legacy 106-task scoring is quarantined. Use the audited suite with --cli or --endpoint, --split, --repeats, and a fresh --out directory. See README.md.\n');process.exit(2);
 }
