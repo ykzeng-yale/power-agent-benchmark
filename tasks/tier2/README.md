@@ -1,3 +1,5 @@
+> Historical v1 task inventory. These tasks are quarantined pending source/design certification; numeric reproduction is not validation. Use `audited/tasks.json` and `validation/legacy-audit.json` for current status.
+
 # Tier 2: Regression & Models
 
 ## Overview

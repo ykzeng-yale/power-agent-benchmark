@@ -1,0 +1,21 @@
+import json,pathlib,math
+from scipy.stats import norm
+ROOT=pathlib.Path(__file__).resolve().parents[1];D=ROOT/'cohorts/source-extension';tasks=[];specs=[]
+def add(id,tier,family,q,m,p,metric,unit,kind,url,locator):
+ tasks.append({'id':id,'tier':tier,'family':family,'split':'source_extension','pilot':False,'question':q,'response_contract':{'metric':metric,'unit':unit},'provenance':{'kind':kind,'url':url,'locator':locator,'verification':'Primary official manual/source worked example parameters inspected; result independently computed'}})
+ specs.append({'id':id,'method':m,'parameters':p,'metric':metric,'unit':unit,'expected_design':{'method':m,'alpha':.05,'alternative':'two_sided','allocation_ratio':1},'absolute_tolerance':1e-4 if metric=='power' else 0})
+u='https://cran.r-project.org/web/packages/powerSurvEpi/powerSurvEpi.pdf'
+add('pa26-ext-rosner-power',2,'rosner14.42','Use the Freedman approximation for a two-sided log-rank comparison at alpha 0.05, hazard ratio 0.7 and equal allocation. Expected event probabilities are 0.3707 in treatment and 0.4890 in control. With 200 participants per group, calculate power as implemented by powerSurvEpi::powerCT.default.','logrank_freedman',{'pE':.3707,'pC':.4890,'HR':.7,'n':200},'power','probability','textbook_example_via_official_package',u,'Rosner (2006), Fundamentals of Biostatistics,6th edition,Example14.42p809; official manualpp18–20')
+add('pa26-ext-rosner-n',2,'rosner14.42','Use the Freedman approximation for a two-sided log-rank test at alpha 0.05, hazard ratio 0.7 and equal allocation. Event probabilities are 0.3707 in treatment and 0.4890 in control. Calculate the integer sample size per group for 80% power as in powerSurvEpi::ssizeCT.default.','logrank_freedman',{'pE':.3707,'pC':.4890,'HR':.7,'power':.8},'sample_size','participants_per_group','textbook_example_via_official_package',u,'Rosner (2006),Example14.42p809; official manualpp43–45')
+v='https://www.ncbi.nlm.nih.gov/books/NBK305517/'
+add('pa26-ext-cluster-rate',3,'fieldtrials5.6.1','Use the cluster-rate coefficient-of-variation approximation in Field Trials of Health Interventions Chapter5Section6.1, including its additive one-cluster correction. Treatment/control rates are 0.005/0.010 per child-week, exposure is 2500child-weeks per cluster, and the between-cluster coefficient of variation is 0.25. For 90% power, two-sided alpha0.05 and equal allocation, calculate clusters per arm, rounding upward.','cluster_rate_cv',{'r1':.005,'r2':.01,'exposure':2500,'cv':.25,'power':.9},'sample_size','clusters_per_arm','textbook_worked_example',v,'Smith,Morrow,Ross(eds),2015,3rdedition,Chapter5Section6.1,mosquito-net worked example; source answer7clusters/arm')
+add('pa26-ext-cluster-variant',3,'constructed-cluster-rate','Use the cluster-rate coefficient-of-variation approximation including its additive one-cluster correction. Treatment/control rates are 0.005/0.010 per child-week, exposure is2500child-weeks per cluster and between-cluster coefficient of variation is0.15. For90%power,two-sidedalpha0.05,equal allocation,calculate integer clusters per arm.','cluster_rate_cv',{'r1':.005,'r2':.01,'exposure':2500,'cv':.15,'power':.9},'sample_size','clusters_per_arm','constructed_task',v,'Predeclared new coefficient-of-variation variant; no published worked answer')
+rows=[]
+for s in specs:
+ p=s['parameters']
+ if s['method']=='logrank_freedman':
+  if s['metric']=='power':value=float(norm.cdf(math.sqrt(p['n']*(p['pE']+p['pC']))*abs(p['HR']-1)/(p['HR']+1)-norm.ppf(.975)))
+  else:value=math.ceil(((p['HR']+1)/(p['HR']-1))**2*(norm.ppf(.975)+norm.ppf(p['power']))**2/(p['pE']+p['pC']))
+ else:value=math.ceil(1+(norm.ppf(.975)+norm.ppf(p['power']))**2*((p['r1']+p['r2'])/p['exposure']+p['cv']**2*(p['r1']**2+p['r2']**2))/(p['r1']-p['r2'])**2)
+ rows.append({'id':s['id'],'metric':s['metric'],'unit':s['unit'],'value':value,'absolute_tolerance':s['absolute_tolerance'],'design':s['expected_design']})
+(D/'audited/tasks.json').write_text(json.dumps({'suite_version':'2.0.0-source-extension','task_count':4,'tasks':tasks},indent=2)+'\n');(D/'audited/reference-specifications.json').write_text(json.dumps(specs,indent=2)+'\n');(D/'audited/oracles.json').write_text(json.dumps({'implementation':'SciPy1.13.1,normal-approximation formulas','tasks':rows},indent=2)+'\n');print([(r['id'],r['value'])for r in rows])

@@ -1,0 +1,392 @@
+{
+  "task_id": "pa26-t1-one-sample-power",
+  "repeat": 2,
+  "mode": "single",
+  "record": {
+    "success": true,
+    "status": "completed",
+    "scientificStatus": "completed",
+    "workflowMode": "single",
+    "model": "claude-haiku-4-5-20251001",
+    "harnessVersion": "2.0.0",
+    "runId": "1e669ac3-2b0f-4e78-a8d1-7b4dcc5f8c3c",
+    "workspace": "/var/folders/kh/6x1yvf7x44734pr6jcxt3lmh0000gn/T/power-agent-scientific/1e669ac3-2b0f-4e78-a8d1-7b4dcc5f8c3c",
+    "plan": {
+      "ready": true,
+      "request_kind": "calculation",
+      "calculation_type": "power",
+      "estimand": "mean difference from null (one-sample)",
+      "hypothesis": "H0: \u03bc \u2264 0 vs H1: \u03bc > 0 (one-sided test, superiority)",
+      "method": "one_sample_t",
+      "alpha": 0.05,
+      "sidedness": "one-sided",
+      "target_power": null,
+      "allocation_ratio": null,
+      "sample_size_unit": "participants",
+      "parameters": [
+        {
+          "name": "sample_size",
+          "value": 25,
+          "unit": "participants",
+          "source": "user"
+        },
+        {
+          "name": "effect_size",
+          "value": 0.2,
+          "unit": "units (mean difference)",
+          "source": "user"
+        },
+        {
+          "name": "standard_deviation",
+          "value": 0.5,
+          "unit": "units",
+          "source": "user"
+        }
+      ],
+      "assumptions": [
+        "Outcome is normally distributed",
+        "One-sample design testing against null hypothesis \u03bc \u2264 0",
+        "Known standard deviation under the alternative (planning assumption)",
+        "One-sided test, upper tail"
+      ],
+      "missing_information": [],
+      "clarification_questions": [],
+      "scientific_notes": [
+        "Effect size (Cohen's d) = 0.2 / 0.5 = 0.4",
+        "This is a fixed sample-size power calculation at N=25",
+        "The test statistic will follow a non-central t distribution under the alternative"
+      ]
+    },
+    "answer": {
+      "summary": "For a one-sided, one-sample t-test at significance level \u03b1 = 0.05, with 25 participants, the power to detect a mean increase of 0.2 units with standard deviation 0.5 is 0.6173 (decimal).",
+      "method": "one_sample_t",
+      "results": [
+        {
+          "metric": "power",
+          "value": 0.617258997440687,
+          "unit": "probability"
+        }
+      ],
+      "assumptions": [
+        "Outcome is normally distributed",
+        "One-sample design testing H\u2080: \u03bc \u2264 0 vs H\u2081: \u03bc > 0 (one-sided, upper tail)",
+        "Standard deviation \u03c3 = 0.5 units under the alternative",
+        "Significance level \u03b1 = 0.05 (one-sided)",
+        "Test statistic follows non-central t-distribution with df = 24 and noncentrality parameter \u03bb = 2.0"
+      ],
+      "limitations": [
+        "Power calculation assumes normality of the outcome",
+        "This is an exact power calculation assuming known planning values for the standard deviation",
+        "Power will vary if the actual standard deviation differs from 0.5",
+        "Small sample size (N=25) means actual power may depend on departures from normality"
+      ],
+      "evidence_ids": [
+        "e1",
+        "e2"
+      ],
+      "simulation": null,
+      "citations": []
+    },
+    "review": null,
+    "executions": [
+      {
+        "id": "e1",
+        "role": "coder",
+        "code": "\n# One-sample t-test power calculation\n# H0: \u03bc \u2264 0 vs H1: \u03bc > 0 (one-sided, upper tail)\n# Parameters:\n# - Sample size: 25 participants\n# - Mean difference to detect: 0.2 units\n# - Standard deviation: 0.5 units\n# - Significance level: 0.05 (one-sided)\n\nlibrary(stats)\n\nn <- 25\ndelta <- 0.2  # Mean difference to detect\nsd <- 0.5     # Standard deviation\nalpha <- 0.05 # Significance level (one-sided)\n\n# Calculate standardized effect size (Cohen's d)\nd <- delta / sd\ncat(\"Cohen's d (standardized effect size):\", d, \"\\n\")\n\n# For a one-sample t-test, the noncentrality parameter is:\n# \u03bb = (mean_difference / sd) * sqrt(n)\nlambda <- (delta / sd) * sqrt(n)\ncat(\"Noncentrality parameter (\u03bb):\", lambda, \"\\n\")\n\n# Critical value for one-sided test at alpha = 0.05\ndf <- n - 1\ncritical_t <- qt(p = 1 - alpha, df = df)\ncat(\"Critical t-value (df =\", df, \"):\", critical_t, \"\\n\")\n\n# Power is the probability that the test statistic exceeds the critical value\n# under the alternative hypothesis (non-central t distribution)\npower <- 1 - pt(critical_t, df = df, ncp = lambda)\ncat(\"Power:\", power, \"\\n\")\n\n# Return result\nresult <- list(\n  power = round(power, 15),\n  n = n,\n  delta = delta,\n  sd = sd,\n  alpha = alpha,\n  d = d,\n  lambda = lambda,\n  critical_t = critical_t,\n  df = df\n)\n\ncat(\"\\n--- Summary ---\\n\")\ncat(\"Power (decimal):\", result$power, \"\\n\")\n",
+        "purpose": "Calculate power for one-sample t-test with N=25, detecting mean difference 0.2 with SD 0.5 at alpha 0.05 one-sided",
+        "success": true,
+        "output": "Cohen's d (standardized effect size): 0.4 \nNoncentrality parameter (\u03bb): 2 \nCritical t-value (df = 24 ): 1.710882 \nPower: 0.617259 \n\n--- Summary ---\nPower (decimal): 0.617259 \n\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2\nPOWER_AGENT_SESSION_INFO_END\n",
+        "stderr": "",
+        "exitCode": 0,
+        "elapsed_ms": 88,
+        "computed": null,
+        "output_files": [],
+        "code_sha256": "4026805a73c1afbcf9a5b9816f6c65acc5570ac74c2a9a889aa1e8a0d59150eb"
+      },
+      {
+        "id": "e2",
+        "role": "coder",
+        "code": "\nlibrary(jsonlite)\n\n# Verification using alternative approach\nn <- 25\ndelta <- 0.2\nsd <- 0.5\nalpha <- 0.05\n\n# Method 1: Using non-central t distribution (as above)\ndf <- n - 1\nlambda <- (delta / sd) * sqrt(n)\ncritical_t <- qt(p = 1 - alpha, df = df)\npower_method1 <- 1 - pt(critical_t, df = df, ncp = lambda)\n\n# Method 2: Using power.t.test from base R (verification)\n# power.t.test doesn't directly give power for alternative hypothesis,\n# so we use it to cross-check our delta parameter\npower_verification <- power.t.test(\n  n = n, \n  delta = delta, \n  sd = sd, \n  sig.level = alpha,\n  type = \"one.sample\",\n  alternative = \"one.sided\"\n)\n\ncat(\"Method 1 (Non-central t): Power =\", power_method1, \"\\n\")\ncat(\"Method 2 (power.t.test verification):\\n\")\nprint(power_verification)\n\n# Final result\npower_final <- power_method1\n\n# Emit structured JSON result\nresult_json <- list(\n  results = list(\n    list(\n      metric = \"power\",\n      value = round(power_final, 15),\n      unit = \"probability\"\n    )\n  )\n)\n\ncat(\"\\nPOWER_AGENT_RESULT=\", toJSON(result_json, auto_unbox = TRUE, digits = 15), \"\\n\", sep = \"\")\n",
+        "purpose": "Verify power calculation and emit structured result",
+        "success": true,
+        "output": "Method 1 (Non-central t): Power = 0.617259 \nMethod 2 (power.t.test verification):\n\n     One-sample t test power calculation \n\n              n = 25\n          delta = 0.2\n             sd = 0.5\n      sig.level = 0.05\n          power = 0.617259\n    alternative = one.sided\n\n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"power\",\"value\":0.617258997440687,\"unit\":\"probability\"}]}\n\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n[1] jsonlite_2.0.0\n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2\nPOWER_AGENT_SESSION_INFO_END\n",
+        "stderr": "",
+        "exitCode": 0,
+        "elapsed_ms": 101,
+        "computed": {
+          "results": [
+            {
+              "metric": "power",
+              "value": 0.617258997440687,
+              "unit": "probability"
+            }
+          ]
+        },
+        "output_files": [],
+        "code_sha256": "6bcd33eddfc3bea383c3957206b1ac410657eeeebfdbf89dde88a957f7a5b509"
+      }
+    ],
+    "trace": [
+      {
+        "timestamp": "2026-10-01T20:08:12.147Z",
+        "type": "agent_start",
+        "role": "planner",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 1,
+        "message": "planner is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T20:08:17.810Z",
+        "type": "model_call",
+        "role": "planner",
+        "call": 1,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011Cfc81v8QbjKP2X52yyNTC",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 5662,
+        "usage": {
+          "input_tokens": 1782,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 603,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "a59dfa0ad2ec3e8db14263b4d10d1b7331ffbc4c2ffd1aa3163ca8e77d0d8deb"
+      },
+      {
+        "timestamp": "2026-10-01T20:08:17.810Z",
+        "type": "design",
+        "role": "planner",
+        "plan": {
+          "ready": true,
+          "request_kind": "calculation",
+          "calculation_type": "power",
+          "estimand": "mean difference from null (one-sample)",
+          "hypothesis": "H0: \u03bc \u2264 0 vs H1: \u03bc > 0 (one-sided test, superiority)",
+          "method": "one_sample_t",
+          "alpha": 0.05,
+          "sidedness": "one-sided",
+          "target_power": null,
+          "allocation_ratio": null,
+          "sample_size_unit": "participants",
+          "parameters": [
+            {
+              "name": "sample_size",
+              "value": 25,
+              "unit": "participants",
+              "source": "user"
+            },
+            {
+              "name": "effect_size",
+              "value": 0.2,
+              "unit": "units (mean difference)",
+              "source": "user"
+            },
+            {
+              "name": "standard_deviation",
+              "value": 0.5,
+              "unit": "units",
+              "source": "user"
+            }
+          ],
+          "assumptions": [
+            "Outcome is normally distributed",
+            "One-sample design testing against null hypothesis \u03bc \u2264 0",
+            "Known standard deviation under the alternative (planning assumption)",
+            "One-sided test, upper tail"
+          ],
+          "missing_information": [],
+          "clarification_questions": [],
+          "scientific_notes": [
+            "Effect size (Cohen's d) = 0.2 / 0.5 = 0.4",
+            "This is a fixed sample-size power calculation at N=25",
+            "The test statistic will follow a non-central t distribution under the alternative"
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-10-01T20:08:17.810Z",
+        "type": "agent_start",
+        "role": "coder",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 2,
+        "message": "coder is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T20:08:22.008Z",
+        "type": "model_call",
+        "role": "coder",
+        "call": 2,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011Cfc82G9BWkFb95D4EYArc",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 4198,
+        "usage": {
+          "input_tokens": 2453,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 596,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "2bfb7a8753661876dd21af587f7daada990a6b4fbed9ac7c04f0f5d40ff6db5f"
+      },
+      {
+        "timestamp": "2026-10-01T20:08:22.008Z",
+        "type": "code",
+        "role": "coder",
+        "evidence_id": "e1",
+        "code": "\n# One-sample t-test power calculation\n# H0: \u03bc \u2264 0 vs H1: \u03bc > 0 (one-sided, upper tail)\n# Parameters:\n# - Sample size: 25 participants\n# - Mean difference to detect: 0.2 units\n# - Standard deviation: 0.5 units\n# - Significance level: 0.05 (one-sided)\n\nlibrary(stats)\n\nn <- 25\ndelta <- 0.2  # Mean difference to detect\nsd <- 0.5     # Standard deviation\nalpha <- 0.05 # Significance level (one-sided)\n\n# Calculate standardized effect size (Cohen's d)\nd <- delta / sd\ncat(\"Cohen's d (standardized effect size):\", d, \"\\n\")\n\n# For a one-sample t-test, the noncentrality parameter is:\n# \u03bb = (mean_difference / sd) * sqrt(n)\nlambda <- (delta / sd) * sqrt(n)\ncat(\"Noncentrality parameter (\u03bb):\", lambda, \"\\n\")\n\n# Critical value for one-sided test at alpha = 0.05\ndf <- n - 1\ncritical_t <- qt(p = 1 - alpha, df = df)\ncat(\"Critical t-value (df =\", df, \"):\", critical_t, \"\\n\")\n\n# Power is the probability that the test statistic exceeds the critical value\n# under the alternative hypothesis (non-central t distribution)\npower <- 1 - pt(critical_t, df = df, ncp = lambda)\ncat(\"Power:\", power, \"\\n\")\n\n# Return result\nresult <- list(\n  power = round(power, 15),\n  n = n,\n  delta = delta,\n  sd = sd,\n  alpha = alpha,\n  d = d,\n  lambda = lambda,\n  critical_t = critical_t,\n  df = df\n)\n\ncat(\"\\n--- Summary ---\\n\")\ncat(\"Power (decimal):\", result$power, \"\\n\")\n",
+        "message": "Calculate power for one-sample t-test with N=25, detecting mean difference 0.2 with SD 0.5 at alpha 0.05 one-sided"
+      },
+      {
+        "timestamp": "2026-10-01T20:08:22.099Z",
+        "type": "execution",
+        "role": "coder",
+        "evidence_id": "e1",
+        "success": true,
+        "output": "Cohen's d (standardized effect size): 0.4 \nNoncentrality parameter (\u03bb): 2 \nCritical t-value (df = 24 ): 1.710882 \nPower: 0.617259 \n\n--- Summary ---\nPower (decimal): 0.617259 \n\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2\nPOWER_AGENT_SESSION_INFO_END\n",
+        "error": "",
+        "exitCode": 0
+      },
+      {
+        "timestamp": "2026-10-01T20:08:22.099Z",
+        "type": "agent_start",
+        "role": "coder",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 3,
+        "message": "coder is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T20:08:26.013Z",
+        "type": "model_call",
+        "role": "coder",
+        "call": 3,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011Cfc82aTka5Fytk9vBRzZb",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 3914,
+        "usage": {
+          "input_tokens": 3498,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 480,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "ffcb5aca4427755f97c0e121dcd0c0db45bb5913f96899960d5a7d966fd57e7c"
+      },
+      {
+        "timestamp": "2026-10-01T20:08:26.013Z",
+        "type": "code",
+        "role": "coder",
+        "evidence_id": "e2",
+        "code": "\nlibrary(jsonlite)\n\n# Verification using alternative approach\nn <- 25\ndelta <- 0.2\nsd <- 0.5\nalpha <- 0.05\n\n# Method 1: Using non-central t distribution (as above)\ndf <- n - 1\nlambda <- (delta / sd) * sqrt(n)\ncritical_t <- qt(p = 1 - alpha, df = df)\npower_method1 <- 1 - pt(critical_t, df = df, ncp = lambda)\n\n# Method 2: Using power.t.test from base R (verification)\n# power.t.test doesn't directly give power for alternative hypothesis,\n# so we use it to cross-check our delta parameter\npower_verification <- power.t.test(\n  n = n, \n  delta = delta, \n  sd = sd, \n  sig.level = alpha,\n  type = \"one.sample\",\n  alternative = \"one.sided\"\n)\n\ncat(\"Method 1 (Non-central t): Power =\", power_method1, \"\\n\")\ncat(\"Method 2 (power.t.test verification):\\n\")\nprint(power_verification)\n\n# Final result\npower_final <- power_method1\n\n# Emit structured JSON result\nresult_json <- list(\n  results = list(\n    list(\n      metric = \"power\",\n      value = round(power_final, 15),\n      unit = \"probability\"\n    )\n  )\n)\n\ncat(\"\\nPOWER_AGENT_RESULT=\", toJSON(result_json, auto_unbox = TRUE, digits = 15), \"\\n\", sep = \"\")\n",
+        "message": "Verify power calculation and emit structured result"
+      },
+      {
+        "timestamp": "2026-10-01T20:08:26.114Z",
+        "type": "execution",
+        "role": "coder",
+        "evidence_id": "e2",
+        "success": true,
+        "output": "Method 1 (Non-central t): Power = 0.617259 \nMethod 2 (power.t.test verification):\n\n     One-sample t test power calculation \n\n              n = 25\n          delta = 0.2\n             sd = 0.5\n      sig.level = 0.05\n          power = 0.617259\n    alternative = one.sided\n\n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"power\",\"value\":0.617258997440687,\"unit\":\"probability\"}]}\n\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n[1] jsonlite_2.0.0\n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2\nPOWER_AGENT_SESSION_INFO_END\n",
+        "error": "",
+        "exitCode": 0
+      },
+      {
+        "timestamp": "2026-10-01T20:08:26.114Z",
+        "type": "agent_start",
+        "role": "coder",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 4,
+        "message": "coder is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T20:08:30.717Z",
+        "type": "model_call",
+        "role": "coder",
+        "call": 4,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011Cfc82svEURMQtjN25j9cw",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 4603,
+        "usage": {
+          "input_tokens": 4538,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 475,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "399e1fdbd5a80de4a164b4aef3cdf298ae677878f38321eace9807bde488efc5"
+      }
+    ],
+    "usage": {
+      "input_tokens": 12271,
+      "output_tokens": 2154,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0
+    },
+    "error": null,
+    "results": [
+      {
+        "metric": "power",
+        "value": 0.617258997440687,
+        "unit": "probability"
+      }
+    ],
+    "design": {
+      "method": "one_sample_t",
+      "alternative": "one-sided",
+      "alpha": 0.05,
+      "allocation_ratio": null,
+      "sample_size_unit": "participants"
+    },
+    "evidence": {
+      "executed": true,
+      "execution_ids": [
+        "e1",
+        "e2"
+      ],
+      "code_sha256": [
+        "4026805a73c1afbcf9a5b9816f6c65acc5570ac74c2a9a889aa1e8a0d59150eb",
+        "6bcd33eddfc3bea383c3957206b1ac410657eeeebfdbf89dde88a957f7a5b509"
+      ]
+    },
+    "iterations": 4,
+    "elapsed_ms": 18570,
+    "fullCode": "# Evidence e1; success=true\n\n# One-sample t-test power calculation\n# H0: \u03bc \u2264 0 vs H1: \u03bc > 0 (one-sided, upper tail)\n# Parameters:\n# - Sample size: 25 participants\n# - Mean difference to detect: 0.2 units\n# - Standard deviation: 0.5 units\n# - Significance level: 0.05 (one-sided)\n\nlibrary(stats)\n\nn <- 25\ndelta <- 0.2  # Mean difference to detect\nsd <- 0.5     # Standard deviation\nalpha <- 0.05 # Significance level (one-sided)\n\n# Calculate standardized effect size (Cohen's d)\nd <- delta / sd\ncat(\"Cohen's d (standardized effect size):\", d, \"\\n\")\n\n# For a one-sample t-test, the noncentrality parameter is:\n# \u03bb = (mean_difference / sd) * sqrt(n)\nlambda <- (delta / sd) * sqrt(n)\ncat(\"Noncentrality parameter (\u03bb):\", lambda, \"\\n\")\n\n# Critical value for one-sided test at alpha = 0.05\ndf <- n - 1\ncritical_t <- qt(p = 1 - alpha, df = df)\ncat(\"Critical t-value (df =\", df, \"):\", critical_t, \"\\n\")\n\n# Power is the probability that the test statistic exceeds the critical value\n# under the alternative hypothesis (non-central t distribution)\npower <- 1 - pt(critical_t, df = df, ncp = lambda)\ncat(\"Power:\", power, \"\\n\")\n\n# Return result\nresult <- list(\n  power = round(power, 15),\n  n = n,\n  delta = delta,\n  sd = sd,\n  alpha = alpha,\n  d = d,\n  lambda = lambda,\n  critical_t = critical_t,\n  df = df\n)\n\ncat(\"\\n--- Summary ---\\n\")\ncat(\"Power (decimal):\", result$power, \"\\n\")\n\n\n# Evidence e2; success=true\n\nlibrary(jsonlite)\n\n# Verification using alternative approach\nn <- 25\ndelta <- 0.2\nsd <- 0.5\nalpha <- 0.05\n\n# Method 1: Using non-central t distribution (as above)\ndf <- n - 1\nlambda <- (delta / sd) * sqrt(n)\ncritical_t <- qt(p = 1 - alpha, df = df)\npower_method1 <- 1 - pt(critical_t, df = df, ncp = lambda)\n\n# Method 2: Using power.t.test from base R (verification)\n# power.t.test doesn't directly give power for alternative hypothesis,\n# so we use it to cross-check our delta parameter\npower_verification <- power.t.test(\n  n = n, \n  delta = delta, \n  sd = sd, \n  sig.level = alpha,\n  type = \"one.sample\",\n  alternative = \"one.sided\"\n)\n\ncat(\"Method 1 (Non-central t): Power =\", power_method1, \"\\n\")\ncat(\"Method 2 (power.t.test verification):\\n\")\nprint(power_verification)\n\n# Final result\npower_final <- power_method1\n\n# Emit structured JSON result\nresult_json <- list(\n  results = list(\n    list(\n      metric = \"power\",\n      value = round(power_final, 15),\n      unit = \"probability\"\n    )\n  )\n)\n\ncat(\"\\nPOWER_AGENT_RESULT=\", toJSON(result_json, auto_unbox = TRUE, digits = 15), \"\\n\", sep = \"\")\n",
+    "executionOutput": "# e1 (coder)\nCohen's d (standardized effect size): 0.4 \nNoncentrality parameter (\u03bb): 2 \nCritical t-value (df = 24 ): 1.710882 \nPower: 0.617259 \n\n--- Summary ---\nPower (decimal): 0.617259 \n\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2\nPOWER_AGENT_SESSION_INFO_END\n\n\n# e2 (coder)\nMethod 1 (Non-central t): Power = 0.617259 \nMethod 2 (power.t.test verification):\n\n     One-sample t test power calculation \n\n              n = 25\n          delta = 0.2\n             sd = 0.5\n      sig.level = 0.05\n          power = 0.617259\n    alternative = one.sided\n\n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"power\",\"value\":0.617258997440687,\"unit\":\"probability\"}]}\n\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n[1] jsonlite_2.0.0\n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2\nPOWER_AGENT_SESSION_INFO_END\n",
+    "outputFiles": []
+  },
+  "evaluation": {
+    "passed": true,
+    "reason": [],
+    "numeric_pass": true,
+    "unit_pass": true,
+    "design_pass": true,
+    "evidence_pass": true,
+    "schema_pass": true,
+    "agent_value": 0.617258997440687,
+    "expected_value": 0.617258997440687
+  },
+  "duration_seconds": 18.601
+}

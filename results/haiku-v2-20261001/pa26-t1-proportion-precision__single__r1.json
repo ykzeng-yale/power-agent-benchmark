@@ -1,0 +1,340 @@
+{
+  "task_id": "pa26-t1-proportion-precision",
+  "repeat": 1,
+  "mode": "single",
+  "record": {
+    "success": true,
+    "status": "completed",
+    "scientificStatus": "completed",
+    "workflowMode": "single",
+    "model": "claude-haiku-4-5-20251001",
+    "harnessVersion": "2.0.0",
+    "runId": "b07d938f-046a-4ef9-aa19-68b7009ecf7d",
+    "workspace": "/var/folders/kh/6x1yvf7x44734pr6jcxt3lmh0000gn/T/power-agent-scientific/b07d938f-046a-4ef9-aa19-68b7009ecf7d",
+    "plan": {
+      "ready": true,
+      "request_kind": "calculation",
+      "calculation_type": "sample_size",
+      "estimand": "proportion p = 0.70",
+      "hypothesis": "not-applicable",
+      "method": "proportion_precision",
+      "alpha": 0.05,
+      "sidedness": "two-sided",
+      "target_power": null,
+      "allocation_ratio": null,
+      "sample_size_unit": "participants_total",
+      "parameters": [
+        {
+          "name": "target_proportion",
+          "value": 0.7,
+          "unit": "proportion",
+          "source": "user"
+        },
+        {
+          "name": "ci_half_width",
+          "value": 0.03,
+          "unit": "proportion",
+          "source": "user"
+        },
+        {
+          "name": "confidence_level",
+          "value": 0.95,
+          "unit": "proportion",
+          "source": "user"
+        },
+        {
+          "name": "z_critical",
+          "value": 1.96,
+          "unit": "standard_normal_quantile",
+          "source": "explicit_assumption"
+        }
+      ],
+      "assumptions": [
+        "Normal approximation to binomial distribution",
+        "Exact standard normal 97.5th percentile z = 1.96",
+        "No finite population correction applied",
+        "Point estimate p = 0.70 used for variance calculation",
+        "Upward rounding to nearest integer"
+      ],
+      "missing_information": [],
+      "clarification_questions": [],
+      "scientific_notes": [
+        "Proportion confidence interval precision calculation using normal approximation",
+        "Formula: n = (z_{\u03b1/2})^2 \u00d7 p(1-p) / E^2, where E = half-width = 0.03"
+      ]
+    },
+    "answer": {
+      "summary": "Using the normal approximation with the exact standard normal 97.5th percentile (z = 1.9600), a sample size of 897 participants is required to estimate a proportion of 0.70 with a two-sided 95% confidence interval of half-width 0.03. The calculation uses the formula n = (z_\u03b1/2)\u00b2 \u00d7 p(1\u2212p) / E\u00b2, which yields 896.34 participants before upward rounding. Verification confirms that with 897 participants, the actual half-width achieved is 0.0300, yielding a 95% CI of [0.670, 0.730], which meets the required precision.",
+      "method": "proportion_precision: Sample size for proportion confidence interval precision using normal approximation. Formula: n = (z_\u03b1/2)\u00b2 \u00d7 p(1\u2212p) / E\u00b2, where z_\u03b1/2 = 1.9600 (exact 97.5th percentile), p = 0.70, E = 0.03 (half-width), \u03b1 = 0.05 (two-sided).",
+      "results": [
+        {
+          "metric": "sample_size",
+          "value": 897,
+          "unit": "participants_total"
+        }
+      ],
+      "assumptions": [
+        "Normal approximation to binomial distribution applied",
+        "Exact standard normal 97.5th percentile: z = 1.9600",
+        "No finite population correction",
+        "Point estimate p = 0.70 used for variance calculation",
+        "Upward rounding to nearest integer",
+        "Two-sided 95% confidence interval",
+        "Target half-width (margin of error) = 0.03"
+      ],
+      "limitations": [
+        "Normal approximation validity depends on np and n(1\u2212p) both \u22655: here 897 \u00d7 0.70 = 627.9 and 897 \u00d7 0.30 = 269.1, both well satisfied",
+        "No adjustment for finite population size or missing data",
+        "Sample size assumes random sampling and independence",
+        "Variance estimated from point estimate; coverage may vary slightly if true p differs from 0.70"
+      ],
+      "evidence_ids": [
+        "e1"
+      ],
+      "simulation": null,
+      "citations": []
+    },
+    "review": null,
+    "executions": [
+      {
+        "id": "e1",
+        "role": "coder",
+        "code": "\n# Sample size for proportion confidence interval precision\n# Two-sided 95% CI, half-width 0.03, proportion 0.70\n# Using normal approximation with exact z-quantile\n\n# Parameters\np <- 0.70                    # Target proportion\ne <- 0.03                    # Desired half-width (margin of error)\nalpha <- 0.05                # Significance level for two-sided 95% CI\nz_alpha_2 <- qnorm(1 - alpha/2)  # Two-sided 97.5th percentile of standard normal\n\ncat(\"Parameter Summary:\\n\")\ncat(\"Target proportion (p):\", p, \"\\n\")\ncat(\"Desired CI half-width (E):\", e, \"\\n\")\ncat(\"Confidence level:\", 1 - alpha, \"\\n\")\ncat(\"Significance level (alpha):\", alpha, \"\\n\")\ncat(\"Critical z-value (z_{alpha/2}):\", z_alpha_2, \"\\n\")\ncat(\"\\n\")\n\n# Formula: n = (z_{alpha/2})^2 * p(1-p) / E^2\nn_continuous <- (z_alpha_2^2 * p * (1 - p)) / (e^2)\n\ncat(\"Sample size calculation:\\n\")\ncat(\"n = (z_{alpha/2})^2 \u00d7 p(1-p) / E^2\\n\")\ncat(\"n = (\", z_alpha_2, \")^2 \u00d7 \", p, \" \u00d7 \", 1-p, \" / \", e, \"^2\\n\")\ncat(\"n = \", z_alpha_2^2, \" \u00d7 \", p * (1 - p), \" / \", e^2, \"\\n\")\ncat(\"n = \", n_continuous, \"\\n\")\ncat(\"\\n\")\n\n# Round upward to nearest integer\nn_rounded <- ceiling(n_continuous)\n\ncat(\"Rounded sample size (upward):\", n_rounded, \"participants\\n\")\ncat(\"\\n\")\n\n# Verification: compute actual half-width achieved with rounded sample size\nactual_se <- sqrt(p * (1 - p) / n_rounded)\nactual_half_width <- z_alpha_2 * actual_se\nactual_ci_lower <- p - actual_half_width\nactual_ci_upper <- p + actual_half_width\n\ncat(\"Verification with n =\", n_rounded, \":\\n\")\ncat(\"Standard error:\", actual_se, \"\\n\")\ncat(\"Actual half-width achieved:\", actual_half_width, \"\\n\")\ncat(\"95% CI: [\", actual_ci_lower, \", \", actual_ci_upper, \"]\\n\")\ncat(\"Required half-width:\", e, \"\\n\")\ncat(\"Actual \u2264 Required?\", actual_half_width <= e, \"\\n\")\n\n# Output for structured reporting\nresults <- data.frame(\n  metric = \"sample_size\",\n  value = n_rounded,\n  unit = \"participants_total\"\n)\n\nlibrary(jsonlite)\ncat(\"\\n\")\ncat(\"POWER_AGENT_RESULT=\")\ncat(toJSON(list(results = results), auto_unbox = TRUE, digits = 15))\n",
+        "purpose": "Calculate sample size for proportion confidence interval precision using normal approximation",
+        "success": true,
+        "output": "Parameter Summary:\nTarget proportion (p): 0.7 \nDesired CI half-width (E): 0.03 \nConfidence level: 0.95 \nSignificance level (alpha): 0.05 \nCritical z-value (z_{alpha/2}): 1.959964 \n\nSample size calculation:\nn = (z_{alpha/2})^2 \u00d7 p(1-p) / E^2\nn = ( 1.959964 )^2 \u00d7  0.7  \u00d7  0.3  /  0.03 ^2\nn =  3.841459  \u00d7  0.21  /  9e-04 \nn =  896.3404 \n\nRounded sample size (upward): 897 participants\n\nVerification with n = 897 :\nStandard error: 0.01530077 \nActual half-width achieved: 0.02998897 \n95% CI: [ 0.670011 ,  0.729989 ]\nRequired half-width: 0.03 \nActual \u2264 Required? TRUE \n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"sample_size\",\"value\":897,\"unit\":\"participants_total\"}]}\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n[1] jsonlite_2.0.0\n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2\nPOWER_AGENT_SESSION_INFO_END\n",
+        "stderr": "",
+        "exitCode": 0,
+        "elapsed_ms": 116,
+        "computed": {
+          "results": [
+            {
+              "metric": "sample_size",
+              "value": 897,
+              "unit": "participants_total"
+            }
+          ]
+        },
+        "output_files": [],
+        "code_sha256": "fd379d95c0a60a89b761ce2ecb34ee2166aad389cc58433ca73f623dba9c6c38"
+      }
+    ],
+    "trace": [
+      {
+        "timestamp": "2026-10-01T20:32:01.878Z",
+        "type": "agent_start",
+        "role": "planner",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 1,
+        "message": "planner is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T20:32:06.410Z",
+        "type": "model_call",
+        "role": "planner",
+        "call": 1,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011Cfc9qEnjo1YYYu4C1j4XB",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 4531,
+        "usage": {
+          "input_tokens": 1790,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 635,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "1989682ea481237ca6387cf722d229bf2cae3f158011cc807b6887221181a935"
+      },
+      {
+        "timestamp": "2026-10-01T20:32:06.411Z",
+        "type": "design",
+        "role": "planner",
+        "plan": {
+          "ready": true,
+          "request_kind": "calculation",
+          "calculation_type": "sample_size",
+          "estimand": "proportion p = 0.70",
+          "hypothesis": "not-applicable",
+          "method": "proportion_precision",
+          "alpha": 0.05,
+          "sidedness": "two-sided",
+          "target_power": null,
+          "allocation_ratio": null,
+          "sample_size_unit": "participants_total",
+          "parameters": [
+            {
+              "name": "target_proportion",
+              "value": 0.7,
+              "unit": "proportion",
+              "source": "user"
+            },
+            {
+              "name": "ci_half_width",
+              "value": 0.03,
+              "unit": "proportion",
+              "source": "user"
+            },
+            {
+              "name": "confidence_level",
+              "value": 0.95,
+              "unit": "proportion",
+              "source": "user"
+            },
+            {
+              "name": "z_critical",
+              "value": 1.96,
+              "unit": "standard_normal_quantile",
+              "source": "explicit_assumption"
+            }
+          ],
+          "assumptions": [
+            "Normal approximation to binomial distribution",
+            "Exact standard normal 97.5th percentile z = 1.96",
+            "No finite population correction applied",
+            "Point estimate p = 0.70 used for variance calculation",
+            "Upward rounding to nearest integer"
+          ],
+          "missing_information": [],
+          "clarification_questions": [],
+          "scientific_notes": [
+            "Proportion confidence interval precision calculation using normal approximation",
+            "Formula: n = (z_{\u03b1/2})^2 \u00d7 p(1-p) / E^2, where E = half-width = 0.03"
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-10-01T20:32:06.411Z",
+        "type": "agent_start",
+        "role": "coder",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 2,
+        "message": "coder is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T20:32:12.184Z",
+        "type": "model_call",
+        "role": "coder",
+        "call": 2,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011Cfc9qZxQy31XJoBDXyLQd",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 5773,
+        "usage": {
+          "input_tokens": 2487,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 836,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "f76a1fbbb3bc1973255e257026ef109550ad03665bcd5a9717cf069854e86105"
+      },
+      {
+        "timestamp": "2026-10-01T20:32:12.185Z",
+        "type": "code",
+        "role": "coder",
+        "evidence_id": "e1",
+        "code": "\n# Sample size for proportion confidence interval precision\n# Two-sided 95% CI, half-width 0.03, proportion 0.70\n# Using normal approximation with exact z-quantile\n\n# Parameters\np <- 0.70                    # Target proportion\ne <- 0.03                    # Desired half-width (margin of error)\nalpha <- 0.05                # Significance level for two-sided 95% CI\nz_alpha_2 <- qnorm(1 - alpha/2)  # Two-sided 97.5th percentile of standard normal\n\ncat(\"Parameter Summary:\\n\")\ncat(\"Target proportion (p):\", p, \"\\n\")\ncat(\"Desired CI half-width (E):\", e, \"\\n\")\ncat(\"Confidence level:\", 1 - alpha, \"\\n\")\ncat(\"Significance level (alpha):\", alpha, \"\\n\")\ncat(\"Critical z-value (z_{alpha/2}):\", z_alpha_2, \"\\n\")\ncat(\"\\n\")\n\n# Formula: n = (z_{alpha/2})^2 * p(1-p) / E^2\nn_continuous <- (z_alpha_2^2 * p * (1 - p)) / (e^2)\n\ncat(\"Sample size calculation:\\n\")\ncat(\"n = (z_{alpha/2})^2 \u00d7 p(1-p) / E^2\\n\")\ncat(\"n = (\", z_alpha_2, \")^2 \u00d7 \", p, \" \u00d7 \", 1-p, \" / \", e, \"^2\\n\")\ncat(\"n = \", z_alpha_2^2, \" \u00d7 \", p * (1 - p), \" / \", e^2, \"\\n\")\ncat(\"n = \", n_continuous, \"\\n\")\ncat(\"\\n\")\n\n# Round upward to nearest integer\nn_rounded <- ceiling(n_continuous)\n\ncat(\"Rounded sample size (upward):\", n_rounded, \"participants\\n\")\ncat(\"\\n\")\n\n# Verification: compute actual half-width achieved with rounded sample size\nactual_se <- sqrt(p * (1 - p) / n_rounded)\nactual_half_width <- z_alpha_2 * actual_se\nactual_ci_lower <- p - actual_half_width\nactual_ci_upper <- p + actual_half_width\n\ncat(\"Verification with n =\", n_rounded, \":\\n\")\ncat(\"Standard error:\", actual_se, \"\\n\")\ncat(\"Actual half-width achieved:\", actual_half_width, \"\\n\")\ncat(\"95% CI: [\", actual_ci_lower, \", \", actual_ci_upper, \"]\\n\")\ncat(\"Required half-width:\", e, \"\\n\")\ncat(\"Actual \u2264 Required?\", actual_half_width <= e, \"\\n\")\n\n# Output for structured reporting\nresults <- data.frame(\n  metric = \"sample_size\",\n  value = n_rounded,\n  unit = \"participants_total\"\n)\n\nlibrary(jsonlite)\ncat(\"\\n\")\ncat(\"POWER_AGENT_RESULT=\")\ncat(toJSON(list(results = results), auto_unbox = TRUE, digits = 15))\n",
+        "message": "Calculate sample size for proportion confidence interval precision using normal approximation"
+      },
+      {
+        "timestamp": "2026-10-01T20:32:12.303Z",
+        "type": "execution",
+        "role": "coder",
+        "evidence_id": "e1",
+        "success": true,
+        "output": "Parameter Summary:\nTarget proportion (p): 0.7 \nDesired CI half-width (E): 0.03 \nConfidence level: 0.95 \nSignificance level (alpha): 0.05 \nCritical z-value (z_{alpha/2}): 1.959964 \n\nSample size calculation:\nn = (z_{alpha/2})^2 \u00d7 p(1-p) / E^2\nn = ( 1.959964 )^2 \u00d7  0.7  \u00d7  0.3  /  0.03 ^2\nn =  3.841459  \u00d7  0.21  /  9e-04 \nn =  896.3404 \n\nRounded sample size (upward): 897 participants\n\nVerification with n = 897 :\nStandard error: 0.01530077 \nActual half-width achieved: 0.02998897 \n95% CI: [ 0.670011 ,  0.729989 ]\nRequired half-width: 0.03 \nActual \u2264 Required? TRUE \n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"sample_size\",\"value\":897,\"unit\":\"participants_total\"}]}\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n[1] jsonlite_2.0.0\n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2\nPOWER_AGENT_SESSION_INFO_END\n",
+        "error": "",
+        "exitCode": 0
+      },
+      {
+        "timestamp": "2026-10-01T20:32:12.303Z",
+        "type": "agent_start",
+        "role": "coder",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 3,
+        "message": "coder is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T20:32:18.376Z",
+        "type": "model_call",
+        "role": "coder",
+        "call": 3,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011Cfc9r1By3koDNEPaUs3C4",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 6072,
+        "usage": {
+          "input_tokens": 4055,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 629,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "a98005bb237d168b202566726b27755746445a1fee3c55d9cd94e7df8a4cd71b"
+      }
+    ],
+    "usage": {
+      "input_tokens": 8332,
+      "output_tokens": 2100,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0
+    },
+    "error": null,
+    "results": [
+      {
+        "metric": "sample_size",
+        "value": 897,
+        "unit": "participants_total"
+      }
+    ],
+    "design": {
+      "method": "proportion_precision",
+      "alternative": "two-sided",
+      "alpha": 0.05,
+      "allocation_ratio": null,
+      "sample_size_unit": "participants_total"
+    },
+    "evidence": {
+      "executed": true,
+      "execution_ids": [
+        "e1"
+      ],
+      "code_sha256": [
+        "fd379d95c0a60a89b761ce2ecb34ee2166aad389cc58433ca73f623dba9c6c38"
+      ]
+    },
+    "iterations": 3,
+    "elapsed_ms": 16498,
+    "fullCode": "# Evidence e1; success=true\n\n# Sample size for proportion confidence interval precision\n# Two-sided 95% CI, half-width 0.03, proportion 0.70\n# Using normal approximation with exact z-quantile\n\n# Parameters\np <- 0.70                    # Target proportion\ne <- 0.03                    # Desired half-width (margin of error)\nalpha <- 0.05                # Significance level for two-sided 95% CI\nz_alpha_2 <- qnorm(1 - alpha/2)  # Two-sided 97.5th percentile of standard normal\n\ncat(\"Parameter Summary:\\n\")\ncat(\"Target proportion (p):\", p, \"\\n\")\ncat(\"Desired CI half-width (E):\", e, \"\\n\")\ncat(\"Confidence level:\", 1 - alpha, \"\\n\")\ncat(\"Significance level (alpha):\", alpha, \"\\n\")\ncat(\"Critical z-value (z_{alpha/2}):\", z_alpha_2, \"\\n\")\ncat(\"\\n\")\n\n# Formula: n = (z_{alpha/2})^2 * p(1-p) / E^2\nn_continuous <- (z_alpha_2^2 * p * (1 - p)) / (e^2)\n\ncat(\"Sample size calculation:\\n\")\ncat(\"n = (z_{alpha/2})^2 \u00d7 p(1-p) / E^2\\n\")\ncat(\"n = (\", z_alpha_2, \")^2 \u00d7 \", p, \" \u00d7 \", 1-p, \" / \", e, \"^2\\n\")\ncat(\"n = \", z_alpha_2^2, \" \u00d7 \", p * (1 - p), \" / \", e^2, \"\\n\")\ncat(\"n = \", n_continuous, \"\\n\")\ncat(\"\\n\")\n\n# Round upward to nearest integer\nn_rounded <- ceiling(n_continuous)\n\ncat(\"Rounded sample size (upward):\", n_rounded, \"participants\\n\")\ncat(\"\\n\")\n\n# Verification: compute actual half-width achieved with rounded sample size\nactual_se <- sqrt(p * (1 - p) / n_rounded)\nactual_half_width <- z_alpha_2 * actual_se\nactual_ci_lower <- p - actual_half_width\nactual_ci_upper <- p + actual_half_width\n\ncat(\"Verification with n =\", n_rounded, \":\\n\")\ncat(\"Standard error:\", actual_se, \"\\n\")\ncat(\"Actual half-width achieved:\", actual_half_width, \"\\n\")\ncat(\"95% CI: [\", actual_ci_lower, \", \", actual_ci_upper, \"]\\n\")\ncat(\"Required half-width:\", e, \"\\n\")\ncat(\"Actual \u2264 Required?\", actual_half_width <= e, \"\\n\")\n\n# Output for structured reporting\nresults <- data.frame(\n  metric = \"sample_size\",\n  value = n_rounded,\n  unit = \"participants_total\"\n)\n\nlibrary(jsonlite)\ncat(\"\\n\")\ncat(\"POWER_AGENT_RESULT=\")\ncat(toJSON(list(results = results), auto_unbox = TRUE, digits = 15))\n",
+    "executionOutput": "# e1 (coder)\nParameter Summary:\nTarget proportion (p): 0.7 \nDesired CI half-width (E): 0.03 \nConfidence level: 0.95 \nSignificance level (alpha): 0.05 \nCritical z-value (z_{alpha/2}): 1.959964 \n\nSample size calculation:\nn = (z_{alpha/2})^2 \u00d7 p(1-p) / E^2\nn = ( 1.959964 )^2 \u00d7  0.7  \u00d7  0.3  /  0.03 ^2\nn =  3.841459  \u00d7  0.21  /  9e-04 \nn =  896.3404 \n\nRounded sample size (upward): 897 participants\n\nVerification with n = 897 :\nStandard error: 0.01530077 \nActual half-width achieved: 0.02998897 \n95% CI: [ 0.670011 ,  0.729989 ]\nRequired half-width: 0.03 \nActual \u2264 Required? TRUE \n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"sample_size\",\"value\":897,\"unit\":\"participants_total\"}]}\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n[1] jsonlite_2.0.0\n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2\nPOWER_AGENT_SESSION_INFO_END\n",
+    "outputFiles": []
+  },
+  "evaluation": {
+    "passed": true,
+    "reason": [],
+    "numeric_pass": true,
+    "unit_pass": true,
+    "design_pass": true,
+    "evidence_pass": true,
+    "schema_pass": true,
+    "agent_value": 897,
+    "expected_value": 897
+  },
+  "duration_seconds": 16.55
+}

@@ -1,0 +1,343 @@
+{
+  "task_id": "pa26-t2-regression-power",
+  "repeat": 2,
+  "mode": "single",
+  "record": {
+    "success": true,
+    "status": "completed",
+    "scientificStatus": "completed",
+    "workflowMode": "single",
+    "model": "claude-haiku-4-5-20251001",
+    "harnessVersion": "2.0.0",
+    "runId": "eb515993-e4d3-49f1-8bd2-1271281f5ff6",
+    "workspace": "/var/folders/kh/6x1yvf7x44734pr6jcxt3lmh0000gn/T/power-agent-scientific/eb515993-e4d3-49f1-8bd2-1271281f5ff6",
+    "plan": {
+      "ready": true,
+      "request_kind": "calculation",
+      "calculation_type": "power",
+      "estimand": "R-squared (coefficient of determination)",
+      "hypothesis": "H0: R\u00b2 = 0 (all regression coefficients except intercept are zero); HA: R\u00b2 > 0",
+      "method": "linear_regression",
+      "alpha": 0.05,
+      "sidedness": "one-sided",
+      "target_power": null,
+      "allocation_ratio": null,
+      "sample_size_unit": "participants",
+      "parameters": [
+        {
+          "name": "sample size",
+          "value": 80,
+          "unit": "participants",
+          "source": "user"
+        },
+        {
+          "name": "number of predictors",
+          "value": 3,
+          "unit": "count",
+          "source": "user"
+        },
+        {
+          "name": "multiple correlation",
+          "value": 0.3,
+          "unit": "coefficient",
+          "source": "user"
+        },
+        {
+          "name": "significance level",
+          "value": 0.05,
+          "unit": "probability",
+          "source": "user"
+        }
+      ],
+      "assumptions": [
+        "Observations are independent",
+        "Predictor matrix is of full rank",
+        "Errors are normally distributed with constant variance (homoscedasticity)",
+        "Linear model specification is correct",
+        "Multiple correlation = 0.30 is the anticipated population effect size"
+      ],
+      "missing_information": [],
+      "clarification_questions": [],
+      "scientific_notes": [
+        "Test of overall model fit via F-statistic comparing full model (intercept + 3 predictors) against null (intercept only)",
+        "Noncentrality parameter \u03bb = n \u00d7 R\u00b2 / (1 - R\u00b2) for the noncentral F distribution",
+        "Degrees of freedom: numerator = 3 (number of predictors), denominator = n - 4 = 76",
+        "Power is P(F > F_critical) under the noncentral F distribution with specified noncentrality"
+      ]
+    },
+    "answer": {
+      "summary": "For a linear regression model with an intercept and 3 predictors tested against the null hypothesis H\u2080: R\u00b2 = 0, with n = 80 participants, anticipated multiple correlation \u03c1 = 0.30 (R\u00b2 = 0.09), and significance level \u03b1 = 0.05, the power to reject the null hypothesis using the noncentral F-test is 0.624 (approximately 62.4%).",
+      "method": "Noncentral F-test. The test statistic is F = [R\u00b2/(1-R\u00b2)] \u00d7 [(n-p-1)/p], where R\u00b2 = \u03c1\u00b2 is the coefficient of determination, p = 3 is the number of predictors, and n = 80 is the sample size. This follows a noncentral F-distribution with numerator df = p = 3, denominator df = n - p - 1 = 76, and noncentrality parameter \u03bb = n \u00d7 R\u00b2/(1-R\u00b2) = 80 \u00d7 0.09/(1-0.09) \u2248 7.912. Power is calculated as P(F > F_critical) where F_critical = qf(1 - \u03b1, 3, 76) \u2248 2.725.",
+      "results": [
+        {
+          "metric": "power",
+          "value": 0.623797507643479,
+          "unit": "probability"
+        }
+      ],
+      "assumptions": [
+        "Observations are independent",
+        "Predictor matrix has full rank (no perfect multicollinearity)",
+        "Errors are normally distributed with constant variance (homoscedasticity)",
+        "Linear model specification is correct",
+        "Anticipated multiple correlation \u03c1 = 0.30 represents the true population effect size"
+      ],
+      "limitations": [
+        "Power calculation assumes the anticipated multiple correlation of 0.30 is accurate; sensitivity should be checked if this value is uncertain",
+        "No finite-sample corrections beyond degrees-of-freedom adjustment are applied",
+        "The calculation assumes a one-sided test of R\u00b2 > 0 (equivalent to testing whether the model explains significantly more variance than chance)"
+      ],
+      "evidence_ids": [
+        "e1"
+      ],
+      "simulation": null,
+      "citations": []
+    },
+    "review": null,
+    "executions": [
+      {
+        "id": "e1",
+        "role": "coder",
+        "code": "\n# Parameters\nn <- 80                    # sample size (participants)\np <- 3                     # number of predictors (excluding intercept)\nR_squared <- 0.30^2        # R-squared (coefficient of determination)\nalpha <- 0.05              # significance level\nrho <- 0.30                # multiple correlation (given)\n\n# R-squared from multiple correlation\nR_squared <- rho^2\ncat(\"Multiple correlation (rho):\", rho, \"\\n\")\ncat(\"R-squared:\", R_squared, \"\\n\")\n\n# Degrees of freedom\ndf_num <- p                 # numerator df = number of predictors\ndf_denom <- n - p - 1      # denominator df = n - p - 1 (excluding intercept)\ncat(\"Numerator df:\", df_num, \"\\n\")\ncat(\"Denominator df:\", df_denom, \"\\n\")\n\n# Critical F-value at alpha level\nF_crit <- qf(1 - alpha, df_num, df_denom)\ncat(\"Critical F-value:\", F_crit, \"\\n\")\n\n# Noncentrality parameter: lambda = n * R^2 / (1 - R^2)\nlambda <- n * R_squared / (1 - R_squared)\ncat(\"Noncentrality parameter (lambda):\", lambda, \"\\n\")\n\n# Power: P(F > F_crit) under noncentral F(df_num, df_denom, lambda)\npower <- 1 - pf(F_crit, df_num, df_denom, lambda)\ncat(\"Power:\", power, \"\\n\")\n\n# Return result\nresult <- data.frame(\n  metric = \"power\",\n  value = power,\n  unit = \"probability\"\n)\n\ncat(\"\\n=== RESULT ===\\n\")\nprint(result)\n\n# Export as JSON\nlibrary(jsonlite)\noutput <- list(\n  results = list(\n    list(metric = \"power\", value = power, unit = \"probability\")\n  )\n)\ncat(\"\\nPOWER_AGENT_RESULT=\", toJSON(output, auto_unbox = TRUE, digits = 15), \"\\n\", sep = \"\")\n",
+        "purpose": "Calculate power for testing R-squared = 0 in a linear regression with 3 predictors, n=80, multiple correlation=0.30, alpha=0.05",
+        "success": true,
+        "output": "Multiple correlation (rho): 0.3 \nR-squared: 0.09 \nNumerator df: 3 \nDenominator df: 76 \nCritical F-value: 2.724944 \nNoncentrality parameter (lambda): 7.912088 \nPower: 0.6237975 \n\n=== RESULT ===\n  metric     value        unit\n1  power 0.6237975 probability\n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"power\",\"value\":0.623797507643479,\"unit\":\"probability\"}]}\n\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n[1] jsonlite_2.0.0\n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2\nPOWER_AGENT_SESSION_INFO_END\n",
+        "stderr": "",
+        "exitCode": 0,
+        "elapsed_ms": 119,
+        "computed": {
+          "results": [
+            {
+              "metric": "power",
+              "value": 0.623797507643479,
+              "unit": "probability"
+            }
+          ]
+        },
+        "output_files": [],
+        "code_sha256": "cbc114a5882f7ce8cb4044292abd0338ca79a82f5344b97f1cd42fbd6514bd8c"
+      }
+    ],
+    "trace": [
+      {
+        "timestamp": "2026-10-01T19:59:42.080Z",
+        "type": "agent_start",
+        "role": "planner",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 1,
+        "message": "planner is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T19:59:47.353Z",
+        "type": "model_call",
+        "role": "planner",
+        "call": 1,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011Cfc7NFXevA1i27nrUZWkb",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 5273,
+        "usage": {
+          "input_tokens": 1781,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 705,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "d6234be380e686f3baaac9a48a9fc9725d2e1120e59cf454037b83c19e91e6d1"
+      },
+      {
+        "timestamp": "2026-10-01T19:59:47.354Z",
+        "type": "design",
+        "role": "planner",
+        "plan": {
+          "ready": true,
+          "request_kind": "calculation",
+          "calculation_type": "power",
+          "estimand": "R-squared (coefficient of determination)",
+          "hypothesis": "H0: R\u00b2 = 0 (all regression coefficients except intercept are zero); HA: R\u00b2 > 0",
+          "method": "linear_regression",
+          "alpha": 0.05,
+          "sidedness": "one-sided",
+          "target_power": null,
+          "allocation_ratio": null,
+          "sample_size_unit": "participants",
+          "parameters": [
+            {
+              "name": "sample size",
+              "value": 80,
+              "unit": "participants",
+              "source": "user"
+            },
+            {
+              "name": "number of predictors",
+              "value": 3,
+              "unit": "count",
+              "source": "user"
+            },
+            {
+              "name": "multiple correlation",
+              "value": 0.3,
+              "unit": "coefficient",
+              "source": "user"
+            },
+            {
+              "name": "significance level",
+              "value": 0.05,
+              "unit": "probability",
+              "source": "user"
+            }
+          ],
+          "assumptions": [
+            "Observations are independent",
+            "Predictor matrix is of full rank",
+            "Errors are normally distributed with constant variance (homoscedasticity)",
+            "Linear model specification is correct",
+            "Multiple correlation = 0.30 is the anticipated population effect size"
+          ],
+          "missing_information": [],
+          "clarification_questions": [],
+          "scientific_notes": [
+            "Test of overall model fit via F-statistic comparing full model (intercept + 3 predictors) against null (intercept only)",
+            "Noncentrality parameter \u03bb = n \u00d7 R\u00b2 / (1 - R\u00b2) for the noncentral F distribution",
+            "Degrees of freedom: numerator = 3 (number of predictors), denominator = n - 4 = 76",
+            "Power is P(F > F_critical) under the noncentral F distribution with specified noncentrality"
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-10-01T19:59:47.354Z",
+        "type": "agent_start",
+        "role": "coder",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 2,
+        "message": "coder is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T19:59:51.941Z",
+        "type": "model_call",
+        "role": "coder",
+        "call": 2,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011Cfc7NdnNg5dNBHaYZM2KV",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 4587,
+        "usage": {
+          "input_tokens": 2551,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 647,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "d0413be6a6bd3fce20ad1897f3d8d9c04da2552d1a706a28bacdf32b993d0756"
+      },
+      {
+        "timestamp": "2026-10-01T19:59:51.941Z",
+        "type": "code",
+        "role": "coder",
+        "evidence_id": "e1",
+        "code": "\n# Parameters\nn <- 80                    # sample size (participants)\np <- 3                     # number of predictors (excluding intercept)\nR_squared <- 0.30^2        # R-squared (coefficient of determination)\nalpha <- 0.05              # significance level\nrho <- 0.30                # multiple correlation (given)\n\n# R-squared from multiple correlation\nR_squared <- rho^2\ncat(\"Multiple correlation (rho):\", rho, \"\\n\")\ncat(\"R-squared:\", R_squared, \"\\n\")\n\n# Degrees of freedom\ndf_num <- p                 # numerator df = number of predictors\ndf_denom <- n - p - 1      # denominator df = n - p - 1 (excluding intercept)\ncat(\"Numerator df:\", df_num, \"\\n\")\ncat(\"Denominator df:\", df_denom, \"\\n\")\n\n# Critical F-value at alpha level\nF_crit <- qf(1 - alpha, df_num, df_denom)\ncat(\"Critical F-value:\", F_crit, \"\\n\")\n\n# Noncentrality parameter: lambda = n * R^2 / (1 - R^2)\nlambda <- n * R_squared / (1 - R_squared)\ncat(\"Noncentrality parameter (lambda):\", lambda, \"\\n\")\n\n# Power: P(F > F_crit) under noncentral F(df_num, df_denom, lambda)\npower <- 1 - pf(F_crit, df_num, df_denom, lambda)\ncat(\"Power:\", power, \"\\n\")\n\n# Return result\nresult <- data.frame(\n  metric = \"power\",\n  value = power,\n  unit = \"probability\"\n)\n\ncat(\"\\n=== RESULT ===\\n\")\nprint(result)\n\n# Export as JSON\nlibrary(jsonlite)\noutput <- list(\n  results = list(\n    list(metric = \"power\", value = power, unit = \"probability\")\n  )\n)\ncat(\"\\nPOWER_AGENT_RESULT=\", toJSON(output, auto_unbox = TRUE, digits = 15), \"\\n\", sep = \"\")\n",
+        "message": "Calculate power for testing R-squared = 0 in a linear regression with 3 predictors, n=80, multiple correlation=0.30, alpha=0.05"
+      },
+      {
+        "timestamp": "2026-10-01T19:59:52.063Z",
+        "type": "execution",
+        "role": "coder",
+        "evidence_id": "e1",
+        "success": true,
+        "output": "Multiple correlation (rho): 0.3 \nR-squared: 0.09 \nNumerator df: 3 \nDenominator df: 76 \nCritical F-value: 2.724944 \nNoncentrality parameter (lambda): 7.912088 \nPower: 0.6237975 \n\n=== RESULT ===\n  metric     value        unit\n1  power 0.6237975 probability\n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"power\",\"value\":0.623797507643479,\"unit\":\"probability\"}]}\n\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n[1] jsonlite_2.0.0\n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2\nPOWER_AGENT_SESSION_INFO_END\n",
+        "error": "",
+        "exitCode": 0
+      },
+      {
+        "timestamp": "2026-10-01T19:59:52.063Z",
+        "type": "agent_start",
+        "role": "coder",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 3,
+        "message": "coder is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T19:59:57.707Z",
+        "type": "model_call",
+        "role": "coder",
+        "call": 3,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011Cfc7NytMW3iZe6Puft3P9",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 5644,
+        "usage": {
+          "input_tokens": 3773,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 636,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "25a7a237ac17b129e4cd0e62c7a256d1262db9fababfeddcfb24ec7bc9c863cc"
+      }
+    ],
+    "usage": {
+      "input_tokens": 8105,
+      "output_tokens": 1988,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0
+    },
+    "error": null,
+    "results": [
+      {
+        "metric": "power",
+        "value": 0.623797507643479,
+        "unit": "probability"
+      }
+    ],
+    "design": {
+      "method": "linear_regression",
+      "alternative": "one-sided",
+      "alpha": 0.05,
+      "allocation_ratio": null,
+      "sample_size_unit": "participants"
+    },
+    "evidence": {
+      "executed": true,
+      "execution_ids": [
+        "e1"
+      ],
+      "code_sha256": [
+        "cbc114a5882f7ce8cb4044292abd0338ca79a82f5344b97f1cd42fbd6514bd8c"
+      ]
+    },
+    "iterations": 3,
+    "elapsed_ms": 15628,
+    "fullCode": "# Evidence e1; success=true\n\n# Parameters\nn <- 80                    # sample size (participants)\np <- 3                     # number of predictors (excluding intercept)\nR_squared <- 0.30^2        # R-squared (coefficient of determination)\nalpha <- 0.05              # significance level\nrho <- 0.30                # multiple correlation (given)\n\n# R-squared from multiple correlation\nR_squared <- rho^2\ncat(\"Multiple correlation (rho):\", rho, \"\\n\")\ncat(\"R-squared:\", R_squared, \"\\n\")\n\n# Degrees of freedom\ndf_num <- p                 # numerator df = number of predictors\ndf_denom <- n - p - 1      # denominator df = n - p - 1 (excluding intercept)\ncat(\"Numerator df:\", df_num, \"\\n\")\ncat(\"Denominator df:\", df_denom, \"\\n\")\n\n# Critical F-value at alpha level\nF_crit <- qf(1 - alpha, df_num, df_denom)\ncat(\"Critical F-value:\", F_crit, \"\\n\")\n\n# Noncentrality parameter: lambda = n * R^2 / (1 - R^2)\nlambda <- n * R_squared / (1 - R_squared)\ncat(\"Noncentrality parameter (lambda):\", lambda, \"\\n\")\n\n# Power: P(F > F_crit) under noncentral F(df_num, df_denom, lambda)\npower <- 1 - pf(F_crit, df_num, df_denom, lambda)\ncat(\"Power:\", power, \"\\n\")\n\n# Return result\nresult <- data.frame(\n  metric = \"power\",\n  value = power,\n  unit = \"probability\"\n)\n\ncat(\"\\n=== RESULT ===\\n\")\nprint(result)\n\n# Export as JSON\nlibrary(jsonlite)\noutput <- list(\n  results = list(\n    list(metric = \"power\", value = power, unit = \"probability\")\n  )\n)\ncat(\"\\nPOWER_AGENT_RESULT=\", toJSON(output, auto_unbox = TRUE, digits = 15), \"\\n\", sep = \"\")\n",
+    "executionOutput": "# e1 (coder)\nMultiple correlation (rho): 0.3 \nR-squared: 0.09 \nNumerator df: 3 \nDenominator df: 76 \nCritical F-value: 2.724944 \nNoncentrality parameter (lambda): 7.912088 \nPower: 0.6237975 \n\n=== RESULT ===\n  metric     value        unit\n1  power 0.6237975 probability\n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"power\",\"value\":0.623797507643479,\"unit\":\"probability\"}]}\n\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n[1] jsonlite_2.0.0\n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2\nPOWER_AGENT_SESSION_INFO_END\n",
+    "outputFiles": []
+  },
+  "evaluation": {
+    "passed": false,
+    "reason": [
+      "design_alternative_mismatch"
+    ],
+    "numeric_pass": true,
+    "unit_pass": true,
+    "design_pass": false,
+    "evidence_pass": true,
+    "schema_pass": true,
+    "agent_value": 0.623797507643479,
+    "expected_value": 0.6237975076434789
+  },
+  "duration_seconds": 15.671
+}

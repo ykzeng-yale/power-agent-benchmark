@@ -1,33 +1,20 @@
 # Changelog
 
-All notable changes to the Power Agent Biostatistics Benchmark will be documented in this file.
+## 2.0.2 — 2026-10-01 publication corrections
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+- Preserve the original Mac120/24 capture failures and unknown statuses/usage; do not replace or manufacture records.
+- Add a raw-first null-safe scorer; prove all 105 retained historical judgments unchanged, then prospectively evaluate a complete fresh 24 extension.
+- Record separately planned immutable Linux 40 with question-only payload and local scoring; strict 8/20 single versus 5/20 multi does not establish a multi-agent benefit.
+- Add post-hoc merged-anchor dependence sensitivity, conventional observed medians, cost accounting and visually checked scientific figures.
+- Make current runner persist version-change failures without invoking the provider; retain exact frozen study files. All 28 tests pass.
 
-## [1.0.0] - 2025-02-06
+## 2.0.0 — 2026-10-01 audit revision
 
-### Added
-- Initial release with 106 validated tasks across 4 tiers
-- **Tier 1**: 30 basic comparison tasks (t-tests, ANOVA, proportions, chi-square, correlation)
-- **Tier 2**: 35 regression and model tasks (linear, logistic, mixed effects, survival, Poisson)
-- **Tier 3**: 20 advanced design tasks (cluster RCT, crossover, factorial, simr simulation)
-- **Tier 4**: 21 prediction model tasks (Riley binary/survival/continuous, external validation)
-- LLM-as-judge evaluation using Claude Sonnet
-- 5-criterion scoring system (100 points total)
-- Strict tolerance checking with method-appropriate ranges
-- GitHub-based leaderboard with submission process
-- Comprehensive documentation
+- Audit all 106 legacy primary references. Sixty-seven execute; 39 contain no executable calculation. Fifty-nine reproduce stored primary values without a known flagged design defect, but remain source-unverified; 47 are quarantined.
+- Withdraw old 100%/99.1% accuracy claims. Preserve original sources and descriptions in `historical/`; disable v1 runner, evaluators and judge-based example entry points.
+- Add 20 deterministic source-classified tasks, family-grouped 9/11 development/evaluation split, independent R/SciPy computations, exact integer inversion and locked schema/unit/design/evidence scoring.
+- Freeze 120 paired repeated Haiku attempts with every planned failure retained. A separate four-task survival/cluster source extension is frozen independently for 24 additional attempts.
+- Add constructed Gaussian random-intercept Monte Carlo reference calibration, all-trial rejection/failure accounting, seeds, MCSE and intervals. This is reference validation, not an LLM mixed-model capability claim.
+- Record metadata-only bootstrap wording and provisional textbook page locator errata without modifying frozen experiment files.
 
-### Validated
-- All ground truths verified with R code
-- Tolerances calibrated based on method characteristics
-- 100% pass rate achieved with Power Agent baseline
-
-## [Unreleased]
-
-### Planned
-- Additional Tier 2 tasks for advanced regression scenarios
-- Bayesian power analysis tasks
-- Adaptive design sample size calculations
-- Multi-language documentation
+The historical 1.0.0 changelog is preserved at `historical/CHANGELOG.md`; its assertions that all 106 tasks were validated and the baseline achieved 100% are withdrawn as current scientific evidence.
