@@ -74,6 +74,16 @@ Rscript validation/monte_carlo.R .
 
 Never regenerate reference files or edit hashed sources while a frozen model run is active. Reproduce references in a separate checkout, or after the run completes.
 
+## Post-study current-release regression
+
+The separately frozen release 2.1.1 dispatch experiment planned all 40 core attempts, but its USD 6 full-study forecast guard stopped further dispatch after six actual transports (three per mode). The other 34 planned rows are explicit undispatched stubs, not model responses. `results/haiku-linux-release-2_1_1-regression-20261001/derived-accounting.json` preserves the six observed records and the separate planned stubs. This is an operational budget-policy audit, not a forty-response performance estimate.
+
+A new, entire 40-attempt release 2.1.2 cohort was prospectively frozen in an immutable Linux image with a USD 15 forecast-dispatch limit. All 40 actual transports were captured before offline scoring, with no undispatched jobs, missing captures or unknown usage. The same exposed 20 questions, oracles, numerical tolerances and null-safe 2.0.1 scorer were used without changes. Single-agent mode had 8/20 strict passes, 10/20 numerical matches (all completed), and 14 completed workflows; multi-agent mode had 4/20 strict passes, 11/20 numerical matches (five completed and six unfinished), and seven completed workflows. Observed median durations were 30.898 and 100.3975 seconds. These results do not support a multi-agent advantage or establish accuracy on new cases.
+
+The paired strict difference was −0.20, with descriptive declared-family bootstrap interval [−0.434783, 0.055556]; the separate merged-variant sensitivity interval was [−0.45, 0.05]. Twenty matched tasks with one attempt per mode cannot estimate within-task stochastic variability, and versions were revised after observed deployment failures, so no causal cross-version gain is claimed. The narrow post-study two-sided pooled-t inversion reference gate was not applicable to this suite: 28 records explicitly skipped it and 12 did not reach it. Actual R component checks and hosted guard checks are separate evidence.
+
+`results/haiku-linux-release-2_1_2-regression-20261001/` retains the prospective protocol, all 83 original capture objects, exact raw-to-record integrity audit, unchanged offline scores, failure diagnostics, paired sensitivity analysis, and reproducible PDF/PNG figures. The reported token estimate was USD 4.161417; six recorded cohorts together have USD 24.205842 of known token estimates, excluding 22 older lost-response usages and hosted/native tests. These are not provider billing totals, and cohorts are never pooled into a single accuracy rate.
+
 ## Sources
 
 Verma & Verma (2020), *Determining Sample Size and Power in Research Studies*. [Publisher and DOI](https://doi.org/10.1007/978-981-15-5204-5).
