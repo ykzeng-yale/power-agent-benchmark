@@ -1,5 +1,10 @@
 # Power Agent scientific benchmark
 
+## Source-strengthened development corpus (October 14, 2026)
+
+[Four-tier source anchors](cohorts/source-strengthening-20261014/README.md) provide 14 independently reproduced targets: 11 textbook worked answers and three official prediction-model code illustrations. Exact method/software options, feasible integer units, source locators and R/SciPy replication code accompany the targets. Tier 4 explicitly includes an advanced logistic coefficient-testing subdomain, distinct from prediction-model development. These are public development examples, not a new accuracy study or a held-out test set. Twelve new prospective question variants remain private and unexecuted. Existing datasets, tiers, protocols, failures and scores remain unchanged.
+
+
 Version 2 contains **20 curated deterministic tasks** with explicit assumptions, units and reference computations. It supports judge-free evaluation of the same Haiku harness in single-agent and genuine planner/coder/reviewer modes. The 106 legacy tasks remain available as historical data; they are **not certified ground truth**.
 
 | Tier | Scope | Tasks | Sources |
