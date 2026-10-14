@@ -1,0 +1,52 @@
+Here’s one reasonable way to compute the power for the **time × treatment (slope difference)** in a **cluster-randomized longitudinal trial**, using the variance components you gave.
+
+## Model + design I’m assuming
+
+Because treatment is assigned at the **cluster** level, a standard working model is a **cluster-level random intercept and random time-slope**:
+
+[
+y_{cst} = \beta_0 + \beta_1 t + \beta_2 \text{Trt}*c + \beta_3 (t \cdot \text{Trt}*c) + b*{0c} + b*{1c}t + \varepsilon_{cst}
+]
+
+* (c=1,\dots,30) clusters (15/arm), (s=1,\dots,20) subjects, (t\in{0,1,2,3})
+* Random effects (cluster level): (b_{0c}\sim N(0,0.5^2)), (b_{1c}\sim N(0,0.1^2)), covariance assumed 0 (not provided)
+* Residual: (\varepsilon\sim N(0,1.0^2)), independent
+
+To leverage the 20 subjects/cluster, treat the **cluster-time mean** as the unit:
+
+* Each cluster contributes 4 measurements (means at t=0,1,2,3)
+* The residual variance for a cluster-time mean is ( \sigma^2 / n = 1/20 = 0.05)
+
+So per cluster, the 4×4 covariance is:
+[
+V_c = Z_c G Z_c^\top + 0.05 I_4,\quad
+Z_c=\begin{bmatrix}1&t\end{bmatrix},\
+G=\begin{bmatrix}0.25&0\0&0.01\end{bmatrix}
+]
+
+Then the GLS variance of (\hat\beta_3) is the ((4,4)) element of:
+[
+\mathrm{Var}(\hat\beta)=\left(X^\top V^{-1}X\right)^{-1}
+]
+
+## Result
+
+With 30 clusters total, 4 time points, and your variance components:
+
+* **SE((\hat\beta_3)) ≈ 0.0516**
+* True interaction (slope difference): (\beta_3 = 0.15)
+* Noncentrality: (0.15 / 0.0516 \approx 2.91)
+
+### Power at α = 0.05 (two-sided)
+
+* Using a normal/Wald approximation: **≈ 0.828**
+* Using a small-sample t approximation with df ≈ clusters − fixed effects = 30 − 4 = 26: **≈ 0.798**
+
+✅ **So the power is about ~0.80 (roughly 0.80–0.83 depending on df approximation).**
+
+## Notes (what would change the answer)
+
+* If the **random intercept/slope SDs were at the subject level** (not the cluster level), or if there is **additional cluster-level ICC not captured here**, power could change a lot.
+* If the same 20 subjects are followed over time (as you said), a more realistic model would include **subject-level random effects / within-subject correlation**; you didn’t provide those, so I treated the within-cluster subject measurements as “replicates” that primarily reduce the residual via averaging.
+
+If you tell me whether the random intercept/slope are intended to be **cluster-level vs subject-level** (and whether there’s intercept–slope covariance), I can recompute the power under that exact structure.

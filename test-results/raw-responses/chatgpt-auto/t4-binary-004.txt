@@ -1,0 +1,50 @@
+Using Riley et al.’s approach (as implemented in **pmsampsize**) for a **binary-outcome logistic prediction model**, the minimum sample size to target a **global shrinkage factor** (S) is :
+
+[
+n ;=; \frac{P}{(S-1),\ln!\Big(1-\frac{R^2_{CS}}{S}\Big)}
+]
+
+where:
+
+* (P) = number of **predictor parameters** (often ≥ number of predictors) ([CRAN][1])
+* (R^2_{CS}) = anticipated **Cox–Snell (R^2)** (overall fit) 
+
+## Step 1: Convert your C-statistic to (R^2_{CS})
+
+Riley et al. give a practical way to approximate (R^2_{CS}) from **AUC (C-statistic)** and **prevalence** by assuming normal linear predictors in cases/non-cases; the key link is: 
+
+[
+\mu ;=; \sqrt{2},\Phi^{-1}(C)
+]
+
+Then (R^2_{CS}) is obtained from a large-sample simulation (this is exactly what `pmsampsize` does when you supply `cstatistic` + `prevalence`). 
+
+For your inputs (**C = 0.82**, **prevalence = 0.12**), this gives approximately:
+
+[
+R^2_{CS} \approx 0.146
+]
+
+## Step 2: Plug into the shrinkage-based sample size formula
+
+With:
+
+* (P = 25)
+* (S = 0.95)
+* (R^2_{CS} \approx 0.146)
+
+[
+n \approx \frac{25}{(0.95-1)\ln!\Big(1-\frac{0.146}{0.95}\Big)}
+\approx 2987.5
+]
+
+### Required sample size (shrinkage target 0.95)
+
+* **Total (n \approx 2,990)** participants
+* Expected events (= 0.12 \times 2990 \approx 359) (**~359 events**, **~2,631 non-events**)
+
+## Important note about “25 predictors”
+
+This calculation treats your **25 predictors as 25 parameters**. If any predictors are categorical (multiple dummies), modeled with splines, or include interactions, then (P) should be **higher** than 25, and the required (n) increases accordingly. ([CRAN][1])
+
+[1]: https://cran.r-project.org/web/packages/pmsampsize/pmsampsize.pdf "pmsampsize: Sample Size for Development of a Prediction Model"

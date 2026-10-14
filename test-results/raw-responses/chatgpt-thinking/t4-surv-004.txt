@@ -1,0 +1,49 @@
+Using Riley/Ensor/Snell’s **time-to-event** minimum sample size criteria (as implemented in `pmsampsize` for survival outcomes), you need to specify the **cause-specific event rate** for the *primary* event (not the competing event), plus the target **Cox–Snell (R^2)** and number of predictor parameters. ([PMC][1])
+
+## Inputs (your values)
+
+* Candidate predictor parameters: (p = 10)
+* Expected model fit: (R^2_{CS} = 0.18)
+* Timepoint of interest: (t^* = 5) years
+* Mean follow-up: (\bar{t} = 3) years
+* Primary event fraction: 20%
+
+### Convert “20% primary event rate” to the **incidence rate** needed by Riley’s survival formula
+
+`pmsampsize`’s survival option uses an **event rate per unit time** (“rate”), along with mean follow-up and timepoint. ([CRAN][2])
+
+A practical conversion (and the one consistent with the package’s inputs) is:
+[
+\text{rate} \approx \frac{\Pr(\text{primary event})}{\bar{t}} = \frac{0.20}{3} = 0.0667 \text{ per year.}
+]
+(If you instead assume an exponential model, (\text{rate}=-\ln(0.8)/3=0.0744) per year; it barely changes (n) here.)
+
+## Riley minimum sample size result (primary event model)
+
+Applying the Riley criteria for survival outcomes (3 criteria; take the maximum), the binding criterion is **criterion 1 (shrinkage (\ge 0.9))**, giving:
+
+* **Minimum sample size:** **(n = 449)** individuals
+* **Expected number of primary events:**
+  [
+  E \approx n \times \text{rate} \times \bar{t}
+  = 449 \times 0.0667 \times 3 \approx 89.8 \ (\approx 90\ \text{events})
+  ]
+* **Events per predictor parameter (EPP):**
+  [
+  \text{EPP} \approx 89.8/10 \approx 9.0
+  ]
+
+These calculations follow the exact `pmsampsize_surv` implementation of Riley et al.’s criteria (criterion 1 shrinkage; criterion 2 small (R^2) optimism; criterion 3 precision of baseline risk at the chosen timepoint). ([rdrr.io][3])
+
+## Notes specific to competing risks
+
+* This **does not “solve” competing risks automatically**—it’s a sample size calculation for a **primary-event survival model** (e.g., cause-specific Cox) using the **primary-event incidence rate**. If you plan a Fine–Gray (subdistribution) model, the required inputs and interpretation can differ; Riley’s original `pmsampsize` survival routine is framed around standard time-to-event modeling. ([rdrr.io][3])
+* If your **20%** is actually a **5-year cumulative incidence** (not “over mean 3-year follow-up”), you should derive the rate from that definition; however, with your numbers here, the required (n) remained 449 under both reasonable conversions.
+
+**Answer:** **~449 patients total** for the primary-event model (≈ **90 primary events**, ≈ **9 EPP**).
+
+[1]: https://pmc.ncbi.nlm.nih.gov/articles/PMC6519266/ "
+            Minimum sample size for developing a multivariable prediction model: PART II ‐ binary and time‐to‐event outcomes - PMC
+        "
+[2]: https://cran.r-project.org/web/packages/pmsampsize/pmsampsize.pdf "pmsampsize: Sample Size for Development of a Prediction Model"
+[3]: https://rdrr.io/cran/pmsampsize/src/R/pmsampsize_surv.R "pmsampsize source: R/pmsampsize_surv.R"

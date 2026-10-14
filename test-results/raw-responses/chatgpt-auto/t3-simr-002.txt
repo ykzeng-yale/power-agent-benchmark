@@ -1,0 +1,80 @@
+Here’s a practical, back-of-the-envelope way to size this for a **random-intercept mixed-effects logistic model** when each subject contributes **m = 3** binary observations.
+
+## 1) Convert OR + baseline risk into treated risk
+
+Control (baseline) probability:
+
+* (p_0 = 0.30)
+
+Treatment odds ratio:
+
+* (\text{OR} = 2.0)
+
+Convert to treated probability:
+[
+p_1=\frac{\text{OR}\cdot p_0}{1-p_0+\text{OR}\cdot p_0}
+=\frac{2\cdot 0.30}{0.70+0.60}
+=\frac{0.60}{1.30}
+=0.4615
+]
+
+So the expected marginal proportions are roughly:
+
+* Control: (0.30)
+* Treatment: (0.4615)
+
+Difference: (\Delta = 0.1615)
+
+## 2) First, sample size as if all observations were independent
+
+Using the standard two-sample proportions normal approximation (two-sided (\alpha=0.05), power (=0.80)) gives about:
+
+* **~141 independent observations per group**
+
+(This is the “naive” requirement before accounting for within-subject correlation.)
+
+## 3) Convert random-intercept SD into an ICC (logistic scale)
+
+Random intercept SD: ( \sigma_b = 0.5 \Rightarrow \sigma_b^2 = 0.25)
+
+For a logistic mixed model, a common approximation is:
+[
+\text{ICC}\approx \frac{\sigma_b^2}{\sigma_b^2+\pi^2/3}
+= \frac{0.25}{0.25+3.2899}
+\approx 0.0706
+]
+
+So within-subject correlation is modest (~0.07).
+
+## 4) Design effect for m repeated measures
+
+With (m=3):
+[
+\text{DE} = 1 + (m-1)\text{ICC}
+= 1 + 2(0.0706)
+\approx 1.141
+]
+
+Effective independent observations contributed by (n) subjects per group is:
+[
+n_{\text{eff}} = \frac{n\cdot m}{\text{DE}}
+]
+
+Set (n_{\text{eff}} \approx 141) and solve for (n):
+[
+n \approx 141\cdot \frac{\text{DE}}{m}
+= 141\cdot \frac{1.141}{3}
+\approx 53.5
+]
+
+## Result
+
+✅ **About 54 subjects per group** (each with 3 observations) for **80% power at (\alpha=0.05)**.
+
+### Practical recommendation
+
+Because mixed-model power can be a bit sensitive to whether the OR is interpreted **conditional** (subject-specific) vs **marginal** (population-averaged), and to any missingness/unequal timing, I’d round up slightly:
+
+* **Plan ~55–60 subjects per group** if you want a little buffer.
+
+If you tell me whether your OR=2.0 is meant to be *subject-specific* (conditional on the random intercept) or *marginal*, I can adjust the approximation accordingly.

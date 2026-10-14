@@ -1,0 +1,72 @@
+Using the **Riley/Ensor “pmsampsize” criteria** for developing a **time-to-event (Cox) prediction model**, your inputs map cleanly to the standard 3-criterion framework (target **shrinkage ≥ 0.90**, small optimism in (R^2), and **precise estimation of the baseline risk at the prediction horizon**). ([PMC][1])
+
+## Step 1) Convert your 10-year risk to an event rate (for mean follow-up)
+
+You gave a **10-year event risk = 15%** and **mean follow-up ≈ 6 years**.
+
+A common planning approximation is an **exponential (constant hazard)** model:
+
+[
+\lambda ;=; -\ln(1-0.15)/10 ;=; -\ln(0.85)/10 ;\approx; 0.01625 \text{ per year}
+]
+
+Expected cumulative incidence by 6 years:
+
+[
+F(6)=1-e^{-\lambda\cdot 6}=1-e^{-0.0975}\approx 0.093
+]
+
+So you’d expect roughly **9.3%** experiencing the event during 6 years on average (given this approximation).
+
+## Step 2) Criterion (i): limit overfitting (target shrinkage 0.90)
+
+For **(p=12)** predictor *parameters* and anticipated **Cox–Snell (R^2_{CS}=0.15)**, the closed-form Riley approach (implemented in **pmsampsize**) yields a minimum **development sample size** around:
+
+* **(n \approx 650)** participants
+
+This corresponds to an expected number of events (using the 6-year ≈ 9.3% figure above):
+
+* **Events (\approx 650 \times 0.093 \approx 60)** events
+* **EPP (\approx 60/12 \approx 5)** events per predictor parameter
+
+Importantly, Riley et al. emphasize that **blanket “10 events per variable” rules are not reliable**, and the required EPP can be much lower (or higher) depending on anticipated model performance (your (R^2) is fairly strong). ([PMC][1])
+
+## Step 3) Criterion (iii): precision of the overall 10-year risk
+
+pmsampsize also checks that the **average risk at the prediction timepoint** (here, 10 years) can be estimated with adequate precision (often framed as within about ±0.05). ([CRAN][2])
+
+With a true 10-year risk of 0.15, a back-of-the-envelope binomial calculation suggests this precision criterion is usually met by a few hundred subjects, and is **unlikely to exceed** the ~650 driven by shrinkage in your setting—**but** the fact that **mean follow-up (6y) < prediction horizon (10y)** implies substantial censoring before 10 years, which pushes you toward being more conservative.
+
+## Recommended sample size
+
+* **Minimum for model development:** **~650 participants** (expect **~60 events** by ~6 years on average).
+* **Practical recommendation:** **800–1,000 participants** if you can, because:
+
+  * predicting **10-year** risk with **only 6 years mean follow-up** can inflate uncertainty in the baseline hazard / 10-year calibration,
+  * you may need >12 parameters in reality (splines, categorical expansions, interactions),
+  * you should *also* plan for internal validation (bootstrapping is fine, but you still benefit from a bit more information). ([PMC][1])
+
+## Exactly how to reproduce this in software (R)
+
+This is the direct pmsampsize call structure for survival outcomes (you supply the **event rate**, **timepoint**, and **mean follow-up**). ([CRAN][2])
+
+```r
+library(pmsampsize)
+
+pmsampsize(
+  type = "s",
+  csrsquared = 0.15,
+  parameters = 12,
+  rate = 0.01625,   # per year (from 15% at 10y)
+  timepoint = 10,   # 10-year prediction horizon
+  meanfup = 6,      # mean follow-up
+  shrinkage = 0.9
+)
+```
+
+If you tell me whether **12 predictors = 12 parameters** (or whether some are categorical / non-linear), and whether you’ll model **competing risks** (common in CV settings), I can adjust the recommendation accordingly—but with what you gave, **~650 minimum**, **~800–1,000 preferred** is a solid planning target.
+
+[1]: https://pmc.ncbi.nlm.nih.gov/articles/PMC6519266/ "
+            Minimum sample size for developing a multivariable prediction model: PART II ‐ binary and time‐to‐event outcomes - PMC
+        "
+[2]: https://cran.r-project.org/web/packages/pmsampsize/pmsampsize.pdf "pmsampsize: Sample Size for Development of a Prediction Model"

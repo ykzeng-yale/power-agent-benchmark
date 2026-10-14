@@ -1,0 +1,77 @@
+Using Riley et al.’s **minimum sample size criteria for time-to-event (Cox) prediction model development**, you calculate the required **n** to satisfy three checks:
+(i) target **global shrinkage ≥ 0.90** (to limit overfitting), via Eq. (11) ([RCA Storage][1])
+(ii) ensure **small optimism in explained variation** (≤0.05 on the Nagelkerke scale), via Eq. (26) ([RCA Storage][1])
+(iii) ensure **precise estimation of the overall risk at the prediction timepoint**, using the exponential approximation in Eq. (28) ([RCA Storage][1])
+
+Below I plug in your numbers.
+
+## Step 1 — Convert the 5-year mortality into an event rate
+
+You gave 5-year mortality = 40%, so (S(5)=0.60). Under an exponential approximation,
+[
+\lambda = -\ln(S(5))/5 = -\ln(0.60)/5 \approx 0.1022 \text{ per year}.
+]
+
+Mean follow-up is 3 years, so total person-time is (T \approx 3n).
+
+## Step 2 — Criteria (i) and (ii): overfitting / optimism checks
+
+### (i) Shrinkage ≥ 0.90
+
+Riley et al. give the closed-form required (n) for a target shrinkage (S) (their Eq. 11) ([RCA Storage][1]):
+[
+n ;=; \frac{p}{(S-1),\ln!\left(1-\frac{R^2_{CS}}{S}\right)}.
+]
+With (p=6), (R^2_{CS}=0.25), (S=0.90):
+
+* (n \approx 184.4) → **185 participants**.
+
+### (ii) Optimism in R² ≤ 0.05 (Nagelkerke scale)
+
+This requires computing ( \max(R^2_{CS}) ) using Eq. (23) ([RCA Storage][1]) and then the required shrinkage threshold from Eq. (26) ([RCA Storage][1]).
+
+For survival with an exponential null model, ( \ln L_{null}) is given by Eq. (13) ([RCA Storage][1]), which implies ( \max(R^2_{CS})) depends on (\lambda) and mean follow-up. Using your (\lambda\approx 0.1022) and mean follow-up 3y gives:
+
+* (\max(R^2_{CS}) \approx 0.544).
+
+Then Eq. (26) ([RCA Storage][1]) with (\delta=0.05) implies a minimum shrinkage of about:
+
+* (S \gtrsim 0.902)
+
+Recomputing Eq. (11) with (S=0.902) gives:
+
+* (n \approx 188.4) → **189 participants**.
+
+So far, **~190** would control overfitting/optimism given (R^2_{CS}=0.25).
+
+## Step 3 — Criterion (iii): precise estimation of the overall risk
+
+Riley et al. recommend checking precision of the **cumulative incidence** at the key timepoint (t) using the exponential approximation and CI width condition in Eq. (28). ([RCA Storage][1])
+
+Taking your key prediction horizon as **5 years** (since you specified 5-year mortality), and targeting absolute margin of error ≤ **0.05** (their typical example threshold), solving Eq. (28) yields required total person-time:
+
+* (T \approx 1532) person-years.
+
+With mean follow-up 3 years, (T \approx 3n), so:
+[
+n \approx 1532/3 \approx 510.7 ;\Rightarrow; \boxed{511 \text{ participants (minimum)}}
+]
+
+### What that implies in events (sanity check)
+
+Expected 3-year event probability under exponential:
+[
+P(\text{death by 3y}) = 1-e^{-\lambda\cdot 3} \approx 1-e^{-0.3065}\approx 0.264.
+]
+So with (n\approx 511), expected deaths by 3y (\approx 0.264\times 511 \approx 135) deaths, i.e. about **22.5 events per predictor parameter** (135/6).
+
+## Answer
+
+**Minimum sample size for model development (meeting Riley criteria i–iii, with 5-year risk as the target horizon):**
+[
+\boxed{\textbf{~511 participants total}}
+]
+
+If instead your model’s primary prediction horizon were **3 years** (aligned with mean follow-up), the precision criterion is less demanding and the minimum drops to roughly **~273 participants** (same Eq. 28 logic). ([RCA Storage][1])
+
+[1]: https://rcastoragev2.blob.core.windows.net/509fc40eadd23a411835addcb6f1b2fe/PMC6519266.pdf "Minimum sample size for developing a multivariable prediction model: PART II - binary and time-to-event outcomes"

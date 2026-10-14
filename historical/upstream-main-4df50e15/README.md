@@ -1,0 +1,9 @@
+# Imported upstream history
+
+These files preserve the exact upstream `origin/main` commit `4df50e15aa597edd4f3171a5400c7007973a7b7f` originals for the documents and example that conflicted with the audited branch. They are historical source material, not the current scientific protocol, runner instructions, or validated accuracy evidence. The dated model comparisons, selected retries, broad tolerances and claimed R verification were not independently certified by this merge.
+
+`originals/` retains all eight conflicting upstream files and its original leaderboard JSON byte for byte. The corresponding original objects and every upstream commit are also retained by the two-parent merge. Current entry points use the audited judge-free contract; the legacy judge-based single-task example remains disabled.
+
+Other incoming upstream files are retained at their existing repository paths: `tasks/`, `all_tasks.json`, `v2.1/`, `v2.2/`, `test-results/`, the historical leaderboard chart/generator, and older collection/extraction/API benchmark scripts. Their labels and numeric records are preserved rather than recalculated. The upstream `v2.1` and `v2.2` directory labels are separate legacy corpus names, not versions of the audited scientific harness. These files do not expand audited coverage or establish a new holdout, completed trial, fair comparison, or general accuracy claim. The root npm package metadata belongs to those older tools; its placeholder `npm test` is not the audited validation command.
+
+Use the repository root README, `docs/audited-methodology.md`, the source-strengthened development corpus, and explicitly frozen study protocols for current scientific claims. No current private questions, oracle answers, authenticated correspondence or restricted source captures were imported.

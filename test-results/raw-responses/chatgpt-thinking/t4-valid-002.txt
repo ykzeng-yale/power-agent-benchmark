@@ -1,0 +1,110 @@
+Using Riley et al.–style **external validation precision criteria**, you take the **largest** sample size required across:
+
+1. C-statistic (AUC) CI width
+2. Calibration slope CI width
+3. O/E (calibration-in-the-large) CI width
+
+I’ll assume **95% CIs** throughout.
+
+---
+
+## Inputs
+
+* Expected C-statistic: (AUC = 0.75)
+* Outcome prevalence: (p = 0.15)
+* Linear predictor (LP \sim \mathcal{N}(\mu=-2.0,\ \sigma=1.44))
+* Targets:
+
+  * AUC CI width (\le 0.08)  (half-width (=0.04))
+  * Calibration slope CI width (\le 0.30) (half-width (=0.15))
+  * O/E CI width (\le 0.30) (half-width (=0.15))
+
+For a 95% CI, (z_{0.975}=1.96).
+So the **required standard errors** are:
+
+* (SE(AUC) \le \dfrac{0.08}{2\cdot 1.96} = 0.02041)
+* (SE(\text{slope}) \le \dfrac{0.30}{2\cdot 1.96} = 0.07653)
+* (SE(\log(O/E)) \le \dfrac{0.30}{2\cdot 1.96} = 0.07653)  *(this is the usual way Riley frames O/E precision; see note below)*
+
+---
+
+## 1) C-statistic precision  → required **n**
+
+Using the common **Hanley–McNeil** large-sample SE approximation with (n_1=np) events and (n_0=n(1-p)) non-events:
+
+[
+SE(AUC)=\sqrt{\frac{AUC(1-AUC)+(n_1-1)(Q_1-AUC^2)+(n_0-1)(Q_2-AUC^2)}{n_1n_0}}
+]
+where
+[
+Q_1=\frac{AUC}{2-AUC},\quad Q_2=\frac{2AUC^2}{1+AUC}
+]
+
+Solving for (SE(AUC)\le 0.02041) with (AUC=0.75,\ p=0.15) gives:
+
+* **(n_{\text{AUC}} \approx 1394)**
+  Events (\approx 0.15\times 1394 = 209)
+
+---
+
+## 2) Calibration slope precision  → required **n**
+
+Fit the validation calibration model:
+[
+\text{logit}(Y)=\alpha+\beta\cdot LP
+]
+and target (CI\ width(\beta)\le 0.30).
+
+Using Fisher information for ((\alpha,\beta)) and your assumed (LP\sim N(-2,1.44^2)), we set (\alpha) so that the marginal prevalence matches 0.15, then compute the expected information. This yields approximately:
+
+* (SE(\beta)\approx \sqrt{\dfrac{E[w]}{n,(E[w]E[wLP^2]-(E[wLP])^2)}}) with (w=p_i(1-p_i))
+
+Solving (SE(\beta)\le 0.07653) gives:
+
+* **(n_{\text{slope}} \approx 1333)**
+  (Events (\approx 200))
+
+---
+
+## 3) O/E precision  → required **n**
+
+Typically, precision for O/E is handled on the **log scale**:
+[
+\log(O/E)
+]
+and with a Poisson/binomial large-sample approximation:
+[
+\mathrm{Var}(\log(O/E)) \approx \frac{1}{O}
+]
+where (O) is the observed number of events.
+
+So we need:
+[
+1.96\sqrt{\frac{1}{O}} \le 0.15
+\Rightarrow O \ge \left(\frac{1.96}{0.15}\right)^2 \approx 170.7
+]
+Thus:
+
+* (O \ge 171) events ⇒ (n_{\text{OE}} \ge 171/0.15 \approx 1140)
+
+---
+
+## Required sample size (take the maximum)
+
+[
+n=\max(1394,\ 1333,\ 1140)=\boxed{1394}
+]
+
+So you need **about (\boxed{n \approx 1400})** total patients.
+
+That corresponds to approximately:
+
+* **Events:** (\approx 0.15\times 1394 \approx 209)
+* **Non-events:** (\approx 1185)
+
+---
+
+### Note on the O/E width definition
+
+I interpreted “O/E CI width ≤ 0.30” in the **standard Riley way**: width of the **95% CI for (\log(O/E))** is ≤ 0.30.
+If instead you meant an *absolute* width on the **ratio scale** (e.g., upper–lower ≤ 0.30 for O/E itself), that’s a different (and more awkward) constraint; tell me that interpretation and I’ll recompute—but with your other constraints, the AUC requirement is already driving (n) to ~1400.

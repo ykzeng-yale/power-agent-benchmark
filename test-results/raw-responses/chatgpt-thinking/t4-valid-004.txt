@@ -1,0 +1,108 @@
+Below is a **Riley-style “precision-based” validation sample size** calculation using your 3 targets (assuming **95% Wald CIs**).
+
+Given:
+
+* Predicted risks in validation: ( \hat p \sim \mathrm{Beta}(2,5))  ⇒  (E(\hat p)=2/7=0.2857)
+* Outcome prevalence: (\pi = 0.15)
+* Expected discrimination: (C=0.75)
+* Targets (total CI widths):
+
+  * ( \text{width}(C) \le 0.10)
+  * ( \text{width}(\text{calibration slope}) \le 0.20)
+  * ( \text{width}(O/E) \le 0.20)
+
+For a two-sided 95% CI, width (\approx 2\times 1.96 \times SE = 3.92\times SE).
+So the **SE targets** are:
+
+* (SE_C \le 0.10/3.92 = 0.02551)
+* (SE_{\text{slope}} \le 0.20/3.92 = 0.05102)
+
+---
+
+## 1) C-statistic precision  → required (n)
+
+Using the common **Hanley–McNeil** large-sample SE for AUC with
+
+* events (n_1 = n\pi), non-events (n_0=n(1-\pi)),
+* (Q_1 = \dfrac{C}{2-C}), (Q_2 = \dfrac{2C^2}{1+C}),
+* (\mathrm{Var}(C)=\dfrac{C(1-C) + (n_1-1)(Q_1-C^2)+(n_0-1)(Q_2-C^2)}{n_0n_1})
+
+Solving for (SE_C \le 0.02551) with (C=0.75), (\pi=0.15) gives:
+
+* **(n \ge 892)** (≈ 134 events)
+
+---
+
+## 2) O/E precision  → required (n)
+
+Here (O/E = \dfrac{O}{E}), where
+
+* (E = \sum \hat p_i \approx n,E(\hat p)=0.2857n)
+* (O \approx n\pi = 0.15n)
+
+So the *true* ratio (under your inputs) is
+[
+r = \frac{O}{E} \approx \frac{0.15}{0.2857} = 0.525.
+]
+
+A standard approximation is a **log-scale CI** with
+[
+SE{\log(O/E)} \approx \frac{1}{\sqrt{O}}.
+]
+Then
+[
+\text{CI width on }(O/E)\text{ scale} \approx r\left(e^{1.96/\sqrt{O}} - e^{-1.96/\sqrt{O}}\right).
+]
+Setting this (\le 0.20) yields (O \gtrsim 107.2) events ⇒
+
+* **(n \ge 107.2/0.15 = 714.7)** → **(n \ge 715)**
+
+---
+
+## 3) Calibration slope precision  → required (n)
+
+Calibration slope is estimated from a logistic calibration model:
+[
+\Pr(Y=1\mid x) = \text{logit}^{-1}(a + b x),\quad x=\text{logit}(\hat p).
+]
+
+With an intercept in the model, the large-sample information for (b) is:
+[
+I_{bb} \approx n\left(E[w x^2] - \frac{(E[w x])^2}{E[w]}\right),\quad w=\pi(x)(1-\pi(x)),
+]
+so
+[
+\mathrm{Var}(\hat b)\approx \frac{1}{I_{bb}}.
+]
+
+Using your (\hat p\sim\text{Beta}(2,5)) to get the distribution of (x=\text{logit}(\hat p)), and choosing the intercept shift (a) so that the *average true risk* matches prevalence (E[\pi(x)]=0.15), the weighted variance term evaluates to approximately:
+[
+E[w x^2] - \frac{(E[w x])^2}{E[w]} \approx 0.06839.
+]
+
+Then requiring (SE_b \le 0.05102) gives:
+[
+n \ge \frac{1}{(0.05102)^2 \times 0.06839} \approx 5616.9,
+]
+so
+
+* **(n \ge 5617)**
+
+---
+
+# Final required validation sample size
+
+Take the maximum across the three criteria:
+
+* C-statistic: **892**
+* O/E: **715**
+* Calibration slope: **5617**
+
+✅ **Required sample size: (\boxed{n \approx 5{,}620})** (rounding up)
+
+At (,n=5620):
+
+* Expected events: (0.15\times 5620 \approx 843)
+* Expected non-events: (\approx 4777)
+
+If you expect missing outcomes / unusable records, inflate (n) by (1/(1-\text{missing fraction})) (e.g., 10% missing ⇒ (5620/0.9 \approx 6245)).

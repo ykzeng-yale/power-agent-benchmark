@@ -1,0 +1,85 @@
+Here’s a clean way to approximate this using the Wald test for the **group × time interaction** (i.e., the **difference in slopes**) in a linear mixed model with random intercept + random slope.
+
+## Model and target effect
+
+Assume the standard growth-curve LMM:
+
+[
+y_{ij} = \beta_0 + \beta_1 t_j + \beta_2 \text{Group}*i + \beta_3(\text{Group}*i \cdot t_j) + b*{0i} + b*{1i} t_j + \varepsilon_{ij},
+]
+
+* (t_j = 0,1,\dots,7) (8 time points)
+* Random effects: (b_{0i}\sim N(0,\sigma_0^2)), (b_{1i}\sim N(0,\sigma_1^2))
+* Residuals: (\varepsilon_{ij}\sim N(0,\sigma_e^2))
+* You want power for testing (H_0:\beta_3=0) vs (H_1:\beta_3=\Delta), with (\Delta=0.1).
+
+Given:
+
+* (\sigma_0=1.0 \Rightarrow \sigma_0^2=1)
+* (\sigma_1=0.3 \Rightarrow \sigma_1^2=0.09)
+* (\sigma_e=1.0 \Rightarrow \sigma_e^2=1)
+* (No intercept–slope covariance given, so I assume **Cov**((b_{0i},b_{1i})=0).)
+
+## Within-subject covariance
+
+For a subject measured at times (t=(0,\dots,7)), the covariance matrix is
+
+[
+V = \sigma_0^2 \mathbf{1}\mathbf{1}^\top + \sigma_1^2 , t t^\top + \sigma_e^2 I.
+]
+
+## SE of the interaction (balanced design)
+
+With (n) subjects **per group** (so (2n) total) and complete data, the generalized least squares result gives:
+
+[
+\mathrm{Var}(\hat\beta) = (X^\top V^{-1} X)^{-1},
+]
+
+and because subjects are independent and balanced, the interaction variance scales like (1/n):
+
+[
+\mathrm{Var}(\hat\beta_3) = \frac{c}{n}.
+]
+
+Plugging your design ((t=0..7)) and variance components into (V) and (X), the constant comes out to:
+
+[
+c \approx 0.22762,
+\quad\Rightarrow\quad
+SE(\hat\beta_3) \approx \sqrt{\frac{0.22762}{n}}.
+]
+
+## Power calculation (two-sided, (\alpha=0.05))
+
+Using a normal approximation for the Wald test:
+
+* Critical value: (z_{0.975}=1.96)
+* Noncentrality (mean under (H_1)):
+
+[
+\mu = \frac{\Delta}{SE} = \frac{0.1}{\sqrt{0.22762/n}} = 0.1\sqrt{\frac{n}{0.22762}}.
+]
+
+Power:
+
+[
+\text{Power} = P(|Z|>1.96 \mid Z\sim N(\mu,1)).
+]
+
+Solving for the smallest (n) with power ≥ 0.80 gives:
+
+### ✅ Minimum sample size
+
+**(n = 179) subjects per group** (≈ **358 total**).
+
+In practice you’d round to **180 per group**.
+
+## Notes that can shift this number
+
+* If there is **attrition/missing visits**, inflate by (1/(1-\text{dropout})).
+  *Example:* 15% dropout → (180/0.85 \approx 212) per group.
+* If random intercept–slope **covariance is not 0**, the answer changes (sometimes meaningfully).
+* This is for a **linear time effect** and testing the linear slope difference specifically.
+
+If you want, tell me the expected dropout rate and whether you anticipate an intercept–slope correlation, and I’ll give an adjusted per-group N.

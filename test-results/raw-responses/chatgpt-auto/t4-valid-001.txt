@@ -1,0 +1,148 @@
+Below is a **precision-based external validation** sample size calculation in the spirit of Riley et al.’s minimum-sample-size criteria for binary-outcome model validation (targeting precise estimation of **O/E**, **calibration slope**, and **C-statistic**). ([PubMed][1])
+
+---
+
+## 1) Translate CI-width targets into SE targets (95% CI)
+
+For an approximately Normal estimator, a 95% CI width is
+[
+\text{Width} \approx 2\times 1.96 \times \text{SE} = 3.92 \times \text{SE}.
+]
+
+So:
+
+* **C-statistic width ≤ 0.10**  ⇒  (\text{SE}(C) \le 0.10/3.92 = 0.02551)
+* **Calibration slope width ≤ 0.20** ⇒ (\text{SE}(\beta) \le 0.20/3.92 = 0.05102)
+* **O/E width ≤ 0.20** (handled below via log-scale approximation)
+
+---
+
+## 2) O/E ratio precision ⇒ required number of events
+
+A common approximation for the **O/E (SMR) ratio** is to treat (E) as fixed and use:
+[
+\text{SE}{\log(O/E)}\approx \frac{1}{\sqrt{O}},
+]
+so a 95% CI for (O/E) is roughly:
+[
+\exp\left(\pm \frac{1.96}{\sqrt{O}}\right).
+]
+
+If the true (O/E \approx 1), then the CI width on the ratio scale is:
+[
+\text{Width} \approx \exp!\left(\frac{1.96}{\sqrt{O}}\right)-\exp!\left(-\frac{1.96}{\sqrt{O}}\right)
+=2\sinh!\left(\frac{1.96}{\sqrt{O}}\right).
+]
+
+Set this ≤ 0.20:
+[
+2\sinh!\left(\frac{1.96}{\sqrt{O}}\right)\le 0.20 ;\Rightarrow; O \approx 386 \text{ events}.
+]
+
+With prevalence (p=0.22):
+[
+N_{OE} \approx \frac{386}{0.22} \approx 1755.
+]
+
+This aligns with the “precise O/E” criterion in the Riley framework. ([PubMed][1])
+
+---
+
+## 3) Calibration slope precision using the LP distribution
+
+You gave the **linear predictor (LP)** distribution in the validation population:
+
+* (LP \sim \mathcal{N}(\mu=-1.75,;\sigma=2.16))
+* Outcome prevalence (p=0.22)
+
+To compute the Fisher information for the calibration model:
+[
+\text{logit}{P(Y=1\mid LP)}=a+\beta,LP,
+]
+we assume anticipated **perfect calibration slope** (\beta=1) (as pmvalsampsize defaults). ([CRAN][2])
+
+Because the marginal prevalence must be 0.22, the intercept (a) is chosen so that:
+[
+E\left[\text{logit}^{-1}(a+LP)\right]=0.22.
+]
+
+Then the per-subject expected information matrix is:
+[
+M = E!\left[p_i(1-p_i)\begin{pmatrix}1 & LP\ LP & LP^2\end{pmatrix}\right],
+\quad p_i=\text{logit}^{-1}(a+LP),
+]
+and
+[
+\mathrm{Var}(\hat\beta)\approx \frac{(M^{-1})_{22}}{N}.
+]
+
+Numerically integrating over the Normal LP distribution (Monte Carlo integration) gives approximately:
+[
+\mathrm{Var}(\hat\beta)\approx \frac{5.17}{N}
+\quad\Rightarrow\quad
+\mathrm{SE}(\hat\beta)\approx \sqrt{\frac{5.17}{N}}.
+]
+
+Target (\mathrm{SE}(\hat\beta)\le 0.05102):
+[
+\sqrt{\frac{5.17}{N}} \le 0.05102
+;\Rightarrow;
+N \ge \frac{5.17}{0.05102^2}\approx 1986.
+]
+
+So:
+[
+N_{\text{slope}} \approx 1987 \quad (\text{events } \approx 0.22\times 1987 \approx 437).
+]
+
+This is the **dominant** requirement in your scenario (tight slope CI width of 0.20 is demanding). ([PubMed][1])
+
+---
+
+## 4) C-statistic precision
+
+Using the classic Hanley–McNeil SE approximation for AUC (C-statistic), with:
+
+* anticipated (C=0.82)
+* (n_1 = pN) cases, (n_0=(1-p)N) controls ([Jhanley Biostatistics][3])
+
+Solving for (\mathrm{SE}(C)\le 0.02551) yields approximately:
+[
+N_C \approx 510 \quad (\text{events } \approx 112).
+]
+
+So discrimination is **not** the limiting factor here.
+
+---
+
+## 5) Final required validation sample size
+
+Take the maximum across criteria:
+
+* (N_{OE}\approx 1755)
+* (N_{\text{slope}}\approx 1987)
+* (N_C\approx 510)
+
+[
+\boxed{N_{\text{required}} \approx 1987 \text{ total participants}}
+]
+with approximately
+[
+\boxed{\text{Events} \approx 437,;\text{Non-events} \approx 1550.}
+]
+
+In practice I’d round up for safety/logistics:
+[
+\boxed{N \approx 2000 \text{ (about 440 DVT+ events at 22% prevalence).}}
+]
+
+---
+
+### Notes (why your inputs matter)
+
+* The **LP mean/SD + prevalence** determine the information for estimating the **calibration slope** (tightening the slope CI width is what pushed (N) near ~2000). This is exactly why Riley/pmvalsampsize ask for the LP distribution. ([CRAN][2])
+* If you relaxed slope CI width from **0.20 to 0.30**, required (N) would drop substantially (slope precision is usually the driver). ([PubMed][1])
+
+[1]: https://pubmed.ncbi.nlm.nih.gov/34031906/?utm_source=chatgpt.com "Minimum sample size for external validation of a clinical ..."
+[2]: https://cran.r-project.org/web/packages/pmvalsampsize/pmvalsampsize.pdf "pmvalsampsize: Sample Size for External Validation of a Prediction Model"
+[3]: https://jhanley.biostat.mcgill.ca/software/Hanley_McNeil_Radiology_82.pdf?utm_source=chatgpt.com "under a Receiver Operating Characteristic (ROC) Curvel"

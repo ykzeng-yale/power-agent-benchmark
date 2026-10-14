@@ -1,0 +1,116 @@
+Here’s one clean way to approximate the needed **total sample size (N)**: use a **Wald test** for the interaction coefficient in the correctly specified logistic regression, and compute the **expected Fisher information** under your assumed prevalences and effect sizes.
+
+## 1) Translate your assumptions into the 4 cell risks
+
+Let (X_1, X_2\in{0,1}) be independent with prevalence 0.5 each, so each of the 4 combinations has probability 0.25.
+
+You described a logistic model with:
+
+* baseline risk (p_{00}=0.20)
+* main-effect ORs: (\text{OR}_1=\text{OR}_2=1.5)
+* interaction OR: (\text{OR}_{12}=2.0)
+
+Write the model:
+[
+\text{logit}(p)=\alpha+\beta_1 X_1+\beta_2 X_2+\beta_3 (X_1X_2)
+]
+with
+[
+\alpha=\text{logit}(0.20)=\log\Big(\frac{0.2}{0.8}\Big)=-1.3863,\quad
+\beta_1=\beta_2=\log(1.5)=0.4055,\quad
+\beta_3=\log(2)=0.6931.
+]
+
+Then the 4 cell probabilities are:
+
+* (p_{00}=0.20)
+* For (10): odds multiply by 1.5
+  baseline odds (=0.2/0.8=0.25) → odds (=0.25\times 1.5=0.375)
+  (\Rightarrow p_{10}=0.375/(1+0.375)=0.2727)
+* Symmetrically (p_{01}=0.2727)
+* For (11): odds multiply by (1.5\times 1.5\times 2=4.5)
+  odds (=0.25\times 4.5=1.125)
+  (\Rightarrow p_{11}=1.125/(1+1.125)=0.5294)
+
+So the expected risks by group are:
+
+| (X_1) | (X_2) | group prob |    (p) |
+| ----- | ----- | ---------: | -----: |
+| 0     | 0     |       0.25 | 0.2000 |
+| 1     | 0     |       0.25 | 0.2727 |
+| 0     | 1     |       0.25 | 0.2727 |
+| 1     | 1     |       0.25 | 0.5294 |
+
+## 2) Information for the interaction term (\beta_3)
+
+For logistic regression, the expected Fisher information is
+[
+\mathcal I(\beta)=\sum_g \Pr(g), w_g, x_g x_g^\top,
+\quad \text{where } w_g=p_g(1-p_g),
+]
+and (x_g=(1, X_1, X_2, X_1X_2)).
+
+Compute the weights:
+
+* (w_{00}=0.2(0.8)=0.1600)
+* (w_{10}=w_{01}=0.2727(0.7273)=0.1983)
+* (w_{11}=0.5294(0.4706)=0.2491)
+
+Using the group proportions (all 0.25) and the design vectors, the *per-subject* information matrix (\mathcal I_{\text{per}}) can be computed, then scaled by (N):
+[
+\mathcal I_N = N,\mathcal I_{\text{per}}.
+]
+
+From this (working through the matrix algebra), the key result is the asymptotic variance of (\hat\beta_3):
+[
+\mathrm{Var}(\hat\beta_3)\approx \frac{81.389}{N}
+\quad\Rightarrow\quad
+\mathrm{SE}(\hat\beta_3)\approx \frac{9.022}{\sqrt{N}}.
+]
+
+## 3) Power for the Wald test of interaction
+
+You want to test (H_0:\beta_3=0) vs (H_1:\beta_3\neq 0) at (\alpha=0.05) (two-sided), so (z_{0.975}=1.96).
+
+Under the alternative, the Wald statistic is approximately
+[
+Z=\frac{\hat\beta_3}{\mathrm{SE}(\hat\beta_3)} \sim N!\left(\frac{\beta_3}{\mathrm{SE}},,1\right)
+]
+with noncentrality
+[
+\mu = \frac{\beta_3}{\mathrm{SE}} = \frac{\log(2)}{9.022/\sqrt{N}}
+= \frac{0.6931\sqrt{N}}{9.022}.
+]
+
+Power for a two-sided z-test is:
+[
+\text{Power} \approx \Pr(|Z|>1.96 \mid \mu)
+= \Pr(Z>1.96-\mu)+\Pr(Z<-1.96-\mu).
+]
+
+Solving (\text{Power}=0.80) gives:
+
+[
+N \approx 1330 \text{ total participants.}
+]
+
+### What that implies in expected counts
+
+Since each cell is ~25%:
+
+* (\approx 1330/4 \approx 333) participants per cell.
+
+Expected events per cell:
+
+* (00): (333\times 0.20 \approx 67)
+* (10): (333\times 0.2727 \approx 91)
+* (01): (\approx 91)
+* (11): (333\times 0.5294 \approx 176)
+
+Total expected events (\approx 424).
+
+## Answer
+
+**You need about (\boxed{N \approx 1330}) total participants** (round up a bit in practice, e.g., **1340** or **1400** if you expect missingness, covariate adjustment, or any deviation from 50/50 prevalence or independence).
+
+If you tell me whether you plan any additional covariates (and how correlated they might be with the risk factors), I can give a quick inflation-factor style adjustment too.

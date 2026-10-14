@@ -1,0 +1,65 @@
+Using the Riley/Ensor/Snell framework for **time-to-event (survival) prediction model development**, you pick the *largest* sample size required across three criteria: (i) shrinkage/overfitting control, (ii) small optimism in R², and (iii) precise estimation of overall risk (baseline hazard / “intercept”). ([rcastoragev2.blob.core.windows.net][1])
+
+I’ll use the standard recommended target **shrinkage SVH = 0.90** (≤10% overfitting). ([rcastoragev2.blob.core.windows.net][1])
+Given: **p = 12 predictor parameters**, **10-year risk = 15%**, **anticipated Cox–Snell R² = 0.15**, **mean follow-up = 6 years**.
+
+---
+
+## 1) Criterion (i): control overfitting via shrinkage (usually the driver)
+
+Riley et al. give the closed-form minimum **n** to target a chosen shrinkage (SVH), given p and anticipated Cox–Snell R²: ([rcastoragev2.blob.core.windows.net][1])
+
+[
+n ;=; \frac{p}{(SVH-1),\ln!\left(1-\frac{R^2_{CS}}{SVH}\right)}
+]
+([rcastoragev2.blob.core.windows.net][1])
+
+Plug in (p=12,; SVH=0.90,; R^2_{CS}=0.15):
+
+* (1-\frac{0.15}{0.90}=0.8333)
+* (\ln(0.8333)=-0.1823)
+* ((SVH-1)\ln(\cdot)=(-0.10)\times(-0.1823)=0.01823)
+
+[
+n \approx \frac{12}{0.01823} \approx 658.2
+]
+
+**So you need ~659 participants** (round up).
+
+---
+
+## 2) Translate to expected number of events (given mean follow-up)
+
+If 10-year risk is 15% and we assume an exponential approximation (as Riley does for simple planning), then the annual hazard is:
+
+[
+\lambda = -\ln(0.85)/10 \approx 0.01625 \text{ per year}
+]
+
+Cumulative risk by 6 years:
+
+[
+F(6)=1-e^{-\lambda\cdot 6}\approx 1-e^{-0.0975}\approx 0.093
+]
+
+So with **n ≈ 659**, expected events by mean follow-up ≈ (659\times 0.093 \approx 61) events.
+
+(If everyone were followed 10 years, you’d expect (659\times 0.15 \approx 99) events.)
+
+---
+
+## 3) Criterion (iii): precision of the overall risk at 10 years (usually smaller here)
+
+Riley’s precision criterion for time-to-event outcomes can be checked via person-years (T) under an exponential model, ensuring the CI for (F(t)) is within ±δ (often δ=0.05). ([rcastoragev2.blob.core.windows.net][1])
+
+For your 10-year risk of 0.15, this works out to needing roughly **~1920 person-years**, i.e. (n \approx 1920/6 \approx 320) participants—**well below** the 659 from shrinkage, so it **does not drive** the final n. ([rcastoragev2.blob.core.windows.net][1])
+
+---
+
+# Recommended minimum sample size
+
+**Plan for ~660 participants total** (1 cohort used for model development), which corresponds to roughly **~60 events by 6 years mean follow-up** under the 15% 10-year risk assumption.
+
+If you tell me whether “12 predictors” means **12 coefficients total** or includes **splines / categories / interactions** (i.e., more parameters than predictors), I can adjust p accordingly—this can change the required n materially.
+
+[1]: https://rcastoragev2.blob.core.windows.net/509fc40eadd23a411835addcb6f1b2fe/PMC6519266.pdf "Minimum sample size for developing a multivariable prediction model: PART II - binary and time-to-event outcomes"

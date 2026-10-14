@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-14 — upstream history integration
+
+- Merge upstream history without changing audited questions, reference code, oracles, tolerances, frozen protocols, scores or source-strengthened development payloads.
+- Preserve incoming legacy corpora, captures and model comparisons with an explicit historical scope; retain exact conflicting upstream originals under `historical/upstream-main-4df50e15/`.
+- Keep the audited runner and quarantined legacy judge entry point. Imported results are not a fresh or independently certified accuracy study.
+
 ## 2.0.2 — 2026-10-01 publication corrections
 
 - Preserve the original Mac120/24 capture failures and unknown statuses/usage; do not replace or manufacture records.

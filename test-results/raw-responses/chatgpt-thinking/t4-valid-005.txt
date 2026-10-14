@@ -1,0 +1,84 @@
+Using the same setup as before (binary DVT outcome; anticipated **C = 0.82**, **prevalence = 0.22**, and LP approximately **Normal(mean = −1.75, SD = 2.16)**), and your *relaxed* precision targets:
+
+* **AUC (C-statistic) 95% CI width ≤ 0.10**
+* **Calibration slope 95% CI width ≤ 0.30**
+* **O/E 95% CI width ≤ 0.30**
+
+the required validation sample size is the **maximum** of the three separate “precision-driven” requirements.
+
+---
+
+## 1) C-statistic CI width ≤ 0.10  →  **N ≈ 510**
+
+Use a standard large-sample AUC SE approximation (Hanley–McNeil style) with
+
+* (n_1 = 0.22N) events, (n_0 = 0.78N) non-events,
+* want half-width (=0.05), so (1.96\cdot SE \le 0.05\Rightarrow SE\le 0.02551).
+
+Solving gives **N ≈ 510** total.
+
+---
+
+## 2) O/E CI width ≤ 0.30  →  **events ≈ 173 ⇒ N ≈ 787**
+
+A common planning approximation is to treat (\log(O/E)) as approximately Normal with
+(\mathrm{Var}[\log(O/E)] \approx 1/O) (Poisson-type argument for observed events (O)).
+
+Then 95% CI on the ratio scale is roughly:
+[
+\left[\exp!\left(-\frac{1.96}{\sqrt{O}}\right),\ \exp!\left(\frac{1.96}{\sqrt{O}}\right)\right]
+]
+so width (\approx \exp(h)-\exp(-h)) where (h=1.96/\sqrt{O}).
+
+Requiring width ≤ 0.30 gives **O ≈ 173 events**. With prevalence 0.22:
+[
+N \ge \frac{173}{0.22} \approx 786.4 \Rightarrow \boxed{N \approx 787}
+]
+
+---
+
+## 3) Calibration slope CI width ≤ 0.30  →  **N ≈ 884 (this is binding)**
+
+For the calibration slope, we plan via the **expected Fisher information** from a logistic recalibration model:
+[
+\text{logit}(Y)=a + b\cdot LP
+]
+with both (a) and (b) estimated.
+
+Because you gave both **LP distribution** and **prevalence**, the coherent way to use both is:
+
+* treat the provided LP as the *predictor part*,
+* allow an intercept shift (\alpha) so that predicted risks match the prevalence on average:
+  [
+  p = \text{expit}(\alpha + LP),\quad \mathbb{E}[p]=0.22
+  ]
+  (That (\alpha) is just the “calibration-in-the-large” needed so that average risk matches 0.22.)
+
+Then with (w=p(1-p)), the large-sample variance of (b) (with an intercept in the model) is:
+[
+\mathrm{Var}(b)\approx \frac{\mathbb{E}[w]}{N\left(\mathbb{E}[w]\mathbb{E}[wLP^2]-(\mathbb{E}[wLP])^2\right)}
+]
+and we require width ≤ 0.30 ⇒ half-width 0.15:
+[
+1.96\cdot SE(b)\le 0.15
+]
+
+Carrying this through under (LP\sim N(-1.75,,2.16^2)) and (\mathbb{E}[p]=0.22) gives:
+[
+\boxed{N \approx 884}
+]
+
+---
+
+# Reduced required sample size
+
+Take the maximum requirement:
+
+* AUC: ~510
+* O/E: ~787
+* **Slope: ~884 (largest)**
+
+✅ **Reduced validation sample size: (\boxed{N \approx 884})** total
+That corresponds to about **(0.22\times 884 \approx 195)** events and **689** non-events.
+
+If you want, I can also give the *achieved* CI widths at N = 884 for each metric (so you can document it in a protocol).

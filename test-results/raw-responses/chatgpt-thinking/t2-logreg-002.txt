@@ -1,0 +1,87 @@
+You can approximate this with the standard **Wald-test / Fisher information** method for a 1-predictor logistic model (Hsieh-type approach), assuming:
+
+* exposure (X) is **standardized**: (X \sim N(0,1)) (since your OR is “per 1 SD”),
+* a single exposure in the model (or equivalently, other covariates are uncorrelated with (X)),
+* two-sided (\alpha=0.05), power (=0.80).
+
+### 1) Convert OR to the logistic slope
+
+[
+\beta = \log(1.5)=0.4055
+]
+
+### 2) Key approximation for required (n)
+
+For testing (H_0:\beta=0), a common planning rule is
+[
+n ;\ge; \frac{(z_{1-\alpha/2}+z_{1-\beta})^2}{\beta^2 ; \mathbb{E}!\left[p(X){1-p(X)}X^2\right]}
+]
+where (p(X)=\text{logit}^{-1}(\alpha_0+\beta X)), and (\alpha_0) is chosen so that the **marginal case fraction in your sampled dataset** matches your design.
+
+Here (z_{1-\alpha/2}=1.96), (z_{1-\beta}=0.84), so (z)-sum (\approx 2.80).
+
+---
+
+## What matters in a case-control study: your *sampled* case fraction
+
+In a case-control study you typically **choose** the case:control ratio. The “baseline disease risk 10%” is the *population prevalence* and is relevant for a cohort/random sample, but **you don’t have to sample only 10% cases**.
+
+### A) If you sample 1:1 (common, efficient)
+
+Sample case fraction (\pi=0.50). Under the normal-(X) model above,
+[
+\mathbb{E}[p(1-p)X^2] \approx 0.2228
+]
+so
+[
+n \approx \frac{(2.80/0.4055)^2}{0.2228} \approx 214.3
+]
+
+**Result (1:1 case-control):**
+✅ **Total (n \approx 216)** (round up), i.e. **~108 cases + 108 controls**.
+
+---
+
+### B) If you instead did a random sample reflecting 10% prevalence (more like a cohort)
+
+Here (\pi=0.10). Then
+[
+\mathbb{E}[p(1-p)X^2] \approx 0.09468
+]
+and
+[
+n \approx 504.3
+]
+
+**Result (random sample with 10% cases):**
+✅ **Total (n \approx 505)**, which would include **~50 cases + 455 non-cases**.
+
+---
+
+## Some practical variants (if you want more controls than cases)
+
+Using the same approximation:
+
+* **1 case : 2 controls** ((\pi \approx 0.33)): total (n \approx 236) → ~78 cases + 158 controls
+* **1 case : 4 controls** ((\pi=0.20)): total (n \approx 306) → ~61 cases + 245 controls
+
+Going beyond ~1:4 usually gives limited extra power per added subject.
+
+---
+
+## Quick adjustment if you’ll include covariates correlated with exposure
+
+If you plan to adjust for other predictors that explain a fraction (R^2) of the exposure (i.e., regress (X) on covariates), inflate by:
+[
+n_{\text{adj}} = \frac{n}{1-R^2}
+]
+Example: if (R^2=0.20), multiply totals by (1/0.8=1.25).
+
+---
+
+### Bottom line
+
+* If you can design a **1:1 case-control study**, plan for **~216 total subjects (108 cases + 108 controls)**.
+* If you truly only expect to observe **10% cases in your sample** (cohort-like), plan for **~505 total subjects**.
+
+If you tell me your intended **case:control ratio** and whether you’re adjusting for key covariates (and a rough (R^2) guess, like 0.1–0.3), I can give the final “design-ready” number with the inflation baked in.

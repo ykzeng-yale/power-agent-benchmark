@@ -1,0 +1,85 @@
+Here’s a standard **back-of-the-envelope marginal power** calculation for a **shared gamma frailty** design, when you **analyze with a plain Cox model assuming independence** (i.e., you *don’t* model frailty / clustering in the variance).
+
+## 1) Setup
+
+* Clusters per arm: (K=20)
+* Subjects per cluster: (m=15)
+* Total (N = 2\times 20\times 15 = 600) (1:1 allocation ⇒ 300/arm)
+* Frailty variance (gamma): (\theta = 0.5)
+* Control 2-year survival: (S_0(2)=0.60) ⇒ event risk by 2y (=0.40)
+* Target HR: (HR=0.7)
+* Two-sided (\alpha=0.05)
+
+Assume administrative censoring at 2 years and roughly constant hazards over follow-up (typical for quick planning).
+
+## 2) Expected event proportion (by 2 years)
+
+Under proportional hazards,
+[
+S_1(2) = S_0(2)^{HR} = 0.6^{0.7}\approx 0.699
+]
+So treatment event risk by 2y:
+[
+1-S_1(2)\approx 1-0.699=0.301
+]
+
+Expected total events:
+[
+D \approx 300(0.40) + 300(0.301) \approx 210.2
+]
+
+## 3) Inflate variance for clustering (effective number of events)
+
+For a **shared gamma frailty**, a common dependence summary is **Kendall’s tau**:
+[
+\tau=\frac{\theta}{\theta+2}=\frac{0.5}{2.5}=0.20
+]
+
+A simple “design effect” approximation:
+[
+DE \approx 1+(m-1)\rho \quad\text{with}\quad \rho \approx \tau
+]
+So:
+[
+DE \approx 1+14(0.20)=3.8
+]
+
+Effective events:
+[
+D_{\text{eff}} \approx \frac{D}{DE} \approx \frac{210.2}{3.8} \approx 55.3
+]
+
+## 4) Logrank/Cox power using effective events
+
+Information for the log-HR (1:1 allocation) is approximately:
+[
+I \approx D_{\text{eff}},p(1-p) = 55.3 \times 0.25 = 13.83
+]
+with (p=0.5). Noncentrality term:
+[
+\sqrt{I},|\log(HR)| = \sqrt{13.83}\times |\log(0.7)|
+\approx 3.72 \times 0.357 \approx 1.33
+]
+
+Two-sided (\alpha=0.05): (z_{1-\alpha/2}=1.96)
+
+Approx power:
+[
+\text{Power} \approx \Phi!\Big(\sqrt{I}|\log(HR)| - z_{1-\alpha/2}\Big)
+= \Phi(1.33-1.96)=\Phi(-0.63)\approx 0.26
+]
+
+## Result
+
+**Marginal power ≈ 26%** at (\alpha=0.05) (two-sided), **under this approximation**.
+
+---
+
+### Important interpretation note
+
+If you literally fit a **standard Cox model with naive (independence) SEs**, your *nominal* (\alpha=0.05) test will generally have **inflated type I error** under clustering—so its “power at alpha=0.05” is a bit ill-posed unless we specify whether alpha is *nominal* or *actual*. The calculation above treats clustering as reducing the effective information (i.e., the *true* power if you used the correct variance for the marginal effect).
+
+If you want, I can also compute:
+
+* (a) power if you use **robust (clustered sandwich) SEs**, or
+* (b) power for the **frailty Cox model** itself (often closer to the “correct” target depending on estimand).

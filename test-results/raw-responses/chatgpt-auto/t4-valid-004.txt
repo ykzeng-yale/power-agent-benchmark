@@ -1,0 +1,122 @@
+Here’s the clean way to size this validation study: compute the required **total N** for each precision target, then take the **maximum**.
+
+Given:
+
+* Predicted risks ( \hat p \sim \text{Beta}(2,5))
+* Outcome prevalence ( \pi = 0.15)  (\Rightarrow) expected events (E = 0.15N), non-events (NE=0.85N)
+* Expected C-statistic (AUC = 0.75)
+* 95% CI widths required:
+
+  * C-stat: width (\le 0.10)
+  * Calibration slope: width (\le 0.20)
+  * O/E: width (\le 0.20)
+
+For a 95% CI, width (\approx 2 z_{0.975}\cdot SE = 2(1.96)\cdot SE).
+
+So the target SEs are:
+
+* (SE_{C} \le 0.10/(2\cdot1.96)=0.02551)
+* (SE_{\text{slope}} \le 0.20/(2\cdot1.96)=0.05102)
+
+---
+
+## 1) C-statistic (AUC) precision
+
+Using the common Hanley–McNeil large-sample variance approximation for AUC:
+
+[
+\mathrm{Var}(A)=\frac{A(1-A)+(n_1-1)(Q_1-A^2)+(n_0-1)(Q_2-A^2)}{n_1 n_0}
+]
+where (n_1=E), (n_0=NE),
+[
+Q_1=\frac{A}{2-A},\qquad Q_2=\frac{2A^2}{1+A}.
+]
+
+Plugging (A=0.75), (n_1=0.15N), (n_0=0.85N) and solving for (SE=\sqrt{\mathrm{Var}(A)}\le 0.02551) gives:
+
+* **Required (N \approx 892)** (about 134 events, 758 non-events)
+
+---
+
+## 2) O/E precision
+
+A standard CI for O/E uses the fact that (approximately)
+[
+SE{\log(O/E)}\approx \frac{1}{\sqrt{O}}
+]
+(where (O) is the observed number of events; this is the usual Poisson/binomial-count precision driver).
+
+A 95% CI on the ratio scale is:
+[
+\left[\exp\left(-\frac{1.96}{\sqrt{O}}\right),\ \exp\left(\frac{1.96}{\sqrt{O}}\right)\right]
+]
+so the **absolute width** is:
+[
+\text{width} = \exp\left(\frac{1.96}{\sqrt{O}}\right)-\exp\left(-\frac{1.96}{\sqrt{O}}\right)=2\sinh\left(\frac{1.96}{\sqrt{O}}\right).
+]
+
+Set (2\sinh(1.96/\sqrt{O}) \le 0.20) (\Rightarrow) need about:
+
+* **(O \ge 386) events**
+
+Convert to total N using prevalence (\pi=0.15):
+[
+N \ge \frac{386}{0.15}=2573.3 \Rightarrow \boxed{N=2574}.
+]
+
+---
+
+## 3) Calibration slope precision
+
+Calibration slope is typically estimated by logistic regression of (Y) on the model’s linear predictor (LP) (plus an intercept). The large-sample variance is driven by the Fisher information:
+
+[
+\mathrm{Var}(\hat\beta)\approx \frac{1}{N \cdot \mathbb{E}[w]\cdot \mathrm{Var}_w(LP)}
+]
+where (w=p(1-p)), and (\mathrm{Var}_w(LP)) is the **weighted variance** of (LP) using weights (w). (This is what you get from the 2×2 information matrix with an intercept.)
+
+You gave (\hat p \sim \text{Beta}(2,5)). Let
+[
+LP = \logit(\hat p).
+]
+
+Because the *outcome prevalence* is 0.15, we allow a recalibration intercept (\alpha) so that
+[
+p = \mathrm{logit}^{-1}(\alpha + LP), \quad \text{with } \mathbb{E}[p]=0.15.
+]
+
+Numerically (under that setup) the needed expectation terms are approximately:
+
+* (\mathbb{E}[w] = \mathbb{E}[p(1-p)] \approx 0.11638)
+* (\mathrm{Var}_w(LP) \approx 0.58775)
+
+So
+[
+SE(\hat\beta)\approx \sqrt{\frac{1}{N(0.11638)(0.58775)}}.
+]
+
+Require (SE(\hat\beta)\le 0.05102):
+[
+N \ge \frac{1}{(0.05102)^2(0.11638)(0.58775)} \approx 5617.
+]
+
+So:
+
+* **Required (N \approx 5617)**
+
+---
+
+## Final answer (take the max)
+
+[
+N_{\text{needed}}=\max(892,\ 2574,\ 5617)=\boxed{5617 \text{ total participants}}.
+]
+
+At (\pi=0.15), that corresponds to approximately:
+
+* Events: (0.15\times 5617 \approx \boxed{843})
+* Non-events: (5617-843=\boxed{4774})
+
+**Calibration slope precision is the binding constraint** here; it forces the largest sample size.
+
+If you want, I can also show how sensitive the slope-driven (N) is to the Beta(2,5) shape (i.e., if predicted risks were more/less dispersed, slope precision changes a lot).

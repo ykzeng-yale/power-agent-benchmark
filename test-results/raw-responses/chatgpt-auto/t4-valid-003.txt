@@ -1,0 +1,79 @@
+Using the **Riley et al. external validation precision criteria** (binary outcome)—i.e., compute the minimum (N) needed for each of: **O/E**, **calibration slope**, and **C-statistic**, then take the **maximum**—your requirements are met by the **calibration slope** criterion (it’s the tightest one here). ([Wiley Online Library][1])
+
+## Inputs you gave
+
+* Expected discrimination: (C = 0.90)
+* Outcome prevalence: (\pi = 0.30)
+* Linear predictor (LP): (LP \sim \mathcal{N}(\mu=-0.5,\ \sigma=4.0))
+* Target 95% CI widths:
+
+  * C-statistic: (\le 0.05)
+  * Calibration slope: (\le 0.20)
+  * O/E: (\le 0.20)
+
+(For planning, I assume the “anticipated” values are the usual defaults: **O/E = 1** and **slope = 1**, consistent with the pmvalsampsize / Riley framework. ([CRAN][2]))
+
+---
+
+## 1) C-statistic precision requirement
+
+A standard large-sample variance approximation for AUC with (n_1) events and (n_0) non-events gives a required **total**
+[
+N_{\text{C}} \approx 947
+]
+which implies about (n_1 \approx 0.3\times 947 \approx 284) events.
+
+So the C-statistic criterion is **not** limiting.
+
+---
+
+## 2) O/E precision requirement
+
+Using the usual log-scale CI for O/E (approximately symmetric on (\log(\text{O/E}))), the O/E width constraint (\le 0.20) implies about
+[
+N_{\text{O/E}} \approx 1{,}285
+]
+or about (n_1 \approx 386) events.
+
+So O/E is **also not** limiting.
+
+---
+
+## 3) Calibration slope precision requirement (binding)
+
+For calibration slope, the Riley approach uses the information from the calibration model
+[
+\text{logit}(Y) = \alpha + \beta , LP
+]
+and targets a CI width for (\beta). With your LP distribution and (\pi=0.30), the slope variance scales roughly like (\text{Var}(\hat\beta)\approx c/N) where (c) depends on the LP distribution and prevalence. Solving for a 95% CI width (\le 0.20) (half-width (\le 0.10)) gives:
+[
+N_{\text{slope}} \approx 1{,}875
+]
+
+This is the **largest** of the three, so it determines the required validation size. ([Wiley Online Library][1])
+
+---
+
+# Required external validation sample size
+
+✅ **Total (N \approx 1{,}875)**
+
+With prevalence 30%:
+
+* **Events:** (\approx 0.30 \times 1875 = 562.5 \Rightarrow) **563 events**
+* **Non-events:** (1875 - 563 =) **1,312 non-events**
+
+### Check that all targets are satisfied at (N=1875)
+
+* Calibration slope CI width (\approx 0.20) (by construction)
+* O/E CI width (\approx 0.17) (≤ 0.20)
+* C-statistic CI width (\approx 0.036) (≤ 0.05)
+
+So **(N=1875)** (≈ **563 events**) meets *all* your precision requirements.
+
+---
+
+If you want, I can also show how to reproduce this exactly using the **pmvalsampsize** settings that match your inputs (type="b", prevalence=0.3, cstatistic=0.90, csciwidth=0.20, oeciwidth=0.20, cstatciwidth=0.05, lpnormal=c(-0.5,4)). ([CRAN][2])
+
+[1]: https://onlinelibrary.wiley.com/doi/full/10.1002%2Fsim.9025?utm_source=chatgpt.com "Minimum sample size for external validation of a clinical ..."
+[2]: https://cran.r-project.org/web/packages/pmvalsampsize/pmvalsampsize.pdf "pmvalsampsize: Sample Size for External Validation of a Prediction Model"

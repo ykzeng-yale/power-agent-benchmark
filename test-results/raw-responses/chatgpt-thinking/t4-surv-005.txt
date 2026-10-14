@@ -1,0 +1,59 @@
+A good “minimum N” way to do this for **time-to-event prediction models** is the **Riley / Van Calster / Collins** criteria, which tie sample size to the *anticipated model fit* (here (R^2_{CS})) and the number of predictor parameters (p), targeting low overfitting via a **global shrinkage** requirement (commonly (S \ge 0.90)).
+
+## Given
+
+* Candidate predictor parameters: (p = 15)
+* Anticipated Cox-Snell (R^2_{CS} = 0.20)
+* Mean follow-up: 2.5 years
+* 3-year event risk: 40%
+
+---
+
+## 1) Minimum N from the shrinkage criterion (typical default)
+
+For Cox(-type) prediction modeling, using the approximation that links (R^2_{CS}) to the expected likelihood ratio and then to shrinkage:
+
+[
+N_{\min} ;\ge; \frac{p}{(1-S),[-\ln(1-R^2_{CS})]}
+]
+
+With (S = 0.90\Rightarrow (1-S)=0.10):
+
+* (-\ln(1-R^2_{CS}) = -\ln(0.8)=0.223143)
+
+[
+N_{\min} \ge \frac{15}{0.10 \times 0.223143}
+= \frac{15}{0.0223143}
+= 672.6
+]
+
+**So: (\boxed{N_{\min} \approx 673}) total patients.**
+
+---
+
+## 2) Sanity check: how many events does that imply?
+
+You gave **40% by 3 years**, but mean follow-up is **2.5 years**, so the *observed* event proportion across the dataset may be closer to the 2.5-year risk than the 3-year risk.
+
+If we assume roughly constant hazard just to translate 3y → 2.5y:
+
+* (S(3)=0.60 \Rightarrow \lambda = -\ln(0.60)/3 = 0.1703)
+* Event by 2.5y: (1-e^{-\lambda\cdot 2.5} = 1-e^{-0.4258} = 0.346)
+
+So expected events:
+
+* Using 2.5y average: (D \approx 0.346 \times 673 \approx 233) events
+  (\Rightarrow) EPV (\approx 233/15 \approx 15.5)
+* Using the full 3y 40%: (D \approx 0.40 \times 673 \approx 269) events
+  (\Rightarrow) EPV (\approx 17.9)
+
+Both are in a “reasonable” range for a **well-specified** model, and the shrinkage-based (N) is doing the main work here.
+
+---
+
+## Recommendation
+
+* **Minimum:** **(\boxed{\approx 675})** total
+* **Practical target (buffer for censoring complexity, missingness, nonlinearity/splines, interactions, optimism):** **~750–850** total
+
+If you tell me whether your “15 predictors” means **15 linear terms** vs **15 predictors with splines / categories** (i.e., more parameters than 15), I can update the calculation by using the correct (p).

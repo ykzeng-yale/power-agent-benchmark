@@ -1,0 +1,58 @@
+We can treat this as a power problem for testing the **biomarker slope** in a multivariable logistic regression, using the common Hsieh-style normal-covariate approximation (biomarker ~ Normal, Wald test of ( \beta=0 )) and adjusting for correlation with other covariates via the **partial variance** (1-R^2).
+
+### 1) Inputs
+
+* Baseline readmission prevalence (overall): ( \pi = 0.15 )
+* Biomarker is standardized (per SD increase): (X \sim N(0,1))
+* Target odds ratio per SD: ( \text{OR} = 1.8 \Rightarrow \beta = \log(1.8)=0.5878 )
+* Confounders explain (R^2=0.10) of the biomarker variance
+  (\Rightarrow \mathrm{Var}(X \mid \text{others}) = 1-R^2 = 0.9)
+* (\alpha=0.05) (two-sided) (\Rightarrow z_{1-\alpha/2}=1.96)
+* Power (=0.80) (\Rightarrow z_{0.80}=0.842)
+
+### 2) Fisher information for the biomarker slope
+
+For logistic regression with linear predictor
+[
+\eta = a + \beta X,\quad p(X)=\text{logit}^{-1}(\eta),
+]
+the per-subject Fisher information for (\beta) is
+[
+I_{\beta\beta} = \mathbb{E}\big[p(X)(1-p(X)),X^2\big],
+]
+with (X \sim N(0,;0.9)) (because of the (R^2) adjustment).
+
+We choose the intercept (a) so that the **marginal** event rate is 0.15:
+[
+\mathbb{E}[p(X)] = 0.15.
+]
+With (\beta=\log(1.8)) and (\mathrm{Var}(X)=0.9), this gives (a \approx -1.839), and then
+[
+I_{\beta\beta} \approx 0.116.
+]
+
+### 3) Solve for (n)
+
+Using the Wald-test planning approximation:
+[
+\frac{|\beta|}{\mathrm{SE}(\hat\beta)} \approx |\beta|\sqrt{n,I_{\beta\beta}}
+]
+and requiring this to exceed (z_{1-\alpha/2}+z_{\text{power}}), we get
+[
+n ;=; \frac{(z_{1-\alpha/2}+z_{\text{power}})^2}{\beta^2,I_{\beta\beta}}
+;=;
+\frac{(1.96+0.842)^2}{(0.5878)^2,(0.116)}
+;\approx; 196.
+]
+
+## Answer
+
+**About 200 patients total** (≈ **196**) to have **80% power** at **α = 0.05 (two-sided)** to detect an **OR = 1.8 per SD** for the biomarker, given **baseline readmission 15%** and **(R^2=0.10)** with other covariates.
+
+### Quick reality check (events)
+
+At 15% prevalence, (196\times 0.15 \approx 29) readmissions (events).
+
+That’s often **thin** for *developing* a multivariable model with 5 covariates (rules-of-thumb like EPV≥10 would want ≈50 events → ≈333 patients; EPV≥20 would want ≈100 events → ≈667 patients). But **for power to detect the biomarker effect**, the ≈200 total estimate is the direct answer.
+
+If you tell me whether α is **one-sided vs two-sided**, and whether the **15%** is truly *overall* prevalence (vs “at mean biomarker”), I can tweak the number (it moves a bit, but not dramatically).

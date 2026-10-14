@@ -1,0 +1,170 @@
+To meet **all** of your requested precision targets, the required validation sample size is driven by the **most demanding** criterion. I’ll compute each requirement and then take the maximum.
+
+---
+
+## Given
+
+* Expected discrimination: **C = 0.80**
+* Outcome prevalence: **π = 0.10**
+* Linear predictor (LP): **Normal(mean = −3.0, SD = 2.25)**
+* Target 95% CI widths:
+
+  * C-statistic width ≤ **0.10**
+  * Calibration slope width ≤ **0.20**
+  * O/E ratio width ≤ **0.20**
+  * Standardized net benefit (at threshold 10%) width ≤ **0.20**
+* At treatment threshold **pt = 0.10**:
+
+  * Sensitivity = **0.80**
+  * Specificity = **0.70**
+
+Throughout, I use the usual normal-approximation relationship:
+[
+\text{CI width} \approx 2\times 1.96\times SE
+]
+So width ≤ W implies (SE \le W/3.92).
+
+---
+
+## 1) C-statistic (AUC) CI width ≤ 0.10
+
+Let (n_1) be events and (n_0) non-events:
+[
+n_1=\pi N,\quad n_0=(1-\pi)N
+]
+Using the common Hanley–McNeil large-sample SE for AUC:
+[
+SE(\text{AUC})=\sqrt{\frac{\text{AUC}(1-\text{AUC})+(n_1-1)(Q_1-\text{AUC}^2)+(n_0-1)(Q_2-\text{AUC}^2)}{n_1n_0}}
+]
+where
+[
+Q_1=\frac{\text{AUC}}{2-\text{AUC}},\quad Q_2=\frac{2\text{AUC}^2}{1+\text{AUC}}
+]
+With AUC = 0.80 and π = 0.10, solving (2\cdot1.96\cdot SE \le 0.10) gives:
+
+* **N ≈ 1,140** total (≈114 events)
+
+So discrimination alone would suggest **~1.1k**.
+
+---
+
+## 2) Calibration slope CI width ≤ 0.20
+
+You’re fitting the calibration model:
+[
+\text{logit}(Y)=\alpha+\beta,LP
+]
+The large-sample Fisher information for (\beta) is approximately:
+[
+I_\beta \approx \sum p_i(1-p_i)LP_i^2
+]
+So
+[
+\mathrm{Var}(\hat\beta)\approx \frac{1}{\sum p_i(1-p_i)LP_i^2}
+\approx \frac{1}{N\cdot \mathbb{E}\left[p(1-p)LP^2\right]}
+]
+We need the expectation under your LP distribution. Because your LP mean (−3) doesn’t automatically yield prevalence 10%, I approximate the *calibration intercept* (\alpha) so that:
+[
+\mathbb{E}\left[\text{logit}^{-1}(\alpha+LP)\right]=0.10
+]
+Numerically this gives (\alpha \approx -0.668). Then:
+[
+\mathbb{E}[p(1-p)LP^2]\approx 0.1553
+]
+Precision target: slope CI width ≤ 0.20 ⇒ (SE(\hat\beta)\le 0.20/3.92=0.0510).
+So:
+[
+\frac{1}{\sqrt{N\cdot 0.1553}}\le 0.0510
+;\Rightarrow;
+N\cdot 0.1553 \ge \left(\frac{1}{0.0510}\right)^2 \approx 384
+]
+[
+N \ge \frac{384}{0.1553}\approx 2{,}473
+]
+
+So calibration slope precision suggests **~2.5k**.
+
+---
+
+## 3) O/E ratio CI width ≤ 0.20
+
+A standard approximation uses:
+[
+SE\big(\log(O/E)\big)\approx \frac{1}{\sqrt{O}}
+]
+(when expected events are treated as fixed and (O) is the observed event count; if the model is roughly correct, (O\approx \pi N)).
+
+Then 95% CI width on the **log** scale is:
+[
+2\cdot 1.96 \cdot \frac{1}{\sqrt{O}} \le 0.20
+\Rightarrow
+\sqrt{O} \ge \frac{3.92}{0.20}=19.6
+\Rightarrow
+O \ge 384
+]
+With prevalence 0.10:
+[
+O=\pi N = 0.10N \ge 384 \Rightarrow N \ge 3840
+]
+
+So O/E precision requires **N ≥ 3,840** (≈384 events).
+
+---
+
+## 4) Standardized net benefit (pt = 0.10) CI width ≤ 0.20
+
+Net benefit:
+[
+NB=\frac{TP}{N}-w\frac{FP}{N},\quad w=\frac{pt}{1-pt}=\frac{0.10}{0.90}=0.1111
+]
+Expected counts:
+
+* (TP = \text{sens}\cdot (\pi N)=0.80\cdot 0.10N=0.08N)
+* (FP = (1-\text{spec})\cdot((1-\pi)N)=0.30\cdot0.90N=0.27N)
+
+Approximate variance (events and non-events contribute independently):
+
+* (TP \sim Bin(\pi N, \text{sens})\Rightarrow Var(TP)\approx \pi N,sens(1-sens)=0.10N\cdot0.8\cdot0.2=0.016N)
+* (FP \sim Bin((1-\pi)N, 1-spec)\Rightarrow Var(FP)\approx 0.90N\cdot0.3\cdot0.7=0.189N)
+
+So:
+[
+Var(NB)\approx \frac{0.016N}{N^2} + w^2\frac{0.189N}{N^2}
+= \frac{0.016 + 0.189w^2}{N}
+]
+With (w^2\approx 0.01235):
+[
+Var(NB)\approx \frac{0.016+0.00233}{N}=\frac{0.01833}{N}
+]
+If “standardized NB” means (sNB=NB/\pi) (common standardization), then
+[
+SE(sNB)=\frac{SE(NB)}{\pi}
+]
+Target width ≤ 0.20 ⇒ (SE(sNB)\le 0.20/3.92=0.0510).
+Thus (SE(NB)\le 0.0510\cdot 0.10=0.00510).
+
+Solve:
+[
+\sqrt{\frac{0.01833}{N}}\le 0.00510
+\Rightarrow N \ge \frac{0.01833}{(0.00510)^2}\approx 704
+]
+
+So net benefit precision suggests **~700**, much smaller than the others.
+
+---
+
+## Final: choose the maximum requirement
+
+* C-statistic: ~**1,140**
+* Cal slope: ~**2,473**
+* O/E: **3,840**
+* Standardized net benefit: ~**704**
+
+✅ **Required sample size to satisfy all criteria: (\boxed{N \approx 3{,}840})**
+
+That corresponds to:
+
+* **Events:** (0.10\times 3840 = 384)
+* **Non-events:** (3456)
+
+If you want a conservative “round-up” planning number, you could use **N = 3,900–4,000** (to protect against missingness / exclusions), but the math-based minimum that meets your stated CI-width targets is **~3,840**.
