@@ -1,0 +1,367 @@
+{
+  "task_id": "pa26-t1-one-sample-n",
+  "mode": "single",
+  "repeat": 1,
+  "record": {
+    "success": true,
+    "status": "completed",
+    "scientificStatus": "completed",
+    "workflowMode": "single",
+    "model": "claude-haiku-4-5-20251001",
+    "harnessVersion": "2.1.2",
+    "runId": "5f2bd68d-9a0d-45bd-8cda-bc5df1974c61",
+    "workspace": "/tmp/power-agent-scientific/5f2bd68d-9a0d-45bd-8cda-bc5df1974c61",
+    "plan": {
+      "ready": true,
+      "request_kind": "calculation",
+      "calculation_type": "sample_size",
+      "estimand": "mean increase from baseline",
+      "hypothesis": "H0: \u03bc = 0 vs H1: \u03bc > 0 (one-sided superiority)",
+      "method": "one_sample_t",
+      "alpha": 0.05,
+      "sidedness": "one-sided",
+      "target_power": 0.8,
+      "allocation_ratio": null,
+      "sample_size_unit": "participants_total",
+      "parameters": [
+        {
+          "name": "effect_size_mean_difference",
+          "value": 0.2,
+          "unit": "units",
+          "source": "user"
+        },
+        {
+          "name": "standard_deviation",
+          "value": 0.5,
+          "unit": "units",
+          "source": "user"
+        },
+        {
+          "name": "Cohen_d",
+          "value": 0.4,
+          "unit": "standardized_effect_size",
+          "source": "explicit_assumption"
+        }
+      ],
+      "assumptions": [
+        "Outcome is normally distributed",
+        "Known or well-estimated standard deviation (\u03c3 = 0.5)",
+        "One-sample comparison against null mean \u03bc\u2080 = 0",
+        "t-test is two-tailed in computation, but directional hypothesis is one-sided; alpha allocation to upper tail only",
+        "No missing data or attrition"
+      ],
+      "missing_information": [],
+      "clarification_questions": [],
+      "scientific_notes": [
+        "Effect size (Cohen's d) = (\u03bc \u2212 \u03bc\u2080) / \u03c3 = 0.2 / 0.5 = 0.4, a small-to-medium effect",
+        "One-sided test at \u03b1 = 0.05 uses one-tailed critical value; power inversion seeks minimum integer N meeting target power 0.80 under the non-centrality parameter t-distribution",
+        "R pwr package one-sample t-test function will be used for verification"
+      ]
+    },
+    "answer": {
+      "summary": "For a one-sample one-sided t-test detecting a mean increase of 0.2 units (SD = 0.5, Cohen's d = 0.4) at significance level \u03b1 = 0.05 with target power 80%, the minimum integer sample size is 41 participants. This design achieves 80.86% power, exceeding the 80% target. The preceding design (n=40) achieves 79.97% power, confirming that n=41 is the minimum integer meeting the criterion.",
+      "method": "Analytic inversion using R pwr package (pwr.t.test): one-sample one-sided t-test, d = 0.4, alpha = 0.05, alternative = \"greater\". Continuous solution n \u2248 40.03 rounded up to integer 41. Power verified at both n=41 and preceding n=40.",
+      "results": [
+        {
+          "metric": "sample_size",
+          "value": 41,
+          "unit": "participants_total"
+        },
+        {
+          "metric": "achieved_power",
+          "value": 0.8085822361697333,
+          "unit": "probability"
+        }
+      ],
+      "assumptions": [
+        "Outcome is normally distributed",
+        "Standard deviation \u03c3 = 0.5 is known or accurately estimated",
+        "One-sample comparison against null mean \u03bc\u2080 = 0",
+        "One-sided test (H\u2081: \u03bc > 0) with full alpha = 0.05 allocated to upper tail",
+        "No missing data, attrition, or non-compliance"
+      ],
+      "limitations": [
+        "Sample-size formula assumes t-distribution exactly; validity improves with n > 30 (satisfied here)",
+        "Does not account for potential dropout or protocol violations",
+        "Effect size (0.2 units) must be clinically/practically meaningful in the specific context",
+        "Assumes the SD estimate is stable across the full sample"
+      ],
+      "evidence_ids": [
+        "e1"
+      ],
+      "simulation": null,
+      "citations": [
+        {
+          "title": "pwr: Basic Functions for Power Analysis (R package)",
+          "url": "https://CRAN.R-project.org/package=pwr",
+          "supports": "Analytic calculation of sample size for one-sample t-test using non-centrality parameter from t-distribution"
+        }
+      ]
+    },
+    "review": null,
+    "referenceAudit": {
+      "status": "skipped",
+      "scope": "Two-sided, equal-allocation, fixed two-independent-normal-group pooled-t sample-size inversion with a common SD and no attrition inflation. Checks the declared plan, not source-input validity or other methods.",
+      "reason": "The declared design is outside this narrowly supported reference profile; no independent certification is implied.",
+      "checks": [],
+      "evidence_id": null
+    },
+    "executions": [
+      {
+        "id": "e1",
+        "role": "coder",
+        "code": "\n# Load pwr package for power analysis\nlibrary(pwr)\n\n# Design parameters\nalpha <- 0.05\ntarget_power <- 0.80\nmean_diff <- 0.2\nsd <- 0.5\nd <- mean_diff / sd  # Cohen's d = 0.4\n\ncat(\"=== One-Sample One-Sided t-Test: Sample Size for 80% Power ===\\n\")\ncat(\"Effect (mean increase):\", mean_diff, \"units\\n\")\ncat(\"Standard Deviation:\", sd, \"units\\n\")\ncat(\"Cohen's d:\", d, \"\\n\")\ncat(\"Significance level (alpha):\", alpha, \"(one-sided)\\n\")\ncat(\"Target power:\", target_power, \"\\n\\n\")\n\n# Use pwr.t.test with type=\"one.sample\", alternative=\"greater\" for one-sided test\n# pwr.t.test uses: n = NULL (we solve for n), d, sig.level (alpha), power, alternative\nresult <- pwr.t.test(\n  n = NULL,\n  d = d,\n  sig.level = alpha,\n  power = target_power,\n  type = \"one.sample\",\n  alternative = \"greater\"\n)\n\ncat(\"Continuous solution from pwr::pwr.t.test:\\n\")\ncat(\"n =\", result$n, \"\\n\\n\")\n\n# Round up to nearest integer for practical sample size\nn_min <- ceiling(result$n)\n\ncat(\"Minimum integer sample size:\", n_min, \"participants\\n\\n\")\n\n# Verify achieved power at n_min\npower_achieved <- pwr.t.test(\n  n = n_min,\n  d = d,\n  sig.level = alpha,\n  type = \"one.sample\",\n  alternative = \"greater\"\n)$power\n\ncat(\"Achieved power at n =\", n_min, \":\", power_achieved, \"\\n\")\n\n# Check power at n-1 to confirm n_min is the minimum\nif (n_min > 1) {\n  power_prev <- pwr.t.test(\n    n = n_min - 1,\n    d = d,\n    sig.level = alpha,\n    type = \"one.sample\",\n    alternative = \"greater\"\n  )$power\n  \n  cat(\"Power at n =\", n_min - 1, \":\", power_prev, \"\\n\")\n  cat(\"Difference:\", power_achieved - power_prev, \"\\n\")\n}\n\n# Return the results as JSON\nresults <- data.frame(\n  metric = c(\"sample_size\", \"achieved_power\", \"preceding_sample_size\", \"preceding_power\"),\n  value = c(n_min, power_achieved, n_min - 1, power_prev),\n  unit = c(\"participants_total\", \"probability\", \"participants_total\", \"probability\")\n)\n\ncat(\"\\n=== RESULTS ===\\n\")\nprint(results)\n\n# Output JSON\ncat(\"\\nPOWER_AGENT_RESULT=\")\ncat(jsonlite::toJSON(\n  list(\n    results = list(\n      list(metric = \"sample_size\", value = n_min, unit = \"participants_total\"),\n      list(metric = \"achieved_power\", value = power_achieved, unit = \"probability\"),\n      list(metric = \"preceding_sample_size\", value = n_min - 1, unit = \"participants_total\"),\n      list(metric = \"preceding_power\", value = power_prev, unit = \"probability\")\n    )\n  ),\n  auto_unbox = TRUE,\n  digits = 15\n))\n",
+        "purpose": "Invert sample size for one-sample one-sided t-test to achieve 80% power with Cohen's d=0.4, alpha=0.05",
+        "success": true,
+        "output": "=== One-Sample One-Sided t-Test: Sample Size for 80% Power ===\nEffect (mean increase): 0.2 units\nStandard Deviation: 0.5 units\nCohen's d: 0.4 \nSignificance level (alpha): 0.05 (one-sided)\nTarget power: 0.8 \n\nContinuous solution from pwr::pwr.t.test:\nn = 40.02908 \n\nMinimum integer sample size: 41 participants\n\nAchieved power at n = 41 : 0.8085822 \nPower at n = 40 : 0.7997378 \nDifference: 0.008844446 \n\n=== RESULTS ===\n                 metric      value               unit\n1           sample_size 41.0000000 participants_total\n2        achieved_power  0.8085822        probability\n3 preceding_sample_size 40.0000000 participants_total\n4       preceding_power  0.7997378        probability\n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"sample_size\",\"value\":41,\"unit\":\"participants_total\"},{\"metric\":\"achieved_power\",\"value\":0.8085822361697333,\"unit\":\"probability\"},{\"metric\":\"preceding_sample_size\",\"value\":40,\"unit\":\"participants_total\"},{\"metric\":\"preceding_power\",\"value\":0.7997377897533268,\"unit\":\"probability\"}]}\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.1 (2024-06-14)\nPlatform: x86_64-pc-linux-gnu\nRunning under: Ubuntu 22.04.5 LTS\n\nMatrix products: default\nBLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 \nLAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0\n\nlocale:\n [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              \n [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    \n [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   \n [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 \n [9] LC_ADDRESS=C               LC_TELEPHONE=C            \n[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       \n\ntime zone: Etc/UTC\ntzcode source: system (glibc)\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n[1] pwr_1.3-0\n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.1 jsonlite_2.0.0\nPOWER_AGENT_SESSION_INFO_END\n",
+        "stderr": "",
+        "exitCode": 0,
+        "elapsed_ms": 261,
+        "computed": {
+          "results": [
+            {
+              "metric": "sample_size",
+              "value": 41,
+              "unit": "participants_total"
+            },
+            {
+              "metric": "achieved_power",
+              "value": 0.8085822361697333,
+              "unit": "probability"
+            },
+            {
+              "metric": "preceding_sample_size",
+              "value": 40,
+              "unit": "participants_total"
+            },
+            {
+              "metric": "preceding_power",
+              "value": 0.7997377897533268,
+              "unit": "probability"
+            }
+          ]
+        },
+        "output_files": [],
+        "code_sha256": "9cc5ae95394fc2682e6fe87450580a8113946942e3af766f458eb7aaa77f80f2"
+      }
+    ],
+    "trace": [
+      {
+        "timestamp": "2026-10-01T22:49:35.071Z",
+        "type": "agent_start",
+        "role": "planner",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 1,
+        "message": "planner is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T22:49:40.892Z",
+        "type": "model_call",
+        "role": "planner",
+        "call": 1,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011CfcLKcpkacrzVdpaK6ryN",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 5820,
+        "usage": {
+          "input_tokens": 1785,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 699,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "852cdb1ed4d6ab36cc43bb840947ae311806e96e889578a9323730a3494c7476"
+      },
+      {
+        "timestamp": "2026-10-01T22:49:40.892Z",
+        "type": "design",
+        "role": "planner",
+        "plan": {
+          "ready": true,
+          "request_kind": "calculation",
+          "calculation_type": "sample_size",
+          "estimand": "mean increase from baseline",
+          "hypothesis": "H0: \u03bc = 0 vs H1: \u03bc > 0 (one-sided superiority)",
+          "method": "one_sample_t",
+          "alpha": 0.05,
+          "sidedness": "one-sided",
+          "target_power": 0.8,
+          "allocation_ratio": null,
+          "sample_size_unit": "participants_total",
+          "parameters": [
+            {
+              "name": "effect_size_mean_difference",
+              "value": 0.2,
+              "unit": "units",
+              "source": "user"
+            },
+            {
+              "name": "standard_deviation",
+              "value": 0.5,
+              "unit": "units",
+              "source": "user"
+            },
+            {
+              "name": "Cohen_d",
+              "value": 0.4,
+              "unit": "standardized_effect_size",
+              "source": "explicit_assumption"
+            }
+          ],
+          "assumptions": [
+            "Outcome is normally distributed",
+            "Known or well-estimated standard deviation (\u03c3 = 0.5)",
+            "One-sample comparison against null mean \u03bc\u2080 = 0",
+            "t-test is two-tailed in computation, but directional hypothesis is one-sided; alpha allocation to upper tail only",
+            "No missing data or attrition"
+          ],
+          "missing_information": [],
+          "clarification_questions": [],
+          "scientific_notes": [
+            "Effect size (Cohen's d) = (\u03bc \u2212 \u03bc\u2080) / \u03c3 = 0.2 / 0.5 = 0.4, a small-to-medium effect",
+            "One-sided test at \u03b1 = 0.05 uses one-tailed critical value; power inversion seeks minimum integer N meeting target power 0.80 under the non-centrality parameter t-distribution",
+            "R pwr package one-sample t-test function will be used for verification"
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-10-01T22:49:40.892Z",
+        "type": "agent_start",
+        "role": "coder",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 2,
+        "message": "coder is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T22:49:47.975Z",
+        "type": "model_call",
+        "role": "coder",
+        "call": 2,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011CfcLL3FwCkgxNdeYqruhk",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 7083,
+        "usage": {
+          "input_tokens": 2721,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 983,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "bd9f273ba18e6acaaccbbd5eb90557681bf5927940af69e1fbe3b51f76928aa2"
+      },
+      {
+        "timestamp": "2026-10-01T22:49:47.975Z",
+        "type": "code",
+        "role": "coder",
+        "evidence_id": "e1",
+        "code": "\n# Load pwr package for power analysis\nlibrary(pwr)\n\n# Design parameters\nalpha <- 0.05\ntarget_power <- 0.80\nmean_diff <- 0.2\nsd <- 0.5\nd <- mean_diff / sd  # Cohen's d = 0.4\n\ncat(\"=== One-Sample One-Sided t-Test: Sample Size for 80% Power ===\\n\")\ncat(\"Effect (mean increase):\", mean_diff, \"units\\n\")\ncat(\"Standard Deviation:\", sd, \"units\\n\")\ncat(\"Cohen's d:\", d, \"\\n\")\ncat(\"Significance level (alpha):\", alpha, \"(one-sided)\\n\")\ncat(\"Target power:\", target_power, \"\\n\\n\")\n\n# Use pwr.t.test with type=\"one.sample\", alternative=\"greater\" for one-sided test\n# pwr.t.test uses: n = NULL (we solve for n), d, sig.level (alpha), power, alternative\nresult <- pwr.t.test(\n  n = NULL,\n  d = d,\n  sig.level = alpha,\n  power = target_power,\n  type = \"one.sample\",\n  alternative = \"greater\"\n)\n\ncat(\"Continuous solution from pwr::pwr.t.test:\\n\")\ncat(\"n =\", result$n, \"\\n\\n\")\n\n# Round up to nearest integer for practical sample size\nn_min <- ceiling(result$n)\n\ncat(\"Minimum integer sample size:\", n_min, \"participants\\n\\n\")\n\n# Verify achieved power at n_min\npower_achieved <- pwr.t.test(\n  n = n_min,\n  d = d,\n  sig.level = alpha,\n  type = \"one.sample\",\n  alternative = \"greater\"\n)$power\n\ncat(\"Achieved power at n =\", n_min, \":\", power_achieved, \"\\n\")\n\n# Check power at n-1 to confirm n_min is the minimum\nif (n_min > 1) {\n  power_prev <- pwr.t.test(\n    n = n_min - 1,\n    d = d,\n    sig.level = alpha,\n    type = \"one.sample\",\n    alternative = \"greater\"\n  )$power\n  \n  cat(\"Power at n =\", n_min - 1, \":\", power_prev, \"\\n\")\n  cat(\"Difference:\", power_achieved - power_prev, \"\\n\")\n}\n\n# Return the results as JSON\nresults <- data.frame(\n  metric = c(\"sample_size\", \"achieved_power\", \"preceding_sample_size\", \"preceding_power\"),\n  value = c(n_min, power_achieved, n_min - 1, power_prev),\n  unit = c(\"participants_total\", \"probability\", \"participants_total\", \"probability\")\n)\n\ncat(\"\\n=== RESULTS ===\\n\")\nprint(results)\n\n# Output JSON\ncat(\"\\nPOWER_AGENT_RESULT=\")\ncat(jsonlite::toJSON(\n  list(\n    results = list(\n      list(metric = \"sample_size\", value = n_min, unit = \"participants_total\"),\n      list(metric = \"achieved_power\", value = power_achieved, unit = \"probability\"),\n      list(metric = \"preceding_sample_size\", value = n_min - 1, unit = \"participants_total\"),\n      list(metric = \"preceding_power\", value = power_prev, unit = \"probability\")\n    )\n  ),\n  auto_unbox = TRUE,\n  digits = 15\n))\n",
+        "message": "Invert sample size for one-sample one-sided t-test to achieve 80% power with Cohen's d=0.4, alpha=0.05"
+      },
+      {
+        "timestamp": "2026-10-01T22:49:48.239Z",
+        "type": "execution",
+        "role": "coder",
+        "evidence_id": "e1",
+        "success": true,
+        "output": "=== One-Sample One-Sided t-Test: Sample Size for 80% Power ===\nEffect (mean increase): 0.2 units\nStandard Deviation: 0.5 units\nCohen's d: 0.4 \nSignificance level (alpha): 0.05 (one-sided)\nTarget power: 0.8 \n\nContinuous solution from pwr::pwr.t.test:\nn = 40.02908 \n\nMinimum integer sample size: 41 participants\n\nAchieved power at n = 41 : 0.8085822 \nPower at n = 40 : 0.7997378 \nDifference: 0.008844446 \n\n=== RESULTS ===\n                 metric      value               unit\n1           sample_size 41.0000000 participants_total\n2        achieved_power  0.8085822        probability\n3 preceding_sample_size 40.0000000 participants_total\n4       preceding_power  0.7997378        probability\n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"sample_size\",\"value\":41,\"unit\":\"participants_total\"},{\"metric\":\"achieved_power\",\"value\":0.8085822361697333,\"unit\":\"probability\"},{\"metric\":\"preceding_sample_size\",\"value\":40,\"unit\":\"participants_total\"},{\"metric\":\"preceding_power\",\"value\":0.7997377897533268,\"unit\":\"probability\"}]}\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.1 (2024-06-14)\nPlatform: x86_64-pc-linux-gnu\nRunning under: Ubuntu 22.04.5 LTS\n\nMatrix products: default\nBLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 \nLAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0\n\nlocale:\n [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              \n [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    \n [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   \n [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 \n [9] LC_ADDRESS=C               LC_TELEPHONE=C            \n[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       \n\ntime zone: Etc/UTC\ntzcode source: system (glibc)\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n[1] pwr_1.3-0\n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.1 jsonlite_2.0.0\nPOWER_AGENT_SESSION_INFO_END\n",
+        "error": "",
+        "exitCode": 0
+      },
+      {
+        "timestamp": "2026-10-01T22:49:48.239Z",
+        "type": "agent_start",
+        "role": "coder",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 3,
+        "message": "coder is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T22:49:54.729Z",
+        "type": "model_call",
+        "role": "coder",
+        "call": 3,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011CfcLLaj2ZwFPe86BZpydB",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 6490,
+        "usage": {
+          "input_tokens": 4670,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 637,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "ee2ac3b7fb6670d79a04b53fc0170b443850e0209b64c429cd535119ccee8517"
+      },
+      {
+        "timestamp": "2026-10-01T22:49:54.731Z",
+        "type": "reference_check",
+        "role": "reference_check",
+        "referenceAudit": {
+          "status": "skipped",
+          "scope": "Two-sided, equal-allocation, fixed two-independent-normal-group pooled-t sample-size inversion with a common SD and no attrition inflation. Checks the declared plan, not source-input validity or other methods.",
+          "reason": "The declared design is outside this narrowly supported reference profile; no independent certification is implied.",
+          "checks": [],
+          "evidence_id": null
+        }
+      }
+    ],
+    "usage": {
+      "input_tokens": 9176,
+      "output_tokens": 2319,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0
+    },
+    "error": null,
+    "results": [
+      {
+        "metric": "sample_size",
+        "value": 41,
+        "unit": "participants_total"
+      },
+      {
+        "metric": "achieved_power",
+        "value": 0.8085822361697333,
+        "unit": "probability"
+      }
+    ],
+    "design": {
+      "method": "one_sample_t",
+      "alternative": "one-sided",
+      "alpha": 0.05,
+      "allocation_ratio": null,
+      "sample_size_unit": "participants_total"
+    },
+    "evidence": {
+      "executed": true,
+      "execution_ids": [
+        "e1"
+      ],
+      "code_sha256": [
+        "9cc5ae95394fc2682e6fe87450580a8113946942e3af766f458eb7aaa77f80f2"
+      ]
+    },
+    "iterations": 3,
+    "elapsed_ms": 19660,
+    "fullCode": "# Evidence e1; success=true\n\n# Load pwr package for power analysis\nlibrary(pwr)\n\n# Design parameters\nalpha <- 0.05\ntarget_power <- 0.80\nmean_diff <- 0.2\nsd <- 0.5\nd <- mean_diff / sd  # Cohen's d = 0.4\n\ncat(\"=== One-Sample One-Sided t-Test: Sample Size for 80% Power ===\\n\")\ncat(\"Effect (mean increase):\", mean_diff, \"units\\n\")\ncat(\"Standard Deviation:\", sd, \"units\\n\")\ncat(\"Cohen's d:\", d, \"\\n\")\ncat(\"Significance level (alpha):\", alpha, \"(one-sided)\\n\")\ncat(\"Target power:\", target_power, \"\\n\\n\")\n\n# Use pwr.t.test with type=\"one.sample\", alternative=\"greater\" for one-sided test\n# pwr.t.test uses: n = NULL (we solve for n), d, sig.level (alpha), power, alternative\nresult <- pwr.t.test(\n  n = NULL,\n  d = d,\n  sig.level = alpha,\n  power = target_power,\n  type = \"one.sample\",\n  alternative = \"greater\"\n)\n\ncat(\"Continuous solution from pwr::pwr.t.test:\\n\")\ncat(\"n =\", result$n, \"\\n\\n\")\n\n# Round up to nearest integer for practical sample size\nn_min <- ceiling(result$n)\n\ncat(\"Minimum integer sample size:\", n_min, \"participants\\n\\n\")\n\n# Verify achieved power at n_min\npower_achieved <- pwr.t.test(\n  n = n_min,\n  d = d,\n  sig.level = alpha,\n  type = \"one.sample\",\n  alternative = \"greater\"\n)$power\n\ncat(\"Achieved power at n =\", n_min, \":\", power_achieved, \"\\n\")\n\n# Check power at n-1 to confirm n_min is the minimum\nif (n_min > 1) {\n  power_prev <- pwr.t.test(\n    n = n_min - 1,\n    d = d,\n    sig.level = alpha,\n    type = \"one.sample\",\n    alternative = \"greater\"\n  )$power\n  \n  cat(\"Power at n =\", n_min - 1, \":\", power_prev, \"\\n\")\n  cat(\"Difference:\", power_achieved - power_prev, \"\\n\")\n}\n\n# Return the results as JSON\nresults <- data.frame(\n  metric = c(\"sample_size\", \"achieved_power\", \"preceding_sample_size\", \"preceding_power\"),\n  value = c(n_min, power_achieved, n_min - 1, power_prev),\n  unit = c(\"participants_total\", \"probability\", \"participants_total\", \"probability\")\n)\n\ncat(\"\\n=== RESULTS ===\\n\")\nprint(results)\n\n# Output JSON\ncat(\"\\nPOWER_AGENT_RESULT=\")\ncat(jsonlite::toJSON(\n  list(\n    results = list(\n      list(metric = \"sample_size\", value = n_min, unit = \"participants_total\"),\n      list(metric = \"achieved_power\", value = power_achieved, unit = \"probability\"),\n      list(metric = \"preceding_sample_size\", value = n_min - 1, unit = \"participants_total\"),\n      list(metric = \"preceding_power\", value = power_prev, unit = \"probability\")\n    )\n  ),\n  auto_unbox = TRUE,\n  digits = 15\n))\n",
+    "executionOutput": "# e1 (coder)\n=== One-Sample One-Sided t-Test: Sample Size for 80% Power ===\nEffect (mean increase): 0.2 units\nStandard Deviation: 0.5 units\nCohen's d: 0.4 \nSignificance level (alpha): 0.05 (one-sided)\nTarget power: 0.8 \n\nContinuous solution from pwr::pwr.t.test:\nn = 40.02908 \n\nMinimum integer sample size: 41 participants\n\nAchieved power at n = 41 : 0.8085822 \nPower at n = 40 : 0.7997378 \nDifference: 0.008844446 \n\n=== RESULTS ===\n                 metric      value               unit\n1           sample_size 41.0000000 participants_total\n2        achieved_power  0.8085822        probability\n3 preceding_sample_size 40.0000000 participants_total\n4       preceding_power  0.7997378        probability\n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"sample_size\",\"value\":41,\"unit\":\"participants_total\"},{\"metric\":\"achieved_power\",\"value\":0.8085822361697333,\"unit\":\"probability\"},{\"metric\":\"preceding_sample_size\",\"value\":40,\"unit\":\"participants_total\"},{\"metric\":\"preceding_power\",\"value\":0.7997377897533268,\"unit\":\"probability\"}]}\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.1 (2024-06-14)\nPlatform: x86_64-pc-linux-gnu\nRunning under: Ubuntu 22.04.5 LTS\n\nMatrix products: default\nBLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 \nLAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0\n\nlocale:\n [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              \n [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    \n [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   \n [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 \n [9] LC_ADDRESS=C               LC_TELEPHONE=C            \n[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       \n\ntime zone: Etc/UTC\ntzcode source: system (glibc)\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nother attached packages:\n[1] pwr_1.3-0\n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.1 jsonlite_2.0.0\nPOWER_AGENT_SESSION_INFO_END\n",
+    "outputFiles": []
+  },
+  "duration_seconds": 21.17
+}

@@ -1,0 +1,9 @@
+# Separate source extension
+
+Four tasks in three declared example-family labels expand the frozen deterministic core into survival and cluster-rate design. Two Rosner worked-example calculations use parameters reproduced in the official powerSurvEpi manual; their exact numeric outputs are independently recomputed, not claimed as directly inspected printed textbook answers. The Field Trials mosquito-net example has a verified source answer of seven clusters per arm. A new coefficient-of-variation variant is explicitly constructed.
+
+R and SciPy reference implementations agree for all four tasks (maximum discrepancy 1.11e-16). This cohort is frozen separately after the core experiment began, so report its 24 attempts separately and never pool it into the original 120. The same model and locked scientific evaluator apply. The original cohort uses harness 2.0.0; the corrected full 24 cohort uses the environment-only release 2.0.1-cloud, Mac R 4.4.2 and raw-first runner 2.0.1. The original 17 responses and 7 missing captures are retained separately, without selected replacement. Direct cluster-rate variants share an anchor despite separate labels; post-hoc sensitivity merges into two anchors. It is public and developer-exposed; no unseen holdout claim is justified.
+
+Sources: [official Rosner example and Freedman formula](https://cran.r-project.org/web/packages/powerSurvEpi/powerSurvEpi.pdf), [Field Trials Chapter 5 Section 6.1](https://www.ncbi.nlm.nih.gov/books/NBK305517/).
+
+The original extension installed the initially absent powerSurvEpi package in a shared library; this is a mutable-environment confound. The corrected full cohort records unchanged before/after version/library-path inventories but remains unrestricted Mac process isolation. Neither cohort is an immutable Linux survival/cluster evaluation. Exact protocols/raw results and all planned failures are retained under results/.

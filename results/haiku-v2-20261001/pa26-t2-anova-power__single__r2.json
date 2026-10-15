@@ -1,0 +1,361 @@
+{
+  "task_id": "pa26-t2-anova-power",
+  "repeat": 2,
+  "mode": "single",
+  "record": {
+    "success": true,
+    "status": "completed",
+    "scientificStatus": "completed",
+    "workflowMode": "single",
+    "model": "claude-haiku-4-5-20251001",
+    "harnessVersion": "2.0.0",
+    "runId": "06aa91a0-be65-4392-9f08-98c9c0af08fd",
+    "workspace": "/var/folders/kh/6x1yvf7x44734pr6jcxt3lmh0000gn/T/power-agent-scientific/06aa91a0-be65-4392-9f08-98c9c0af08fd",
+    "plan": {
+      "ready": true,
+      "request_kind": "calculation",
+      "calculation_type": "power",
+      "estimand": "omnibus F-test effect size (population eta-squared 0.08)",
+      "hypothesis": "H0: all k=3 group means are equal; H1: at least one group mean differs",
+      "method": "one_way_anova",
+      "alpha": 0.05,
+      "sidedness": "one-sided",
+      "target_power": null,
+      "allocation_ratio": 1,
+      "sample_size_unit": "total participants",
+      "parameters": [
+        {
+          "name": "total_sample_size",
+          "value": 75,
+          "unit": "participants",
+          "source": "user"
+        },
+        {
+          "name": "number_of_groups",
+          "value": 3,
+          "unit": "count",
+          "source": "user"
+        },
+        {
+          "name": "population_eta_squared",
+          "value": 0.08,
+          "unit": "proportion",
+          "source": "user"
+        },
+        {
+          "name": "alpha",
+          "value": 0.05,
+          "unit": "significance level",
+          "source": "user"
+        }
+      ],
+      "assumptions": [
+        "Fixed effects one-way ANOVA",
+        "Balanced design (equal group sizes)",
+        "Independent normal groups",
+        "Common variance homogeneity",
+        "Population eta-squared \u03b7\u00b2 = 0.08 reflects true effect size",
+        "Omnibus F-test hypothesis"
+      ],
+      "missing_information": [],
+      "clarification_questions": [],
+      "scientific_notes": [
+        "Eta-squared (\u03b7\u00b2) is the proportion of total variance explained by the grouping factor",
+        "For fixed effects ANOVA, \u03b7\u00b2 relates to the noncentrality parameter \u03bb via \u03bb = n \u00d7 k \u00d7 (\u03b7\u00b2 / (1 - \u03b7\u00b2))",
+        "Power is computed as P(F_{k-1, N-k}(\u03bb) > F_crit) using the noncentral F-distribution",
+        "k=3 groups, N=75 total, so df_between=2, df_within=72"
+      ]
+    },
+    "answer": {
+      "summary": "For a balanced one-way fixed effects ANOVA with 3 independent normal groups, total sample size 75 (25 per group), population eta-squared 0.08, and significance level \u03b1 = 0.05, the omnibus F-test power is **0.603118 probability** (approximately 60.3%).",
+      "method": "Fixed effects one-way ANOVA omnibus F-test power using noncentral F-distribution. The noncentrality parameter \u03bb is computed from the per-group sample size (n=25), number of groups (k=3), and population eta-squared (\u03b7\u00b2=0.08) via \u03bb = n\u00b7k\u00b7(\u03b7\u00b2/(1\u2212\u03b7\u00b2)) = 6.5217. The critical F-value at \u03b1=0.05 with df\u2081=2 and df\u2082=72 is F_crit = 3.1239. Power is P(F_{2,72}(\u03bb=6.5217) > 3.1239) evaluated using the noncentral F cumulative distribution function.",
+      "results": [
+        {
+          "metric": "power",
+          "value": 0.6031178831465038,
+          "unit": "probability"
+        }
+      ],
+      "assumptions": [
+        "Fixed effects one-way ANOVA with balanced design",
+        "3 independent groups with equal sample sizes (n=25 per group)",
+        "Observations within each group are normally distributed",
+        "Common variance across all groups (homogeneity of variance)",
+        "Population eta-squared \u03b7\u00b2=0.08 represents the true effect size in the population",
+        "Omnibus null hypothesis: all k=3 group means are equal",
+        "One-sided test (directional): alternative hypothesis that at least one group mean differs",
+        "Significance level \u03b1=0.05"
+      ],
+      "limitations": [
+        "Result applies only to the omnibus F-test, not to post-hoc pairwise comparisons or specific contrasts",
+        "Assumes normality and homogeneity of variance; violations may affect actual power",
+        "Eta-squared depends on allocation of effects across groups; balanced power assumes no specific pattern",
+        "Fixed effects framework; random or mixed effects models would require different calculations",
+        "No correction for multiple testing beyond the omnibus test is considered"
+      ],
+      "citations": [
+        {
+          "title": "Noncentral F-Distribution in R Base Statistics",
+          "url": "https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Fdist.html",
+          "supports": "pf() and qf() functions for noncentral F distribution with ncp parameter"
+        },
+        {
+          "title": "Fixed Effects One-Way ANOVA: Power and Sample Size",
+          "url": "https://www.real-statistics.com/analysis-of-variance-anova/anova-power/",
+          "supports": "Noncentrality parameter formula \u03bb = n\u00b7k\u00b7(\u03b7\u00b2/(1\u2212\u03b7\u00b2)) for fixed effects ANOVA"
+        }
+      ],
+      "evidence_ids": [
+        "e1"
+      ],
+      "simulation": null
+    },
+    "review": null,
+    "executions": [
+      {
+        "id": "e1",
+        "role": "coder",
+        "code": "\n# Balanced one-way ANOVA power calculation\n# Parameters\nk <- 3                    # number of groups\nN <- 75                   # total sample size\neta_sq <- 0.08           # population eta-squared\nalpha <- 0.05            # significance level\nn_per_group <- N / k     # participants per group (balanced design)\n\n# Compute degrees of freedom\ndf_between <- k - 1       # df for numerator\ndf_within <- N - k        # df for denominator\n\ncat(\"Design parameters:\\n\")\ncat(\"  Number of groups (k):\", k, \"\\n\")\ncat(\"  Total sample size (N):\", N, \"\\n\")\ncat(\"  Sample size per group (n):\", n_per_group, \"\\n\")\ncat(\"  Population eta-squared:\", eta_sq, \"\\n\")\ncat(\"  Significance level (alpha):\", alpha, \"\\n\")\ncat(\"  Degrees of freedom between groups:\", df_between, \"\\n\")\ncat(\"  Degrees of freedom within groups:\", df_within, \"\\n\\n\")\n\n# Compute noncentrality parameter lambda\n# For fixed effects ANOVA: lambda = n * k * (eta_sq / (1 - eta_sq))\n# where n is per-group sample size\nlambda <- n_per_group * k * (eta_sq / (1 - eta_sq))\n\ncat(\"Noncentrality parameter calculation:\\n\")\ncat(\"  lambda = n * k * (eta_sq / (1 - eta_sq))\\n\")\ncat(\"  lambda = \", n_per_group, \" * \", k, \" * (\", eta_sq, \" / \", (1 - eta_sq), \")\\n\")\ncat(\"  lambda = \", lambda, \"\\n\\n\")\n\n# Critical F value at alpha level\nF_crit <- qf(1 - alpha, df_between, df_within)\n\ncat(\"Critical F value:\\n\")\ncat(\"  F_crit (alpha=\", alpha, \", df1=\", df_between, \", df2=\", df_within, \") = \", F_crit, \"\\n\\n\")\n\n# Power = P(F_{df_between, df_within}(lambda) > F_crit)\n# Using the noncentral F distribution\npower <- 1 - pf(F_crit, df_between, df_within, ncp = lambda)\n\ncat(\"Power calculation:\\n\")\ncat(\"  Power = P(F_noncentral(lambda=\", lambda, \") > F_crit)\\n\")\ncat(\"  Power = \", power, \"\\n\\n\")\n\n# Format for output\nresult_power <- round(power, 6)\ncat(\"Final result:\\n\")\ncat(\"  Omnibus F-test power = \", result_power, \"\\n\")\n\n# Output in structured format\ncat(\"\\nPOWER_AGENT_RESULT=\")\ncat(jsonlite::toJSON(\n  list(results = list(\n    list(metric = \"power\", value = power, unit = \"probability\")\n  )),\n  auto_unbox = TRUE,\n  digits = 15\n))\n",
+        "purpose": "Compute omnibus F-test power for balanced one-way ANOVA with 3 groups, N=75, eta-squared=0.08, alpha=0.05",
+        "success": true,
+        "output": "Design parameters:\n  Number of groups (k): 3 \n  Total sample size (N): 75 \n  Sample size per group (n): 25 \n  Population eta-squared: 0.08 \n  Significance level (alpha): 0.05 \n  Degrees of freedom between groups: 2 \n  Degrees of freedom within groups: 72 \n\nNoncentrality parameter calculation:\n  lambda = n * k * (eta_sq / (1 - eta_sq))\n  lambda =  25  *  3  * ( 0.08  /  0.92 )\n  lambda =  6.521739 \n\nCritical F value:\n  F_crit (alpha= 0.05 , df1= 2 , df2= 72 ) =  3.123907 \n\nPower calculation:\n  Power = P(F_noncentral(lambda= 6.521739 ) > F_crit)\n  Power =  0.6031179 \n\nFinal result:\n  Omnibus F-test power =  0.603118 \n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"power\",\"value\":0.6031178831465038,\"unit\":\"probability\"}]}\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2 jsonlite_2.0.0\nPOWER_AGENT_SESSION_INFO_END\n",
+        "stderr": "",
+        "exitCode": 0,
+        "elapsed_ms": 120,
+        "computed": {
+          "results": [
+            {
+              "metric": "power",
+              "value": 0.6031178831465038,
+              "unit": "probability"
+            }
+          ]
+        },
+        "output_files": [],
+        "code_sha256": "0536aff4da39a610f237fdcbb165dd9a4898ceefa0e9f2d8fbe4caa39ad13276"
+      }
+    ],
+    "trace": [
+      {
+        "timestamp": "2026-10-01T20:05:54.429Z",
+        "type": "agent_start",
+        "role": "planner",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 1,
+        "message": "planner is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T20:06:00.907Z",
+        "type": "model_call",
+        "role": "planner",
+        "call": 1,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011Cfc7qhDzLweMng3ULX8zw",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 6477,
+        "usage": {
+          "input_tokens": 1781,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 685,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "f2c357fec7517a1b72fbe77c18dd2f445349b6b911b02eab198805365b1df021"
+      },
+      {
+        "timestamp": "2026-10-01T20:06:00.907Z",
+        "type": "design",
+        "role": "planner",
+        "plan": {
+          "ready": true,
+          "request_kind": "calculation",
+          "calculation_type": "power",
+          "estimand": "omnibus F-test effect size (population eta-squared 0.08)",
+          "hypothesis": "H0: all k=3 group means are equal; H1: at least one group mean differs",
+          "method": "one_way_anova",
+          "alpha": 0.05,
+          "sidedness": "one-sided",
+          "target_power": null,
+          "allocation_ratio": 1,
+          "sample_size_unit": "total participants",
+          "parameters": [
+            {
+              "name": "total_sample_size",
+              "value": 75,
+              "unit": "participants",
+              "source": "user"
+            },
+            {
+              "name": "number_of_groups",
+              "value": 3,
+              "unit": "count",
+              "source": "user"
+            },
+            {
+              "name": "population_eta_squared",
+              "value": 0.08,
+              "unit": "proportion",
+              "source": "user"
+            },
+            {
+              "name": "alpha",
+              "value": 0.05,
+              "unit": "significance level",
+              "source": "user"
+            }
+          ],
+          "assumptions": [
+            "Fixed effects one-way ANOVA",
+            "Balanced design (equal group sizes)",
+            "Independent normal groups",
+            "Common variance homogeneity",
+            "Population eta-squared \u03b7\u00b2 = 0.08 reflects true effect size",
+            "Omnibus F-test hypothesis"
+          ],
+          "missing_information": [],
+          "clarification_questions": [],
+          "scientific_notes": [
+            "Eta-squared (\u03b7\u00b2) is the proportion of total variance explained by the grouping factor",
+            "For fixed effects ANOVA, \u03b7\u00b2 relates to the noncentrality parameter \u03bb via \u03bb = n \u00d7 k \u00d7 (\u03b7\u00b2 / (1 - \u03b7\u00b2))",
+            "Power is computed as P(F_{k-1, N-k}(\u03bb) > F_crit) using the noncentral F-distribution",
+            "k=3 groups, N=75 total, so df_between=2, df_within=72"
+          ]
+        }
+      },
+      {
+        "timestamp": "2026-10-01T20:06:00.907Z",
+        "type": "agent_start",
+        "role": "coder",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 2,
+        "message": "coder is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T20:06:08.307Z",
+        "type": "model_call",
+        "role": "coder",
+        "call": 2,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011Cfc7rAqf4vK4q3mA4PfWt",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 7400,
+        "usage": {
+          "input_tokens": 2619,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 861,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "4cfc3fe955d8d165dcdddb572bffa9d0529f877d84e1e74fb21d0af57756d104"
+      },
+      {
+        "timestamp": "2026-10-01T20:06:08.307Z",
+        "type": "code",
+        "role": "coder",
+        "evidence_id": "e1",
+        "code": "\n# Balanced one-way ANOVA power calculation\n# Parameters\nk <- 3                    # number of groups\nN <- 75                   # total sample size\neta_sq <- 0.08           # population eta-squared\nalpha <- 0.05            # significance level\nn_per_group <- N / k     # participants per group (balanced design)\n\n# Compute degrees of freedom\ndf_between <- k - 1       # df for numerator\ndf_within <- N - k        # df for denominator\n\ncat(\"Design parameters:\\n\")\ncat(\"  Number of groups (k):\", k, \"\\n\")\ncat(\"  Total sample size (N):\", N, \"\\n\")\ncat(\"  Sample size per group (n):\", n_per_group, \"\\n\")\ncat(\"  Population eta-squared:\", eta_sq, \"\\n\")\ncat(\"  Significance level (alpha):\", alpha, \"\\n\")\ncat(\"  Degrees of freedom between groups:\", df_between, \"\\n\")\ncat(\"  Degrees of freedom within groups:\", df_within, \"\\n\\n\")\n\n# Compute noncentrality parameter lambda\n# For fixed effects ANOVA: lambda = n * k * (eta_sq / (1 - eta_sq))\n# where n is per-group sample size\nlambda <- n_per_group * k * (eta_sq / (1 - eta_sq))\n\ncat(\"Noncentrality parameter calculation:\\n\")\ncat(\"  lambda = n * k * (eta_sq / (1 - eta_sq))\\n\")\ncat(\"  lambda = \", n_per_group, \" * \", k, \" * (\", eta_sq, \" / \", (1 - eta_sq), \")\\n\")\ncat(\"  lambda = \", lambda, \"\\n\\n\")\n\n# Critical F value at alpha level\nF_crit <- qf(1 - alpha, df_between, df_within)\n\ncat(\"Critical F value:\\n\")\ncat(\"  F_crit (alpha=\", alpha, \", df1=\", df_between, \", df2=\", df_within, \") = \", F_crit, \"\\n\\n\")\n\n# Power = P(F_{df_between, df_within}(lambda) > F_crit)\n# Using the noncentral F distribution\npower <- 1 - pf(F_crit, df_between, df_within, ncp = lambda)\n\ncat(\"Power calculation:\\n\")\ncat(\"  Power = P(F_noncentral(lambda=\", lambda, \") > F_crit)\\n\")\ncat(\"  Power = \", power, \"\\n\\n\")\n\n# Format for output\nresult_power <- round(power, 6)\ncat(\"Final result:\\n\")\ncat(\"  Omnibus F-test power = \", result_power, \"\\n\")\n\n# Output in structured format\ncat(\"\\nPOWER_AGENT_RESULT=\")\ncat(jsonlite::toJSON(\n  list(results = list(\n    list(metric = \"power\", value = power, unit = \"probability\")\n  )),\n  auto_unbox = TRUE,\n  digits = 15\n))\n",
+        "message": "Compute omnibus F-test power for balanced one-way ANOVA with 3 groups, N=75, eta-squared=0.08, alpha=0.05"
+      },
+      {
+        "timestamp": "2026-10-01T20:06:08.429Z",
+        "type": "execution",
+        "role": "coder",
+        "evidence_id": "e1",
+        "success": true,
+        "output": "Design parameters:\n  Number of groups (k): 3 \n  Total sample size (N): 75 \n  Sample size per group (n): 25 \n  Population eta-squared: 0.08 \n  Significance level (alpha): 0.05 \n  Degrees of freedom between groups: 2 \n  Degrees of freedom within groups: 72 \n\nNoncentrality parameter calculation:\n  lambda = n * k * (eta_sq / (1 - eta_sq))\n  lambda =  25  *  3  * ( 0.08  /  0.92 )\n  lambda =  6.521739 \n\nCritical F value:\n  F_crit (alpha= 0.05 , df1= 2 , df2= 72 ) =  3.123907 \n\nPower calculation:\n  Power = P(F_noncentral(lambda= 6.521739 ) > F_crit)\n  Power =  0.6031179 \n\nFinal result:\n  Omnibus F-test power =  0.603118 \n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"power\",\"value\":0.6031178831465038,\"unit\":\"probability\"}]}\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2 jsonlite_2.0.0\nPOWER_AGENT_SESSION_INFO_END\n",
+        "error": "",
+        "exitCode": 0
+      },
+      {
+        "timestamp": "2026-10-01T20:06:08.429Z",
+        "type": "agent_start",
+        "role": "coder",
+        "model": "claude-haiku-4-5-20251001",
+        "call": 3,
+        "message": "coder is reviewing the request"
+      },
+      {
+        "timestamp": "2026-10-01T20:06:16.689Z",
+        "type": "model_call",
+        "role": "coder",
+        "call": 3,
+        "model": "claude-haiku-4-5-20251001",
+        "response_id": "msg_011Cfc7rixhnrfw7xRXjH6yr",
+        "stop_reason": "tool_use",
+        "elapsed_ms": 8260,
+        "usage": {
+          "input_tokens": 4204,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 797,
+          "service_tier": "standard",
+          "inference_geo": "not_available"
+        },
+        "input_sha256": "8b6e2329523e41c66e92f1cc9874320ce4349623088ec263e457fcd4f2d23792"
+      }
+    ],
+    "usage": {
+      "input_tokens": 8604,
+      "output_tokens": 2343,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 0
+    },
+    "error": null,
+    "results": [
+      {
+        "metric": "power",
+        "value": 0.6031178831465038,
+        "unit": "probability"
+      }
+    ],
+    "design": {
+      "method": "one_way_anova",
+      "alternative": "one-sided",
+      "alpha": 0.05,
+      "allocation_ratio": 1,
+      "sample_size_unit": "total participants"
+    },
+    "evidence": {
+      "executed": true,
+      "execution_ids": [
+        "e1"
+      ],
+      "code_sha256": [
+        "0536aff4da39a610f237fdcbb165dd9a4898ceefa0e9f2d8fbe4caa39ad13276"
+      ]
+    },
+    "iterations": 3,
+    "elapsed_ms": 22260,
+    "fullCode": "# Evidence e1; success=true\n\n# Balanced one-way ANOVA power calculation\n# Parameters\nk <- 3                    # number of groups\nN <- 75                   # total sample size\neta_sq <- 0.08           # population eta-squared\nalpha <- 0.05            # significance level\nn_per_group <- N / k     # participants per group (balanced design)\n\n# Compute degrees of freedom\ndf_between <- k - 1       # df for numerator\ndf_within <- N - k        # df for denominator\n\ncat(\"Design parameters:\\n\")\ncat(\"  Number of groups (k):\", k, \"\\n\")\ncat(\"  Total sample size (N):\", N, \"\\n\")\ncat(\"  Sample size per group (n):\", n_per_group, \"\\n\")\ncat(\"  Population eta-squared:\", eta_sq, \"\\n\")\ncat(\"  Significance level (alpha):\", alpha, \"\\n\")\ncat(\"  Degrees of freedom between groups:\", df_between, \"\\n\")\ncat(\"  Degrees of freedom within groups:\", df_within, \"\\n\\n\")\n\n# Compute noncentrality parameter lambda\n# For fixed effects ANOVA: lambda = n * k * (eta_sq / (1 - eta_sq))\n# where n is per-group sample size\nlambda <- n_per_group * k * (eta_sq / (1 - eta_sq))\n\ncat(\"Noncentrality parameter calculation:\\n\")\ncat(\"  lambda = n * k * (eta_sq / (1 - eta_sq))\\n\")\ncat(\"  lambda = \", n_per_group, \" * \", k, \" * (\", eta_sq, \" / \", (1 - eta_sq), \")\\n\")\ncat(\"  lambda = \", lambda, \"\\n\\n\")\n\n# Critical F value at alpha level\nF_crit <- qf(1 - alpha, df_between, df_within)\n\ncat(\"Critical F value:\\n\")\ncat(\"  F_crit (alpha=\", alpha, \", df1=\", df_between, \", df2=\", df_within, \") = \", F_crit, \"\\n\\n\")\n\n# Power = P(F_{df_between, df_within}(lambda) > F_crit)\n# Using the noncentral F distribution\npower <- 1 - pf(F_crit, df_between, df_within, ncp = lambda)\n\ncat(\"Power calculation:\\n\")\ncat(\"  Power = P(F_noncentral(lambda=\", lambda, \") > F_crit)\\n\")\ncat(\"  Power = \", power, \"\\n\\n\")\n\n# Format for output\nresult_power <- round(power, 6)\ncat(\"Final result:\\n\")\ncat(\"  Omnibus F-test power = \", result_power, \"\\n\")\n\n# Output in structured format\ncat(\"\\nPOWER_AGENT_RESULT=\")\ncat(jsonlite::toJSON(\n  list(results = list(\n    list(metric = \"power\", value = power, unit = \"probability\")\n  )),\n  auto_unbox = TRUE,\n  digits = 15\n))\n",
+    "executionOutput": "# e1 (coder)\nDesign parameters:\n  Number of groups (k): 3 \n  Total sample size (N): 75 \n  Sample size per group (n): 25 \n  Population eta-squared: 0.08 \n  Significance level (alpha): 0.05 \n  Degrees of freedom between groups: 2 \n  Degrees of freedom within groups: 72 \n\nNoncentrality parameter calculation:\n  lambda = n * k * (eta_sq / (1 - eta_sq))\n  lambda =  25  *  3  * ( 0.08  /  0.92 )\n  lambda =  6.521739 \n\nCritical F value:\n  F_crit (alpha= 0.05 , df1= 2 , df2= 72 ) =  3.123907 \n\nPower calculation:\n  Power = P(F_noncentral(lambda= 6.521739 ) > F_crit)\n  Power =  0.6031179 \n\nFinal result:\n  Omnibus F-test power =  0.603118 \n\nPOWER_AGENT_RESULT={\"results\":[{\"metric\":\"power\",\"value\":0.6031178831465038,\"unit\":\"probability\"}]}\nPOWER_AGENT_SESSION_INFO_BEGIN\nR version 4.4.2 (2024-10-31)\nPlatform: aarch64-apple-darwin20\nRunning under: macOS 26.5.2\n\nMatrix products: default\nBLAS:   /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib \nLAPACK: /Users/yukangzengcmac/.local/share/R-4.4.2/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0\n\nlocale:\n[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8\n\ntime zone: America/New_York\ntzcode source: internal\n\nattached base packages:\n[1] stats     graphics  grDevices utils     datasets  methods   base     \n\nloaded via a namespace (and not attached):\n[1] compiler_4.4.2 jsonlite_2.0.0\nPOWER_AGENT_SESSION_INFO_END\n",
+    "outputFiles": []
+  },
+  "evaluation": {
+    "passed": false,
+    "reason": [
+      "design_alternative_mismatch"
+    ],
+    "numeric_pass": true,
+    "unit_pass": true,
+    "design_pass": false,
+    "evidence_pass": true,
+    "schema_pass": true,
+    "agent_value": 0.6031178831465038,
+    "expected_value": 0.6031178831465038
+  },
+  "duration_seconds": 22.29
+}

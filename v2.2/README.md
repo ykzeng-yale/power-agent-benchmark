@@ -1,5 +1,14 @@
 # Benchmark v2.2 - Systematic-Coverage Edition
 
+> **Legacy collection — not a certified evaluation set.** The original claims
+> below describe this imported edition's construction and have not been
+> established by the current scientific audit. Executing a reference script
+> does not establish that its question supplies the required inputs or matches
+> its requested quantity, hypothesis and count unit. Do not use this edition's
+> task counts or historical R-verification claims as audited ground truth.
+> Use the current [audited methodology](../docs/audited-methodology.md) and its
+> explicitly identified source/reference files. Historical files remain intact.
+
 **1,099 tasks** across 4 tiers, constructed with systematic coverage across 17 R packages spanning the full spectrum of power analysis and sample size calculations.
 
 ## Overview

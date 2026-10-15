@@ -1,243 +1,122 @@
-# Power Agent Biostatistics Benchmark
+# Power Agent scientific benchmark
 
-A comprehensive benchmark for evaluating AI agents on biostatistical power analysis and sample size calculation tasks.
+## Prospective API 2.4.3 numerical comparison (October 15, 2026)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Tasks: 106](https://img.shields.io/badge/Tasks-106-blue.svg)](tasks/)
-[![Tiers: 4](https://img.shields.io/badge/Difficulty%20Tiers-4-green.svg)](docs/tier-descriptions.md)
+[The new four-tier comparison](cohorts/prospective-numerical-20261015-api243/README.md) captured all 48 planned attempts on 12 question variants frozen before their references, with two repeats per workflow mode. Both modes completed 24/24 workflows and matched 24/24 specified primary values; the unchanged strict contract passed 23/24 in each mode because of two omnibus-F sidedness metadata errors. One supplementary factorial simulation used a different noncentrality convention and was incorrectly accepted by its reviewer, despite correct primary and analytic-check values. The 12 prediction attempts used the requested package, inputs and criterion maxima correctly, with eight retaining ancillary qualifications. These findings do not establish full all-target validity or multi-agent superiority. The methods were developer-known; this is a question-level prospective partition. Public protocol/reference/scorer identities and safe outcomes accompany the cohort; restricted raw captures are identified separately.
 
-## Overview
+## Source-strengthened development corpus (October 14, 2026)
 
-The Power Agent Benchmark evaluates language model agents on their ability to perform statistical power analysis calculations across a comprehensive range of biostatistical study designs. The benchmark covers **106 validated tasks** across **4 difficulty tiers**, from basic t-tests to advanced Riley prediction model sample size calculations.
+[Four-tier source anchors](cohorts/source-strengthening-20261014/README.md) provide 14 independently reproduced targets: 11 textbook worked answers and three official prediction-model code illustrations. Exact method/software options, feasible integer units, source locators and R/SciPy replication code accompany the targets. Tier 4 explicitly includes an advanced logistic coefficient-testing subdomain, distinct from prediction-model development. These are public development examples, not a new accuracy study or a held-out test set. The separately frozen 12 prospective variants have now completed their own comparison above; development anchors and historical datasets, tiers, protocols, failures and scores remain unchanged.
 
-### Key Features
 
-- **106 R-validated tasks** covering fundamental to advanced statistical methods
-- **4 difficulty tiers** with progressive complexity
-- **Agent-agnostic** — test any LLM, agent framework, or tool
-- **Deterministic evaluation** via direct numerical comparison with per-task tolerances
-- **Optional LLM-as-judge** for extracting values from unstructured agent output
-- **Reproducible ground truths** with documented R reference code
+Version 2 contains **20 curated deterministic tasks** with explicit assumptions, units and reference computations. It supports judge-free evaluation of the same Haiku harness in single-agent and genuine planner/coder/reviewer modes. The 106 legacy tasks remain available as historical data; they are **not certified ground truth**.
 
-### Statistical Methods Covered
+| Tier | Scope | Tasks | Sources |
+|---|---|---:|---|
+| 1 | Mean comparisons and proportion precision | 6 | Verma worked examples |
+| 2 | Fixed general linear models | 6 | Verma worked examples |
+| 3 | Repeated Gaussian designs | 4 | 3 Verma worked examples; 1 constructed variant |
+| 4 | Prediction model development | 4 | 3 Riley/package illustrations; 1 constructed variant |
 
-| Category | Methods |
-|----------|---------|
-| **Basic Tests** | Two-sample t-test, paired t-test, ANOVA, proportions, chi-square, correlation |
-| **Regression** | Linear regression, logistic regression (OR detection, interactions) |
-| **Mixed Models** | Repeated measures, nested designs, growth curves, three-level hierarchies |
-| **Survival** | Log-rank, Cox regression, competing risks, cure models, stratified analysis |
-| **Count Data** | Poisson regression, negative binomial, zero-inflated, clustered counts |
-| **Complex Designs** | Cluster RCT, crossover trials, factorial designs, stepped-wedge |
-| **Prediction Models** | Riley binary/survival/continuous development, external validation (pmvalsampsize) |
+Of the 20 tasks, 15 paraphrase textbook worked examples, 3 reproduce official primary-method illustrations, and 2 are new parameter variants. The latter five are not described as textbook tasks. Tier labels organize coverage; their difficulty ordering has not been empirically established. This suite has limited coverage and does not establish reliability for arbitrary clinical designs, survival-power calculations, clustered trials, or simulation-based mixed models.
 
-## Task Distribution
+The evaluator requires a completed structured response, one unambiguous primary metric, the specified unit, matching design fields, correct numeric value, and a successful R execution linked to that result with a matching code hash. Sample sizes must match the smallest admissible integer exactly; power tolerance is absolute `0.0001`. Tolerances were set before model evaluation. No LLM judge, prose extraction, unit inference, round-down credit, or selection of successful retries is used.
 
-| Tier | Name | Tasks | Focus Areas |
-|------|------|-------|-------------|
-| 1 | Basic Comparisons | 30 | t-tests, ANOVA, proportions, chi-square, correlation |
-| 2 | Regression & Models | 35 | Linear, logistic, mixed effects, survival, Poisson |
-| 3 | Advanced Designs | 20 | Cluster RCT, crossover, factorial, simulation-based (simr) |
-| 4 | Prediction Models | 21 | Riley criteria (pmsampsize), external validation (pmvalsampsize) |
-| **Total** | | **106** | |
+## Reproduce reference calculations
 
-## Leaderboard
-
-![Leaderboard](leaderboard/leaderboard-chart.svg)
-
-| Rank | Model | Tier 1 | Tier 2 | Tier 3 | Tier 4 | Overall | Date |
-|------|-------|--------|--------|--------|--------|---------|------|
-| 1 | Power Agent (Claude Opus 4.5) | 100% | 100% | 100% | 95.2% | **99.1%** | 2026-02-06 |
-| 2 | Gemini 3.1 Pro Preview + Code Execution (API) | 86.7% | 74.3% | 70.0% | 38.1% | **69.8%** | 2026-02-23 |
-| 3 | ChatGPT Thinking Mode (Web UI) | 60.0% | 62.9% | 75.0% | 28.6% | **57.5%** | 2026-02-08 |
-| 4 | ChatGPT Auto Mode (Web UI) | 56.7% | 65.7% | 70.0% | 28.6% | **56.6%** | 2026-02-08 |
-| 5 | GPT-5.2 Pro (API Only) | 60.0% | 60.0% | 80.0% | 9.5% | **53.8%** | 2026-02-22 |
-| 6 | Gemini 3.1 Pro Preview (API Only) | 60.0% | 62.9% | 70.0% | 4.8% | **51.9%** | 2026-02-22 |
-| 7 | Gemini 2.5 Pro + Code Execution (API) | 73.3% | 57.1% | 50.0% | 4.8% | **50.0%** | 2026-02-22 |
-| 8 | Claude Opus 4.6 (API Only) | 43.3% | 62.9% | 80.0% | 4.8% | **49.1%** | 2026-02-22 |
-| 9 | GPT-5.2 + Code Interpreter (API) | 63.3% | 60.0% | 50.0% | 4.8% | **48.1%** | 2026-02-22 |
-| 10 | Gemini 2.5 Flash + Code Execution (API) | 70.0% | 51.4% | 50.0% | 0.0% | **46.2%** | 2026-02-22 |
-| 11 | Gemini 2.5 Pro (API Only) | 43.3% | 54.3% | 55.0% | 4.8% | **41.5%** | 2026-02-22 |
-| 12 | GPT-5.2 (API Only) | 30.0% | 65.7% | 45.0% | 4.8% | **39.6%** | 2026-02-22 |
-| 13 | Claude Sonnet 4.6 (API Only) | 33.3% | 37.1% | 65.0% | 4.8% | **34.9%** | 2026-02-22 |
-| 14 | Gemini 2.5 Flash (API Only) | 33.3% | 34.3% | 45.0% | 0.0% | **29.2%** | 2026-02-22 |
-
-*Power Agent: 105/106 tasks pass. Single intermittent failure on t4-binary-003 (rare outcome prediction).*
-*ChatGPT Thinking (Web UI): 61/106 tasks pass. Uses Python Code Interpreter but lacks R statistical packages. Failure modes: wrong formulas (10), no R package access (15), z-approximation (9). [Detailed report](test-results/evaluation/chatgpt-thinking/README.md)*
-*ChatGPT Auto (Web UI): 60/106 tasks pass. Uses Python Code Interpreter but lacks R statistical packages. Failure modes: z-approximation (12), no R package access (15), wrong formulas (10). [Detailed report](test-results/evaluation/chatgpt-auto/README.md)*
-*API Only models: Tested via direct API calls with no code execution capability. Models receive only the natural language question and must reason about statistical formulas without running R code.*
-*API + Code Execution models: Tested via API with built-in code execution enabled (OpenAI Code Interpreter / Gemini Code Execution). Models can write and run Python code to compute answers. GPT-5.2 Pro does not support Code Interpreter via API.*
-*Gemini 3.1 Pro Preview + Code Execution: 74/106 tasks pass. Code execution takes 5-10 min per task (~300K tokens avg). Significant improvement over API-only (51.9% → 69.8%). [Raw responses & evaluation details](test-results/)*
-
-*Submit your results via [pull request](leaderboard/README.md).*
-
-## Quick Start
-
-### 1. Get the Benchmark
+Requires R 4.4.2 with `pwr 1.3.0`, `pmsampsize 1.1.3`, and `jsonlite` (versions recorded in the oracle artifact). The independent second implementation requires Python and `scipy 1.13.1`.
 
 ```bash
-git clone https://github.com/ykzeng-yale/power-agent-benchmark.git
-cd power-agent-benchmark
+Rscript validation/reference.R .
+python3 -m venv .venv
+.venv/bin/python -m pip install -r validation/requirements.txt
+.venv/bin/python validation/independent.py
+python3 -m unittest discover -s tests -v
 ```
 
-### 2. Understand the Task Format
+Reference reproduction is separate from an agent run. `audited/tasks.json` contains answer-free questions and provenance. `audited/reference-specifications.json` and `audited/oracles.json` are scorer-only resources. The runner sends the question and output conventions, including the explicitly prescribed method identifier, without reference values, task IDs, source locators or reference code. The evaluation therefore measures numerical execution under a supplied method, rather than autonomous method selection.
 
-Each task in `tasks/tierN/tasks.json` contains a natural language question and ground truth:
+## Run a frozen evaluation
 
-```json
-{
-  "id": "t1-ttest-001",
-  "question": "Calculate the required sample size per group for a two-sample t-test with effect size d=0.5, alpha=0.05, power=0.80...",
-  "ground_truth": { "sample_size_per_group": 64, "total_sample_size": 128, "power": 0.80 },
-  "tolerance": { "sample_size": 1 }
-}
-```
-
-### 3. Run Your Agent
-
-Send each task's `question` to your agent and collect the numerical answers. Your agent can be any LLM, API, or tool — the benchmark is agent-agnostic.
-
-```python
-# Example: Run your agent on all tasks (pseudocode)
-import json
-
-results = {}
-for tier in ["tier1", "tier2", "tier3", "tier4"]:
-    tasks = json.load(open(f"tasks/{tier}/tasks.json"))["tasks"]
-    for task in tasks:
-        answer = your_agent.analyze(task["question"])  # Your agent here
-        results[task["id"]] = answer  # e.g., 64 or {"sample_size_per_group": 64}
-
-json.dump(results, open("my-results.json", "w"), indent=2)
-```
-
-### 4. Evaluate Results
+Use a command provider implementing the scientific-harness JSON contract, or a scientific-analysis HTTP endpoint. Every condition gets identical questions and fixed shared call/execution/repair/deadline limits. The multi-agent condition necessarily spends some of that budget on planning/review; report its token usage and latency.
 
 ```bash
-cd evaluator && npm install
-node simple-evaluator.js ../my-results.json
+python3 runner/audited_benchmark_v2_0_3.py \
+  --cli /absolute/path/scientific-harness-cli.js \
+  --split all --repeats 3 --workers 3 \
+  --out results/new-frozen-run
+
+python3 runner/audited_benchmark_v2_0_3.py \
+  --endpoint https://your-service/api/scientific-analysis \
+  --split evaluation --repeats 3 --out results/new-api-run
 ```
 
-Results are evaluated by **direct numerical comparison** against ground truth values.
+The current 2.0.3 runner writes `protocol.json` **before calls**, hashes questions/oracles/scorer/harness files, randomizes condition order, persists provider responses before scoring and counts every planned attempt. Null/malformed schemas fail without crashing scoring. Version-change failures are also written to disk without calling the provider. It refuses to overwrite a run. The exact original 2.0.0/2.0.1 study runners remain unchanged for audit. Missing or interrupted records count as failures on the planned denominator. Do not resume by replacing failed records with new responses.
 
-> **Note:** The `runner/` directory contains a reference runner specific to the Power Agent's SSE API.
-> Most users will write their own runner adapted to their agent's interface.
-> See [evaluator/README.md](evaluator/README.md) for integration options.
+The 9 development and 11 evaluation tasks use declared example-family labels; related sample-size and power questions stay together. Direct constructed variants share method templates with anchors, and two cross the nominal split. Both splits were inspected during construction and do not establish a semantic, unseen or contamination-free holdout. Freeze a new private source/method-family-disjoint set before future prompt optimization. The current experiment is exploratory. Declared-family bootstrap intervals keep related questions, repeats and modes together; a post-hoc sensitivity merges variants into anchors. Wilson intervals are only descriptive because attempts are dependent.
 
-## Evaluation Methodology
+## Historical audit
 
-### Primary Method: Value-Based Comparison
+[Per-task legacy audit](validation/legacy-audit.md) covers all 106 records. Thirty-nine supplied references contain no executable calculation; 67 execute. Only 59 reproduce their stored primary numerical value without a flagged known design defect, and this still does not verify their claimed published source or scientific validity. The remaining 47 are quarantined. The old runner sent expected answers to a model judge, used wide tolerances and retried missing analysis until a successful response. The prior 99.1% leaderboard claim is withdrawn as current scientific evidence. Its date, judge configuration and ground-truth revisions do not support a fresh accuracy claim.
 
-The benchmark uses **direct value comparison** — the same paradigm as MATH, GSM8K, and other quantitative benchmarks:
+See [protocol and provenance](docs/audited-methodology.md), [oracle files](audited/), and [legacy archive](historical/). Do not publish the full supplied textbook OCR. Questions here are short original paraphrases with verified chapter and illustration identities. Printed-page ranges are provisional; see `validation/source-locator-errata.json`.
 
-```
-PASS if: |agent_value - ground_truth| ≤ tolerance
-```
 
-**We strongly encourage** agents to output structured results for direct evaluation:
+## Separately frozen extensions
 
-```json
-{"sample_size_per_group": 64, "power": 0.80}
-```
+`cohorts/source-extension/` adds four tasks in three declared labels: Rosner/Freedman survival power and sample size (official-package reproduced textbook parameters), a Field Trials published cluster-rate example, and one explicitly constructed cluster-rate variant. The last two share a source/method anchor. Independent R/SciPy answers agree. Original and corrected whole 24-attempt cohorts are kept separate from one another and from the 120-attempt core.
 
-### Tolerance by Task Type
+Reference Monte Carlo calibration uses a constructed Gaussian random-intercept repeated-measurement DGP and a fixed pooled t test on participant means. `validation/monte-carlo-protocol.json` freezes 10000 trials per case/seed, three seeds and both null/alternative cases; outcomes include rejection/nonrejection/failure counts, all-trials power, MCSE and Wilson intervals. All six simulations pass the predeclared numerical calibration against analytic power. This does not establish agent performance on mixed-model simulations.
 
-| Task Type | Method | Ideal Tolerance | Rationale |
-|-----------|--------|-----------------|-----------|
-| **Analytical** | pwr, pwrss, pmsampsize | **±0-2** (exact match) | Closed-form formulas = identical results |
-| **Simulation** | simr Monte Carlo | **±3-5%** | Monte Carlo SE ≈ 2% with nsim=500 |
+## Recorded study results and instrumentation audit
 
-For deterministic tasks, correct R code produces the **exact same answer**. For simulation tasks, tolerance accounts for random sampling variance.
+The clean, separately planned immutable Linux cohort captured all 40 responses: strict single-agent 8/20, multi-agent 5/20; numerical agreement 10/20 in each condition. Three multi-agent numerical agreements came from unfinished responses. This does not demonstrate a multi-agent accuracy gain. `results/haiku-linux-replication-20261001/scored-results.json` preserves the complete evidence.
 
-Each task specifies its tolerance in `tasks.json`. See [Evaluation Methodology](docs/evaluation-methodology.md) for details.
+The earlier Mac 120 cohort captured 105 responses and lost 15 after an eager null-answer fallback crashed scoring before persistence. The original source-extension 24 cohort captured 17 and lost 7 for the same reason. Planned denominators and exact missing job identities remain in separate derived accounting files; missing model status and usage are unknown. No failed job was selectively retried. A new raw-first runner captured an entirely fresh 24-attempt supplemental cohort (7/12 single strict passes; 1/12 multi). The Mac processes have unrestricted filesystem/network access; powerSurvEpi was installed into a shared library during the original extension. The corrected cohort records unchanged before/after package-version inventories but is not an immutable-container study.
 
-### LLM-as-Judge (Optional)
+`results/publication-analysis.json` contains conventional observed latency medians, all-planned counts, unknown capture-loss accounting, token-cost estimates and declared-label/merged-variant bootstrap sensitivity. `validation/publication_analysis.py` and `publication_plots.R` reproduce derived tables and scientific PDF figures without changing raw scores. The four cohorts remain separate, developer-exposed exploratory evaluations.
 
-An LLM-based evaluator is provided for:
-- Extracting values from unstructured agent output
-- Diagnostic scoring when debugging agent behavior
-
-However, **value-based comparison is the primary evaluation method**. LLM judgment is supplementary.
-
-## Citation
-
-If you use this benchmark in your research, please cite:
-
-```bibtex
-@software{zeng2026poweragentbenchmark,
-  author = {Zeng, Yukang},
-  title = {Power Agent Biostatistics Benchmark},
-  year = {2026},
-  publisher = {GitHub},
-  url = {https://github.com/ykzeng-yale/power-agent-benchmark},
-  version = {1.0.0}
-}
+```sh
+Rscript validation/monte_carlo.R .
+.venv/bin/python validation/monte_carlo.py
 ```
 
-## Documentation
+Never regenerate reference files or edit hashed sources while a frozen model run is active. Reproduce references in a separate checkout, or after the run completes.
 
-- [Task Schema Specification](docs/task-schema.md) - JSON format for task definitions
-- [Evaluation Methodology](docs/evaluation-methodology.md) - Detailed scoring criteria
-- [Tier Descriptions](docs/tier-descriptions.md) - Statistical methods by tier
-- [Ground Truth Methodology](docs/ground-truth-methodology.md) - How ground truths are validated
-- [Submitting Results](leaderboard/README.md) - How to submit to the leaderboard
+Future CLI freezes now include the sixth runtime dependency, `scientific-reference-guard.js`. A null hash explicitly records its absence in a legacy guardless release; later addition/removal or byte changes invalidate the fingerprint. Runner 2.0.3 changes dependency capture only. All earlier runner copies, cohort protocols, scores and oracles remain unchanged. HTTP studies must retain the exact remote deployment manifest separately.
 
-## Benchmark Versions
+## Post-study current-release regression
 
-| Version | Tasks | Description |
-|---------|-------|-------------|
-| **v2.0** | 106 | Curated tasks used for leaderboard evaluation ([`tasks/`](tasks/)) |
-| **v2.1** | 989 | Constructed from published sources (R help pages, CRAN vignettes, textbooks, papers) with supplementary tasks, all R-verified ([`v2.1/`](v2.1/)) |
-| **v2.2** | 1,099 | Constructed with systematic coverage across 17 R packages ([`v2.2/`](v2.2/)) |
+The separately frozen release 2.1.1 dispatch experiment planned all 40 core attempts, but its USD 6 full-study forecast guard stopped further dispatch after six actual transports (three per mode). The other 34 planned rows are explicit undispatched stubs, not model responses. `results/haiku-linux-release-2_1_1-regression-20261001/derived-accounting.json` preserves the six observed records and the separate planned stubs. This is an operational budget-policy audit, not a forty-response performance estimate.
 
-**v2.1** prioritizes tasks derived from real published sources (R help pages, CRAN vignettes, GitHub repos, published papers, educational sites, textbooks). **v2.2** provides systematic coverage across all functions in each R package. Each version has its own README with full details.
+A new, entire 40-attempt release 2.1.2 cohort was prospectively frozen in an immutable Linux image with a USD 15 forecast-dispatch limit. All 40 actual transports were captured before offline scoring, with no undispatched jobs, missing captures or unknown usage. The same exposed 20 questions, oracles, numerical tolerances and null-safe 2.0.1 scorer were used without changes. Single-agent mode had 8/20 strict passes, 10/20 numerical matches (all completed), and 14 completed workflows; multi-agent mode had 4/20 strict passes, 11/20 numerical matches (five completed and six unfinished), and seven completed workflows. Observed median durations were 30.898 and 100.3975 seconds. These results do not support a multi-agent advantage or establish accuracy on new cases.
 
-## Repository Structure
+The paired strict difference was −0.20, with descriptive declared-family bootstrap interval [−0.434783, 0.055556]; the separate merged-variant sensitivity interval was [−0.45, 0.05]. Twenty matched tasks with one attempt per mode cannot estimate within-task stochastic variability, and versions were revised after observed deployment failures, so no causal cross-version gain is claimed. The narrow post-study two-sided pooled-t inversion reference gate was not applicable to this suite: 28 records explicitly skipped it and 12 did not reach it. Actual R component checks and hosted guard checks are separate evidence.
 
-```
-power-agent-benchmark/
-├── tasks/                    # v2.0: Curated tasks (106 tasks)
-│   ├── tier1/               # Basic comparisons (30 tasks)
-│   ├── tier2/               # Regression & models (35 tasks)
-│   ├── tier3/               # Advanced designs (20 tasks)
-│   └── tier4/               # Prediction models (21 tasks)
-├── v2.1/                    # Published-source edition (989 tasks)
-│   ├── tier1/               # Basic comparisons (296 tasks)
-│   ├── tier2/               # Regression & models (295 tasks)
-│   ├── tier3/               # Complex designs (298 tasks)
-│   └── tier4/               # Prediction & specialized (100 tasks)
-├── v2.2/                    # Systematic-coverage edition (1,099 tasks)
-│   ├── tier1/               # Basic comparisons (259 tasks)
-│   ├── tier2/               # Regression & models (354 tasks)
-│   ├── tier3/               # Complex designs (375 tasks)
-│   └── tier4/               # Prediction & specialized (111 tasks)
-├── evaluator/               # Evaluation tools (value comparison + LLM judge)
-├── runner/                  # Reference runner (Power Agent SSE API)
-├── test-results/            # Evaluation results for tested models
-├── leaderboard/             # Current standings and submission guide
-├── docs/                    # Documentation
-└── examples/                # Usage examples
-```
+`results/haiku-linux-release-2_1_2-regression-20261001/` retains the prospective protocol, all 83 original capture objects, exact raw-to-record integrity audit, unchanged offline scores, failure diagnostics, paired sensitivity analysis, and reproducible PDF/PNG figures. The reported token estimate was USD 4.161417; six recorded cohorts together have USD 24.205842 of known token estimates, excluding 22 older lost-response usages and hosted/native tests. These are not provider billing totals, and cohorts are never pooled into a single accuracy rate.
 
-## Contributing
+## Sources
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
-- Adding new tasks
-- Correcting ground truths
-- Improving the evaluator
-- Documentation improvements
+Verma & Verma (2020), *Determining Sample Size and Power in Research Studies*. [Publisher and DOI](https://doi.org/10.1007/978-981-15-5204-5).
 
-## License
+Riley et al. (2019), minimum sample size for prediction models: [continuous outcomes](https://doi.org/10.1002/sim.7993), [binary and time-to-event outcomes](https://doi.org/10.1002/sim.7992). Riley et al. (2020), [BMJ practical guidance](https://doi.org/10.1136/bmj.m441). Numerical illustrations and package semantics: [pmsampsize 1.1.3 manual](https://cran.r-project.org/web/packages/pmsampsize/pmsampsize.pdf).
 
-MIT License - see [LICENSE](LICENSE) for details.
+
+## 2.2.0 source and artifact capability study (October 2)
+
+The separately frozen [workflow-capability protocol and suite](cohorts/workflow-capabilities-20261002/) used eight exposed tasks, two repetitions, single/multi required verification, and shared18/8/300s or expanded26/12/540s model/R/time caps. All 64 transports/accounting rows were retained. The [public cohort derivative](results/haiku-linux-workflow-capabilities-20261002-public/) omits source text/raw tool transcripts and exports only automatically verified CSVs, with original and derivative hashes; raw source-containing objects remain restricted. No scientific figures are cleared for publication by that derivative.
+
+Frozen full-contract calculation success is 0/12 in all four conditions; appropriate clarification is 4/4 in each. Completed all-target numerical agreement is 5/12 single/shared, 2/12 multi/shared, 3/12 single/expanded and 5/12 multi/expanded. Calculation-only median times are 129.1, 121.9, 141.6 and 158.1 seconds respectively. These are different outcomes, not interchangeable accuracy rates. All 48 calculations actually read the matching named document. The frozen search-chain proxy requires the exact document to appear in a prior search result;47 fail that extra condition despite actual hashed reads.
+
+A post-study audit also found unstated fixed image filenames, an every-review-ID numeric requirement stronger than the runtime's actual requirement, and one machine-precision float equality discrepancy. The original 19 frozen evaluator files, raw objects and frozen scores remain unchanged. Separately versioned post hoc sensitivities explain these contract effects without weakening numerical/design/unit/source-receipt/artifact-provenance requirements. They are diagnostic engineering analyses, not preregistered validation or a substitute for human scientific review. The model-token estimate across all 64 attempts is USD 16.953497, excluding cloud/source-provider dollar fees; 57 source-provider credits were observed. Same operation ceilings do not guarantee equal dollar spend.
+
+
+## Imported upstream legacy history
+
+The upstream main history through commit `4df50e15` is retained alongside this audited branch. Its legacy `tasks/` and `all_tasks.json`, constructed `v2.1/` and `v2.2/` corpora, older API/collection/extraction scripts, `test-results/`, and leaderboard chart preserve their original records and claims. This integration does not independently verify those references, justify their tolerances or retries, or convert their reported percentages into current scientific accuracy. The upstream corpus labels `v2.1`/`v2.2` are distinct from the audited harness release identifiers.
+
+[Exact conflicting upstream originals and their scope](historical/upstream-main-4df50e15/README.md) remain available. [Historical leaderboard records](leaderboard/results.json) retain all imported submissions and numbers with the withdrawn-status notice. Current scientific work uses the audited Python runner and frozen protocols above; the legacy judge-based example remains disabled. The root npm metadata and older standalone scripts are retained compatibility history, not the audited test entry point. No scores or agent runs were regenerated by the integration.
 
 ## Acknowledgments
 
-- Sincerely thanks to Professor Bhramar Mukherjee, Professor Heping Zhang, and Professor Harsh Parikh at Yale University for their guidance and input on this project
-- Evaluation powered by [Claude](https://www.anthropic.com/) (Anthropic)
-- Statistical validation using [R](https://www.r-project.org/) and CRAN packages:
-  - [pwr](https://cran.r-project.org/package=pwr) - Basic power analysis
-  - [pwrss](https://cran.r-project.org/package=pwrss) - Advanced power/sample size
-  - [simr](https://cran.r-project.org/package=simr) - Simulation-based power for mixed models
-  - [pmsampsize](https://cran.r-project.org/package=pmsampsize) - Prediction model development
-  - [pmvalsampsize](https://cran.r-project.org/package=pmvalsampsize) - External validation
+We thank Professors Bhramar Mukherjee, Heping Zhang, and Harsh Parikh at Yale University for their guidance and input. This attribution is retained from the upstream project; it does not imply their endorsement of the benchmark's numerical results.

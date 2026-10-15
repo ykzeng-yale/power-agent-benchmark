@@ -80,7 +80,7 @@ def extract_value(text, field, is_per_group, is_power, is_effect, expected):
         for pat in patterns:
             m = re.search(pat, text, re.I)
             if m:
-                val = m.group(1).replace(',', ''))
+                val = m.group(1).replace(',', '')
     
     # === SAMPLE SIZE extraction ===
     # Collect all candidate (value, context) pairs
@@ -238,5 +238,5 @@ def main():
     print(f'\nResults written to results/agent_results.json')
 
 if __name__ == '__main__':
-    os.chdir('/Users/yukangzeng/power-agent-benchmark')
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     main()
